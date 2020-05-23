@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 import os
-import re
+#import re
 import asyncio
 import discord
+import itertools
 import mendeleev
 import threading
 import wikipedia
 import math, cmath
-from itertools import cycle
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from discord_key import *
@@ -141,14 +141,22 @@ class Element_lookup(commands.Cog):
         return "Put the element's name, symbol, or atomic number followed \
     by either: physical, chemical, nuclear, ionization, isotopes, \
     oxistates"
-
-    async def user_is_a_doofus_element_message():
-        return "Stop being a doofus and feed the data on elements that I expect! "
+    
+    async def reply_to_query(self, ctx, message):
+        temp_array = [message]
+        global global_output_container
+        global_output_container = temp_array
+        await reply_to_query(join(global_output_container))
+        await ctx.send(message)
+        print(message)
         
-    async def user_is_a_doofus_specific_message():
-        return "Stop being a doofus and feed the data on specifics that I expect! "
-
 #deprecated
+#    async def user_is_a_doofus_element_message():
+#        return "Stop being a doofus and feed the data on elements that I expect! "
+#        
+#    async def user_is_a_doofus_specific_message():
+#        return "Stop being a doofus and feed the data on specifics that I expect! "
+#
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list
 #        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
@@ -163,14 +171,17 @@ class Element_lookup(commands.Cog):
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        if type_of_pebkac_failure == "element":
-            await ctx.send(Element_lookup.user_is_a_doofus_element_message)
+        user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
+        user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
+        if type_of_pebkac_failure   == "element":
+            await reply_to_query(user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            await ctx.send(Element_lookup.user_is_a_doofus_specific_message)
+            await reply_to_query(user_is_a_doofus_specific_message)
         else:
-            print(type_of_pebkac_failure)
- #           global global_output_container
- #           global_output_container.append(function_failure_message(Exception))
+            temp_array = [type_of_pebkac_failure]
+            global global_output_container
+            global_output_container = temp_array
+            await reply_to_query(join(global_output_container))
 
     async def validate_user_input(ctx, element_id_user_input, specifics_requested):
         """
@@ -178,44 +189,64 @@ class Element_lookup(commands.Cog):
         This is the main function that "does the thing", you add new
         behaviors here, and tie them to the commands in the bot core code
         """
+        ########################################
+        #this is bullshit                      #
+        def cap_if_string(thing):              #
+            """                                   
+            If the element name isn't capitalized 
+            do so.                                
+            """                                #
+            if isinstance(thing, str):         #
+                return thing.capitalize()      #
+            else:                              #
+                return thing                   #
+                                               #
+        #    more validation checking maybe?   #
+        #    elif isinstance(thing, int):      #
+        #        return thing                  #
+        #                                      #
+        ########################################
+
         #lets do some preliminary checks for special things to let other people
         # add special behavior, this is a social networking bot after all
-        #if element_id_user_input
+        #if element_id_user_input == some THING: DO SOMETHING
         # loops over the element and symbol lists and checks if the data
         # requested is within the range of known elements
         #checks atomic number
-
+        #grab our stuff
         from variables_for_reality import element_list , symbol_list , specifics_list
+        # Check if the user gave good data to the lookup bot
         for each in (element_list, symbol_list):
+            #if its in the two lists, continue
             if any(user_input == element_id_user_input for user_input in each) or \
                 element_id_user_input in range(1-118):
                 if any(user_input == specifics_requested for user_input in specifics_list):
-                    if any(user_input == specifics_requested for user_input in specifics_list):
-                        if specifics_requested.lower()    == "physical":
-                            await Element_lookup.get_physical_properties(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                        elif specifics_requested.lower()  == "chemical":
-                            await Element_lookup.get_chemical_properties(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                        elif specifics_requested.lower()  == "nuclear":
-                            await Element_lookup.get_nuclear_properties(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                        elif specifics_requested.lower()  == "ionization":
-                            await Element_lookup.get_ionization_energy(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                        elif specifics_requested.lower()  == "isotopes":
-                            await Element_lookup.get_isotopes(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                        elif specifics_requested.lower()  == "oxistates":
-                            await Element_lookup.get_oxistates(element_id_user_input)
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                            # input given by user was NOT found in the validation data
-                        else:
-                            await Element_lookup.user_input_was_wrong(ctx, "specifics")
-                            #await Element_lookup.format_and_print_output(global_output_container)
-                    else:
-                        await Element_lookup.user_input_was_wrong(ctx, "element")
+                    if specifics_requested.lower()    == "physical":
+                        await Element_lookup.get_physical_properties(cap_if_string(element_id_user_input))
+                        print(cap_if_string(element_id_user_input))
                         #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "chemical":
+                        await Element_lookup.get_chemical_properties(cap_if_string(element_id_user_input))
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "nuclear":
+                        await Element_lookup.get_nuclear_properties(cap_if_string(element_id_user_input))
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "ionization":
+                        await Element_lookup.get_ionization_energy(cap_if_string(element_id_user_input))
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "isotopes":
+                        await Element_lookup.get_isotopes(cap_if_string(element_id_user_input))
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "oxistates":
+                        await Element_lookup.get_oxistates(cap_if_string(element_id_user_input))
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                        # input given by user was NOT found in the validation data
+                else:
+                    await Element_lookup.user_input_was_wrong(ctx, "specifics")
+                    #await Element_lookup.format_and_print_output(global_output_container)
+            else:
+                await Element_lookup.user_input_was_wrong(ctx, "element")
+                #await Element_lookup.format_and_print_output(global_output_container)
 
     async def format_and_print_output(container_of_output: list):
         """
@@ -231,6 +262,7 @@ class Element_lookup(commands.Cog):
             # them all together into a new string and return that so that is
             # what I am doing
         #return output_string
+        function_failure_message(output_string)
         global global_output_container
         global_output_container = output_string
 ################################################################################
