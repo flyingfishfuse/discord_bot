@@ -375,8 +375,7 @@ class Element_lookup(commands.Cog):
         output_container.append("Mass: "           + element_object.mass          + "/n")
         output_container.append("Description: " + element_object.description  + "/n")
         output_container.append("Sources: " + element_object.sources  + "/n")
-        await Element_lookup.format_and_print_output(output_container)
-
+        return output_container
 
 ###############################################################################
 
@@ -406,7 +405,7 @@ class Element_lookup(commands.Cog):
         output_container.append("Electronegativity: "    + element_object.electronegativity  + "/n")
         output_container.append("Covalent Radius: "      + element_object.covalent_radius    + "/n")
         output_container.append("Polarizability: "       + element_object.dipole_polarizability  + "/n")
-        await Element_lookup.format_and_print_output(output_container)
+        return output_container
 
 ###############################################################################
 
@@ -421,8 +420,8 @@ class Element_lookup(commands.Cog):
         output_container.append("Atomic Radius: "  + element_object.atomic_radius  + "/n")
         output_container.append("Atomic Weight: "  + element_object.atomic_weight  + "/n")
         output_container.append("Radioactivity: "  + element_object.is_radioactive  + "/n")
-        await Element_lookup.format_and_print_output(output_container)
-
+        return output_container
+        
 ###############################################################################
     
     def get_isotopes(element_id_user_input):
