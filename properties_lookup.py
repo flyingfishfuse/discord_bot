@@ -215,6 +215,7 @@ class Element_lookup(commands.Cog):
         #grab our stuff
         from variables_for_reality import element_list , symbol_list , specifics_list
         # Check if the user gave good data to the lookup bot
+        element_id_user_input = cap_if_string(element_id_user_input)
         for each in (element_list, symbol_list):
             #if its in the two lists, continue
             if any(user_input == element_id_user_input for user_input in each) or \
@@ -223,25 +224,25 @@ class Element_lookup(commands.Cog):
                     if specifics_requested.lower()    == "basic":
                         #capitalize if string and return value, feed to lookup function,, feed
                         # return value to reply function
-                        the_info = await Element_lookup.get_basic_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_basic_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "physical":
-                        the_info = await Element_lookup.get_physical_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_physical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "chemical":
-                        the_info = await Element_lookup.get_chemical_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_chemical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "nuclear":
-                        the_info = await Element_lookup.get_nuclear_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_nuclear_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "ionization":
-                        the_info = await Element_lookup.get_ionization_energy(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_ionization_energy(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "isotopes":
-                        the_info = await Element_lookup.get_isotopes(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_isotopes(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "oxistates":
-                        the_info = await Element_lookup.get_oxistates(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_oxistates(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
                 # input given by user was NOT found in the validation data
                 else:
