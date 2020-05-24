@@ -317,7 +317,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
     
-    async def get_history(element_id_user_input):
+    def get_history(element_id_user_input):
         """
         Returns some historical information about the element requested
         takes either a name,atomic number, or symbol
@@ -332,6 +332,19 @@ class Element_lookup(commands.Cog):
         output_container.append("Discovery Year: " + element_object.discovery_year        + "/n")
         #await Element_lookup.format_and_print_output(output_container)
         return output_container
+
+    def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
+        """
+        calculates hardness/softness of an ion
+        """
+        output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        if hard_or_soft == "hardness":
+            #electron_affinity = element_object.hardness(charge = charge)[0]
+            #ionization_energy = element_object.hardness(charge = charge)[1]
+            output_container.append("Hardness: "      + element_object.hardness(charge = ion_charge)      + "/n")
+        elif hard_or_soft == "soft":
+            output_container.append("Softness: "      + element_object.softness(charge = ion_charge)      + "/n")
 
 ############################
 # beta FUNCTIONS
@@ -350,7 +363,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
-    async def get_basic_element_properties(element_id_user_input):
+    def get_basic_element_properties(element_id_user_input):
         """
         takes either a name,atomic number, or symbol
         """
@@ -367,14 +380,12 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
-    async def get_physical_properties(element_id_user_input):
+    def get_physical_properties(element_id_user_input):
         """
         Returns physical properties of the element requested
         """
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Hardness: "      + element_object.hardness      + "/n")
-        output_container.append("Softness: "      + element_object.softness      + "/n")
         output_container.append("Boiling Point:"  + element_object.boiling_point + "/n")
         output_container.append("Melting Point:"  + element_object.melting_point + "/n")
         output_container.append("Specific Heat:"  + element_object.specific_heat + "/n")
@@ -383,7 +394,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
-    async def get_chemical_properties(element_id_user_input):
+    def get_chemical_properties(element_id_user_input):
         """
         Returns Chemical properties of the element requested
         """
@@ -399,7 +410,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
-    async def get_nuclear_properties(element_id_user_input):
+    def get_nuclear_properties(element_id_user_input):
         """
         Returns Nuclear properties of the element requested
         """
@@ -414,7 +425,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
     
-    async def get_isotopes(element_id_user_input):
+    def get_isotopes(element_id_user_input):
         """
         Returns Isotopes of the element requested
         """
@@ -426,7 +437,7 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
-    async def get_ionization_energy(element_id_user_input):
+    def get_ionization_energy(element_id_user_input):
         """
         Returns Ionization energies of the element requested
         """
