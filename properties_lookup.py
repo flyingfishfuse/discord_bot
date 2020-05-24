@@ -128,8 +128,7 @@ class Element_lookup(commands.Cog):
         #generate_element_name_list()
         #self.input_container  = input_container
         #self.output_container = []
-        print("haha it runs the init but doesnt initialize! thanks discord!")
-    
+        print("wat")    
 ################################################################################
 ##############              INTERNAL  FUNCTIONS                #################
 ################################################################################
