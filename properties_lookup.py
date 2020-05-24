@@ -37,7 +37,8 @@ from discord_key import *
 #who dis?
 #TODO: give this as an option eventually.
 #data_list           = wikipedia.page(title='List_of_data_references_for_chemical_elements')
-#shamelessly stolen from stackoverflow
+
+#https://discord.com/oauth2/authorize?client_id=712737412018733076&scope=bot&permissions=92160
 
 ################################################################################
 ##############                     BOT CORE                    #################
@@ -136,35 +137,40 @@ class Element_lookup(commands.Cog):
 #for each in range(1,118):
 #     asdf = return_element_by_id(each)
 #     print(asdf.name)
+#
+#   list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 ################################################################################
     async def help_message():
         return "Put the element's name, symbol, or atomic number followed \
     by either: physical, chemical, nuclear, ionization, isotopes, \
     oxistates"
-    
+        
     async def reply_to_query(ctx, message):
         '''
-    Takes a list or string, joins the list to a string and assigns to 
-    global_output_container.
+    Takes a list or string, if list, joins the list to a string and assigns to 
+    global_output_container. Sends the global output container with ctx.send()
         '''
+        # yeah yeah yeah, we are swapping between array and string like a fool
+        # but it serves a purpose. Need to keep the output as an iterable
+        # until the very last second when we send it to the user.
+        #We want to be able to allow the developer to just send a list
+        # or string to the output when adding new functions instead of
+        # having to pay attention to too much stuff!
+        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        # if we get a list, convert all items to string
         if isinstance(message,list):
-            message = str.join(message) 
+            message = list_to_string(message) 
+        # now that we have a single string, assign that to a temporary array
         temp_array = [message]
+        # access the global
         global global_output_container
+        #asign the array
         global_output_container = temp_array
-        await ctx.send(str.join(global_output_container))
-        print(str.join(global_output_container))
-        print(message)
+        #send the message as a STRING, we kept it an itterable all the way to here
+        await ctx.send(list_to_string(global_output_container))
+        #console log of messages sent
+        print(list_to_string(global_output_container))
         
-#deprecated
-#     def generate_element_validation_name_list(self):
-#        from variables_for_reality import element_list , symbol_list , specifics_list
-#        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
-#        for element in range(1,118):
-#            element_object = return_element_by_id(element)
-#            element_list.append(element_object.name)
-#            symbol_list.append(element_object.symbol)
-
     async def user_input_was_wrong(ctx, type_of_pebkac_failure : str):
         """
         You can put something funny here!
@@ -174,11 +180,11 @@ class Element_lookup(commands.Cog):
         user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
         user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
         if type_of_pebkac_failure   == "element":
-            await reply_to_query(ctx , user_is_a_doofus_element_message)
+            await Element_lookup.reply_to_query(ctx , user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            await reply_to_query(ctx, user_is_a_doofus_specific_message)
+            await Element_lookup.reply_to_query(ctx, user_is_a_doofus_specific_message)
         else:
-            await reply_to_query(ctx, type_of_pebkac_failure)
+            await Element_lookup.reply_to_query(ctx, type_of_pebkac_failure)
 
     async def validate_user_input(ctx, element_id_user_input, specifics_requested):
         """
@@ -198,7 +204,7 @@ class Element_lookup(commands.Cog):
             if isinstance(thing, str):         #
                 return thing.capitalize()      #
             else:                              #
-                return thing                   #
+                return int(thing)              #
                                                #
         #    more validation checking maybe?   #
         #    elif isinstance(thing, int):      #
@@ -242,7 +248,7 @@ class Element_lookup(commands.Cog):
                         the_info = await Element_lookup.get_isotopes(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                     elif specifics_requested.lower()  == "oxistates":
-                        the_info = await Element_lookup.get_oxistates(element_id_user_input))
+                        the_info = await Element_lookup.get_oxistates(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                 # input given by user was NOT found in the validation data
                 else:
@@ -340,7 +346,6 @@ class Element_lookup(commands.Cog):
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
         output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
-#        await Element_lookup.format_and_print_output(output_container)
         return output_container
 
 ###############################################################################
@@ -357,7 +362,6 @@ class Element_lookup(commands.Cog):
         output_container.append("Melting Point:"  + element_object.melting_point + "/n")
         output_container.append("Specific Heat:"  + element_object.specific_heat + "/n")
         output_container.append("Thermal Conductivity:"  + element_object.thermal_conductivity + "/n")
-#        await Element_lookup.format_and_print_output(output_container)
         return output_container
 
 ###############################################################################
@@ -375,7 +379,9 @@ class Element_lookup(commands.Cog):
         output_container.append("Covalent Radius: "      + element_object.covalent_radius    + "/n")
         output_container.append("Polarizability: "       + element_object.dipole_polarizability  + "/n")
         await Element_lookup.format_and_print_output(output_container)
+
 ###############################################################################
+
     async def get_nuclear_properties(element_id_user_input):
         """
         Returns Nuclear properties of the element requested
@@ -388,7 +394,9 @@ class Element_lookup(commands.Cog):
         output_container.append("Atomic Weight: "  + element_object.atomic_weight  + "/n")
         output_container.append("Radioactivity: "  + element_object.is_radioactive  + "/n")
         await Element_lookup.format_and_print_output(output_container)
+
 ###############################################################################
+
     async def get_basic_element_properties(element_id_user_input):
         """
         takes either a name,atomic number, or symbol
@@ -401,30 +409,35 @@ class Element_lookup(commands.Cog):
         output_container.append("Mass: "           + element_object.mass          + "/n")
         await Element_lookup.format_and_print_output(output_container)
 
-###############################################################################
-########    RANDOM CODE SNIPPETS  #################
-###############################################################################
+###################################################
+###               RUN THE BOT                   ###
+###################################################
+
+lookup_bot.run(discord_bot_token, bot=True)
+
+########################################################################
+########             RANDOM CODE SNIPPETS               ################
+########################################################################
 ## links = My_table.findAll('a')
-## output_container.append(+ element_object.  + "/n")
 ## return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
-## output_container.append("" + element_object.  + "/n")
-##
 #
 # table_headers = resource_soup.find_all('th')
 # data_table = soup.find('table',{'class':'wikitable sortable'})
 #
-################################################################################
+#######################################################################
 ### This is how you get lists of data for ALL the elements at once:
 ##
 ### return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
 ### for each in range(1,118):
 ###     asdf = return_element_by_id(each)
 ###     print(asdf.name)
+###############################################################################
+# CHANGE ELEMENT_OBJECT.NAME to ELEMENT_OBJECT.SOMETHING_ELSE
+#
 #    def generate_element_name_list():
 #       return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
-#           for numberr in range(1,118):
+#           for each in range(1,118):
 #               element_object = return_element_by_id(each)
-# CHANGE ELEMENT_OBJECT.NAME to ELEMENT_OBJECT.SOMETHING_ELSE
 #               element_list.append(element_object.name)
 ################################################################################
 #    async def list_resources(self, ctx, *,):
@@ -433,7 +446,4 @@ class Element_lookup(commands.Cog):
 #        content = resource_soup.find_all('div' , {'class' : 'mw-content-ltr'})
 #        for each in content.find_all('a'):
 #            output_container.append(each)
-#    pass
 ###############################################################################
-
-lookup_bot.run(discord_bot_token, bot=True)
