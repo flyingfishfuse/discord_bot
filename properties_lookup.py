@@ -59,6 +59,8 @@ def function_failure_message(exception_message):
 global global_output_container 
 global_output_container = []
 
+global lookup_output_container
+lookup_output_container = []
 
 #load the cogs into the bot
 if load_cogs == True:
@@ -121,10 +123,10 @@ async def bot_usage(ctx):
 @lookup_bot.command()
 async def lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
-    #await Element_lookup.format_and_print_output(global_output_container)
-    #await ctx.send(global_output_container)
+    #await Element_lookup.format_and_print_output(lookup_output_container)
+    #await ctx.send(lookup_output_container)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    await ctx.send(list_to_string(global_output_container))
+    await ctx.send(list_to_string(lookup_output_container))
 ###############################################################################
 
 ###############################################################################
@@ -152,7 +154,7 @@ class Element_lookup(commands.Cog):
     def reply_to_query(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
-    global_output_container. Sends the global output container with ctx.send()
+    lookup_output_container. Sends the global output container with ctx.send()
         '''
         # yeah yeah yeah, we are swapping between array and string like a fool
         # but it serves a purpose. Need to keep the output as an iterable
@@ -167,12 +169,12 @@ class Element_lookup(commands.Cog):
         # now that we have a single string, assign that to a temporary array
         temp_array = [message]
         # access the global
-        global global_output_container
+        global lookup_output_container
         #asign the array
-        global_output_container = temp_array
+        lookup_output_container = temp_array
 
         #console log of messages sent
-        print(list_to_string(global_output_container))
+        print(list_to_string(lookup_output_container))
         
     def user_input_was_wrong(type_of_pebkac_failure : str):
         """
@@ -223,7 +225,7 @@ class Element_lookup(commands.Cog):
         # make a lambda that
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         #grab our stuff
-        global global_output_container
+        global lookup_output_container
         from variables_for_reality import element_list , symbol_list , specifics_list
         # Check if the user gave good data to the lookup bot
         #if the string isnt capitalized, do it now, mendeleeve requires the first letter
@@ -244,39 +246,39 @@ class Element_lookup(commands.Cog):
                         the_info = Element_lookup.get_basic_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #send the message as a STRING, we kept it a LIST all the way to here
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     # so now you got the basic structure of the control loop!
                     elif specifics_requested.lower()  == "physical":
                         the_info = await Element_lookup.get_physical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "chemical":
                         the_info = await Element_lookup.get_chemical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "nuclear":
                         the_info = await Element_lookup.get_nuclear_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "ionization":
                         the_info = await Element_lookup.get_ionization_energy(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "isotopes":
                         the_info = await Element_lookup.get_isotopes(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "oxistates":
                         the_info = await Element_lookup.get_oxistates(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
-                        #await ctx.send(list_to_string(global_output_container))
+                        #await ctx.send(list_to_string(lookup_output_container))
                 # input given by user was NOT found in the validation data
                 else:
                     Element_lookup.user_input_was_wrong("specifics")
-                    #await ctx.send(list_to_string(global_output_container))
+                    #await ctx.send(list_to_string(lookup_output_container))
             else:
                 Element_lookup.user_input_was_wrong("element")
-                #await ctx.send(list_to_string(global_output_container))
+                #await ctx.send(list_to_string(lookup_output_container))
 
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
@@ -313,22 +315,6 @@ class Element_lookup(commands.Cog):
                     if element_object.electronegativity > element_to_compare.electronegativity:
                         element_data_list.append(element_object.electronegativity)
 
-############################
-# beta FUNCTIONS
-###########################
-#these are already integrated into the core code of the script
-
-    async def get_basic_information(element_id_user_input):
-        """
-        Returns some basic information about the element requested
-        takes either a name,atomic number, or symbol
-        """
-        output_container = []
-        element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Description: " + element_object.description  + "/n")
-        output_container.append("Sources: " + element_object.sources  + "/n")
-        return output_container
-
 ###############################################################################
     
     async def get_history(element_id_user_input):
@@ -347,28 +333,37 @@ class Element_lookup(commands.Cog):
         #await Element_lookup.format_and_print_output(output_container)
         return output_container
 
-###############################################################################
-    
-    async def get_isotopes(element_id_user_input):
-        """
-        Returns Isotopes of the element requested
-        """
-        output_container = []
-        element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Isotopes: " + element_object.isotopes + "/n")
-        #await Element_lookup.format_and_print_output(output_container)
-        return output_container
+############################
+# beta FUNCTIONS
+###########################
+#these are already integrated into the core code of the script
+
+#    async def get_information(element_id_user_input):
+#        """
+#        Returns information about the element requested
+#        takes either a name,atomic number, or symbol
+#        """
+#        output_container = []
+#        element_object = mendeleev.element(element_id_user_input)
+#        output_container.append(" yatta yatta yata " + element_object.description  + "/n")
+#        return output_container
 
 ###############################################################################
 
-    async def get_ionization_energy(element_id_user_input):
+    async def get_basic_element_properties(element_id_user_input):
         """
-        Returns Ionization energies of the element requested
+        takes either a name,atomic number, or symbol
         """
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
-        return output_container
+        output_container.append("Element: "       + element_object.name          + "/n")
+        output_container.append("Atomic Weight: " + element_object.atomic_weight + "/n")
+        output_container.append("CAS Number: "    + element_object.cas           + "/n")
+        output_container.append("Mass: "           + element_object.mass          + "/n")
+        output_container.append("Description: " + element_object.description  + "/n")
+        output_container.append("Sources: " + element_object.sources  + "/n")
+        await Element_lookup.format_and_print_output(output_container)
+
 
 ###############################################################################
 
@@ -418,18 +413,30 @@ class Element_lookup(commands.Cog):
         await Element_lookup.format_and_print_output(output_container)
 
 ###############################################################################
-
-    async def get_basic_element_properties(element_id_user_input):
+    
+    async def get_isotopes(element_id_user_input):
         """
-        takes either a name,atomic number, or symbol
+        Returns Isotopes of the element requested
         """
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Element: "       + element_object.name          + "/n")
-        output_container.append("Atomic Weight: " + element_object.atomic_weight + "/n")
-        output_container.append("CAS Number: "    + element_object.cas           + "/n")
-        output_container.append("Mass: "           + element_object.mass          + "/n")
-        await Element_lookup.format_and_print_output(output_container)
+        output_container.append("Isotopes: " + element_object.isotopes + "/n")
+        #await Element_lookup.format_and_print_output(output_container)
+        return output_container
+
+###############################################################################
+
+    async def get_ionization_energy(element_id_user_input):
+        """
+        Returns Ionization energies of the element requested
+        """
+        output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
+        return output_container
+
+
+
 
 ###################################################
 ###               RUN THE BOT                   ###
