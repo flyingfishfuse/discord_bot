@@ -126,7 +126,8 @@ async def lookup(ctx, arg1, arg2):
     #await Element_lookup.format_and_print_output(lookup_output_container)
     #await ctx.send(lookup_output_container)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    await ctx.send(list_to_string(lookup_output_container))
+    string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(string_to_send)
 ###############################################################################
 
 ###############################################################################
@@ -239,46 +240,40 @@ class Element_lookup(commands.Cog):
             # sort them by size, descending.
             if any(user_input == element_id_user_input for user_input in each) or \
                 element_id_user_input in range(1-118):
+                # now we check for specifics!, if it aint in the list
+                # dont let it process!
                 if any(user_input == specifics_requested for user_input in specifics_list):
                     if specifics_requested.lower()    == "basic":
                         #capitalize if string and return value, feed to lookup function,, feed
                         # return value to reply function
-                        Element_lookup.get_basic_properties(element_id_user_input)
+                        Element_lookup.get_basic_element_properties(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #send the message as a STRING, we kept it a LIST all the way to here
-                        #await ctx.send(list_to_string(lookup_output_container))
                     # so now you got the basic structure of the control loop!
                     elif specifics_requested.lower()  == "physical":
                         Element_lookup.get_physical_properties(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "chemical":
                         Element_lookup.get_chemical_properties(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "nuclear":
                         Element_lookup.get_nuclear_properties(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "ionization":
                         Element_lookup.get_ionization_energy(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "isotopes":
                         Element_lookup.get_isotopes(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "oxistates":
                         Element_lookup.get_oxistates(element_id_user_input)
                         Element_lookup.reply_to_query(lookup_output_container)
-                        #await ctx.send(list_to_string(lookup_output_container))
                 # input given by user was NOT found in the validation data
                 else:
                     Element_lookup.user_input_was_wrong("specifics")
-                    #await ctx.send(list_to_string(lookup_output_container))
             else:
                 Element_lookup.user_input_was_wrong("element")
-                #await ctx.send(list_to_string(lookup_output_container))
+    # then the control loop exits and the next line of code in the command is 
+    # EXECUTED
 
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
