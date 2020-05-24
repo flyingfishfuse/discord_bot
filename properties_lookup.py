@@ -15,9 +15,7 @@ from discord_key import *
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
-## Licenced under GPLv3                                                       ##
-## https://www.gnu.org/licenses/gpl-3.0.en.html                               ##
-################################################################################
+###############################################################################
 ##    Search by element number, symbol,
 ##    list resources available
 ##    TODO: show basic info if no specificity in query
@@ -227,54 +225,30 @@ class Element_lookup(commands.Cog):
                         # return value to reply function
                         the_info = await Element_lookup.get_basic_properties(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "physical":
                         the_info = await Element_lookup.get_physical_properties(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "chemical":
                         the_info = await Element_lookup.get_chemical_properties(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "nuclear":
                         the_info = await Element_lookup.get_nuclear_properties(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "ionization":
                         the_info = await Element_lookup.get_ionization_energy(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "isotopes":
                         the_info = await Element_lookup.get_isotopes(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "oxistates":
                         the_info = await Element_lookup.get_oxistates(cap_if_string(element_id_user_input))
                         await Element_lookup.reply_to_query(the_info)
-                        #await Element_lookup.format_and_print_output(global_output_container)
-                        # input given by user was NOT found in the validation data
+                # input given by user was NOT found in the validation data
                 else:
                     await Element_lookup.user_input_was_wrong(ctx, "specifics")
-                    #await Element_lookup.format_and_print_output(global_output_container)
             else:
                 await Element_lookup.user_input_was_wrong(ctx, "element")
-                #await Element_lookup.format_and_print_output(global_output_container)
 
-    async def list_2_str(container_of_output: list):
-        """
-    
-        """
-        output_string = ""
-        for each in container_of_output:
-            output_string + each
-            # I don't know what I am doing here, I have not worked with discord
-            # code before so I cannot really do much more than concatenate
-            # them all together into a new string and return that so that is
-            # what I am doing
-        #return output_string
-        function_failure_message(output_string)
-        global global_output_container
-        global_output_container = output_string
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
 ################################################################################
