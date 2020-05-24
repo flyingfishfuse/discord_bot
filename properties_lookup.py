@@ -243,33 +243,33 @@ class Element_lookup(commands.Cog):
                     if specifics_requested.lower()    == "basic":
                         #capitalize if string and return value, feed to lookup function,, feed
                         # return value to reply function
-                        the_info = Element_lookup.get_basic_properties(element_id_user_input)
+                        Element_lookup.get_basic_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #send the message as a STRING, we kept it a LIST all the way to here
                         #await ctx.send(list_to_string(lookup_output_container))
                     # so now you got the basic structure of the control loop!
                     elif specifics_requested.lower()  == "physical":
-                        the_info = await Element_lookup.get_physical_properties(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        Element_lookup.get_physical_properties(element_id_user_input)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "chemical":
-                        the_info = await Element_lookup.get_chemical_properties(element_id_user_input)
+                        Element_lookup.get_chemical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "nuclear":
-                        the_info = await Element_lookup.get_nuclear_properties(element_id_user_input)
+                        Element_lookup.get_nuclear_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "ionization":
-                        the_info = await Element_lookup.get_ionization_energy(element_id_user_input)
+                        Element_lookup.get_ionization_energy(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "isotopes":
-                        the_info = await Element_lookup.get_isotopes(element_id_user_input)
+                        Element_lookup.get_isotopes(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "oxistates":
-                        the_info = await Element_lookup.get_oxistates(element_id_user_input)
+                        await Element_lookup.get_oxistates(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
                         #await ctx.send(list_to_string(lookup_output_container))
                 # input given by user was NOT found in the validation data
@@ -322,16 +322,17 @@ class Element_lookup(commands.Cog):
         Returns some historical information about the element requested
         takes either a name,atomic number, or symbol
         """
-        output_container = []
+        global lookup_output_container
+        lookup_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Uses: " + element_object.uses        + "/n")
-        output_container.append("Abundance in Crust" + element_object.abundance_crust + "/n")
-        output_container.append("Abundance in Sea: " + element_object.abundance_sea + "/n")
-        output_container.append("Discoveries: " + element_object.discoveries  + "/n")
-        output_container.append("Discovery Location: " + element_object.discovery_location  + "/n")
-        output_container.append("Discovery Year: " + element_object.discovery_year        + "/n")
+        lookup_output_container.append("Uses: " + element_object.uses        + "/n")
+        lookup_output_container.append("Abundance in Crust" + element_object.abundance_crust + "/n")
+        lookup_output_container.append("Abundance in Sea: " + element_object.abundance_sea + "/n")
+        lookup_output_container.append("Discoveries: " + element_object.discoveries  + "/n")
+        lookup_output_container.append("Discovery Location: " + element_object.discovery_location  + "/n")
+        lookup_output_container.append("Discovery Year: " + element_object.discovery_year        + "/n")
         #await Element_lookup.format_and_print_output(output_container)
-        return output_container
+        #return output_container
 
     def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
         """
@@ -370,9 +371,9 @@ class Element_lookup(commands.Cog):
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
         output_container.append("Element: "       + element_object.name          + "/n")
-        output_container.append("Atomic Weight: " + element_object.atomic_weight + "/n")
-        output_container.append("CAS Number: "    + element_object.cas           + "/n")
-        output_container.append("Mass: "           + element_object.mass          + "/n")
+        output_container.append("Atomic Weight: " + str(element_object.atomic_weight) + "/n")
+        output_container.append("CAS Number: "    + str(element_object.cas)           + "/n")
+        output_container.append("Mass: "           + str(element_object.mass)          + "/n")
         output_container.append("Description: " + element_object.description  + "/n")
         output_container.append("Sources: " + element_object.sources  + "/n")
         return output_container
@@ -383,13 +384,17 @@ class Element_lookup(commands.Cog):
         """
         Returns physical properties of the element requested
         """
-        output_container = []
+        #sends to global as a list of multiple strings
+        # those strings are then 
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Boiling Point:"  + element_object.boiling_point + "/n")
-        output_container.append("Melting Point:"  + element_object.melting_point + "/n")
-        output_container.append("Specific Heat:"  + element_object.specific_heat + "/n")
-        output_container.append("Thermal Conductivity:"  + element_object.thermal_conductivity + "/n")
-        return output_container
+        temp_output_container.append("Boiling Point:"  + str(element_object.boiling_point) + "/n")
+        temp_output_container.append("Melting Point:"  + str(element_object.melting_point) + "/n")
+        temp_output_container.append("Specific Heat:"  + str(element_object.specific_heat) + "/n")
+        temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "/n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
+        #return output_container
 
 ###############################################################################
 
@@ -421,7 +426,7 @@ class Element_lookup(commands.Cog):
         output_container.append("Atomic Weight: "  + element_object.atomic_weight  + "/n")
         output_container.append("Radioactivity: "  + element_object.is_radioactive  + "/n")
         return output_container
-        
+
 ###############################################################################
     
     def get_isotopes(element_id_user_input):
