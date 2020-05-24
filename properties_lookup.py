@@ -122,7 +122,10 @@ async def bot_usage(ctx):
 async def lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
     #await Element_lookup.format_and_print_output(global_output_container)
-    await ctx.send(global_output_container)
+    #await ctx.send(global_output_container)
+    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    await ctx.send(list_to_string(global_output_container))
+###############################################################################
 
 ###############################################################################
 class Element_lookup(commands.Cog):
@@ -146,7 +149,7 @@ class Element_lookup(commands.Cog):
     by either: physical, chemical, nuclear, ionization, isotopes, \
     oxistates"
         
-    async def reply_to_query(ctx, message):
+    def reply_to_query(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
     global_output_container. Sends the global output container with ctx.send()
@@ -167,12 +170,11 @@ class Element_lookup(commands.Cog):
         global global_output_container
         #asign the array
         global_output_container = temp_array
-        #send the message as a STRING, we kept it an itterable all the way to here
-        await ctx.send(list_to_string(global_output_container))
+
         #console log of messages sent
         print(list_to_string(global_output_container))
         
-    async def user_input_was_wrong(ctx, type_of_pebkac_failure : str):
+    def user_input_was_wrong(type_of_pebkac_failure : str):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -181,13 +183,13 @@ class Element_lookup(commands.Cog):
         user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
         user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
         if type_of_pebkac_failure   == "element":
-            await Element_lookup.reply_to_query(ctx , user_is_a_doofus_element_message)
+            Element_lookup.reply_to_query(user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            await Element_lookup.reply_to_query(ctx, user_is_a_doofus_specific_message)
+            Element_lookup.reply_to_query(user_is_a_doofus_specific_message)
         else:
-            await Element_lookup.reply_to_query(ctx, type_of_pebkac_failure)
+            Element_lookup.reply_to_query(type_of_pebkac_failure)
 
-    async def validate_user_input(ctx, element_id_user_input, specifics_requested):
+    async def validate_user_input(ctx, element_id_user_input: str or int, specifics_requested : str):
         """
         checks if the user is requesting an actual element and set of data.
         This is the main function that "does the thing", you add new
@@ -218,44 +220,63 @@ class Element_lookup(commands.Cog):
         #if element_id_user_input == some THING: DO SOMETHING
         # loops over the element and symbol lists and checks if the data
         # requested is within the range of known elements
-        #checks atomic number
+        # make a lambda that
+        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         #grab our stuff
+        global global_output_container
         from variables_for_reality import element_list , symbol_list , specifics_list
         # Check if the user gave good data to the lookup bot
+        #if the string isnt capitalized, do it now, mendeleeve requires the first letter
+        # be capitalized
+        print(element_id_user_input)
         element_id_user_input = cap_if_string(element_id_user_input)
+        print(element_id_user_input)
         for each in (element_list, symbol_list):
-            #if its in the two lists, continue
+            #if its in the two lists, or the number is an atomic number, continue
+            # any() goes until it hits the end of the shortest list so we have to 
+            # sort them by size, descending.
             if any(user_input == element_id_user_input for user_input in each) or \
                 element_id_user_input in range(1-118):
                 if any(user_input == specifics_requested for user_input in specifics_list):
                     if specifics_requested.lower()    == "basic":
                         #capitalize if string and return value, feed to lookup function,, feed
                         # return value to reply function
-                        the_info = await Element_lookup.get_basic_properties(element_id_user_input)
+                        the_info = Element_lookup.get_basic_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #send the message as a STRING, we kept it a LIST all the way to here
+                        #await ctx.send(list_to_string(global_output_container))
+                    # so now you got the basic structure of the control loop!
                     elif specifics_requested.lower()  == "physical":
                         the_info = await Element_lookup.get_physical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                     elif specifics_requested.lower()  == "chemical":
                         the_info = await Element_lookup.get_chemical_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                     elif specifics_requested.lower()  == "nuclear":
                         the_info = await Element_lookup.get_nuclear_properties(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                     elif specifics_requested.lower()  == "ionization":
                         the_info = await Element_lookup.get_ionization_energy(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                     elif specifics_requested.lower()  == "isotopes":
                         the_info = await Element_lookup.get_isotopes(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                     elif specifics_requested.lower()  == "oxistates":
                         the_info = await Element_lookup.get_oxistates(element_id_user_input)
                         await Element_lookup.reply_to_query(the_info)
+                        #await ctx.send(list_to_string(global_output_container))
                 # input given by user was NOT found in the validation data
                 else:
-                    await Element_lookup.user_input_was_wrong(ctx, "specifics")
+                    Element_lookup.user_input_was_wrong("specifics")
+                    #await ctx.send(list_to_string(global_output_container))
             else:
-                await Element_lookup.user_input_was_wrong(ctx, "element")
+                Element_lookup.user_input_was_wrong("element")
+                #await ctx.send(list_to_string(global_output_container))
 
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
