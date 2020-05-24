@@ -244,7 +244,7 @@ class Element_lookup(commands.Cog):
                         #capitalize if string and return value, feed to lookup function,, feed
                         # return value to reply function
                         Element_lookup.get_basic_properties(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #send the message as a STRING, we kept it a LIST all the way to here
                         #await ctx.send(list_to_string(lookup_output_container))
                     # so now you got the basic structure of the control loop!
@@ -254,23 +254,23 @@ class Element_lookup(commands.Cog):
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "chemical":
                         Element_lookup.get_chemical_properties(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "nuclear":
                         Element_lookup.get_nuclear_properties(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "ionization":
                         Element_lookup.get_ionization_energy(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "isotopes":
                         Element_lookup.get_isotopes(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                     elif specifics_requested.lower()  == "oxistates":
                         await Element_lookup.get_oxistates(element_id_user_input)
-                        await Element_lookup.reply_to_query(the_info)
+                        await Element_lookup.reply_to_query(lookup_output_container)
                         #await ctx.send(list_to_string(lookup_output_container))
                 # input given by user was NOT found in the validation data
                 else:
@@ -368,15 +368,16 @@ class Element_lookup(commands.Cog):
         """
         takes either a name,atomic number, or symbol
         """
-        output_container = []
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Element: "       + element_object.name          + "/n")
-        output_container.append("Atomic Weight: " + str(element_object.atomic_weight) + "/n")
-        output_container.append("CAS Number: "    + str(element_object.cas)           + "/n")
-        output_container.append("Mass: "           + str(element_object.mass)          + "/n")
-        output_container.append("Description: " + element_object.description  + "/n")
-        output_container.append("Sources: " + element_object.sources  + "/n")
-        return output_container
+        temp_output_container.append("Element: "       + element_object.name          + "/n")
+        temp_output_container.append("Atomic Weight: " + str(element_object.atomic_weight) + "/n")
+        temp_output_container.append("CAS Number: "    + str(element_object.cas)           + "/n")
+        temp_output_container.append("Mass: "           + str(element_object.mass)          + "/n")
+        temp_output_container.append("Description: " + element_object.description  + "/n")
+        temp_output_container.append("Sources: " + element_object.sources  + "/n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
@@ -394,7 +395,6 @@ class Element_lookup(commands.Cog):
         temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "/n")
         global lookup_output_container
         lookup_output_container = temp_output_container
-        #return output_container
 
 ###############################################################################
 
@@ -402,15 +402,16 @@ class Element_lookup(commands.Cog):
         """
         Returns Chemical properties of the element requested
         """
-        output_container = []
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Electron Affinity: "    + element_object.electron_affinity  + "/n")
-        output_container.append("Heat Of Formation: "    + element_object.heat_of_formation  + "/n")
-        output_container.append("Heat Of Evaportation: " + element_object.evaporation_heat   + "/n")
-        output_container.append("Electronegativity: "    + element_object.electronegativity  + "/n")
-        output_container.append("Covalent Radius: "      + element_object.covalent_radius    + "/n")
-        output_container.append("Polarizability: "       + element_object.dipole_polarizability  + "/n")
-        return output_container
+        temp_output_container.append("Electron Affinity: "    + element_object.electron_affinity  + "/n")
+        temp_output_container.append("Heat Of Formation: "    + element_object.heat_of_formation  + "/n")
+        temp_output_container.append("Heat Of Evaportation: " + element_object.evaporation_heat   + "/n")
+        temp_output_container.append("Electronegativity: "    + element_object.electronegativity  + "/n")
+        temp_output_container.append("Covalent Radius: "      + element_object.covalent_radius    + "/n")
+        temp_output_container.append("Polarizability: "       + element_object.dipole_polarizability  + "/n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
@@ -418,14 +419,15 @@ class Element_lookup(commands.Cog):
         """
         Returns Nuclear properties of the element requested
         """
-        output_container = []
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Neutrons: " + element_object.neutrons  + "/n")
-        output_container.append("Protons: "  + element_object.protons   + "/n")
-        output_container.append("Atomic Radius: "  + element_object.atomic_radius  + "/n")
-        output_container.append("Atomic Weight: "  + element_object.atomic_weight  + "/n")
-        output_container.append("Radioactivity: "  + element_object.is_radioactive  + "/n")
-        return output_container
+        temp_output_container.append("Neutrons: " + element_object.neutrons  + "/n")
+        temp_output_container.append("Protons: "  + element_object.protons   + "/n")
+        temp_output_container.append("Atomic Radius: "  + element_object.atomic_radius  + "/n")
+        temp_output_container.append("Atomic Weight: "  + element_object.atomic_weight  + "/n")
+        temp_output_container.append("Radioactivity: "  + element_object.is_radioactive  + "/n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
     
@@ -433,11 +435,12 @@ class Element_lookup(commands.Cog):
         """
         Returns Isotopes of the element requested
         """
-        output_container = []
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Isotopes: " + element_object.isotopes + "/n")
+        temp_output_container.append("Isotopes: " + element_object.isotopes + "/n")
         #await Element_lookup.format_and_print_output(output_container)
-        return output_container
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
@@ -445,11 +448,11 @@ class Element_lookup(commands.Cog):
         """
         Returns Ionization energies of the element requested
         """
-        output_container = []
+        temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
-        output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
-        return output_container
-
+        temp_output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 
 
