@@ -15,7 +15,9 @@ from discord_key import *
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
-###############################################################################
+## Licenced under GPLv3                                                       ##
+## https://www.gnu.org/licenses/gpl-3.0.en.html                               ##
+################################################################################
 ##    Search by element number, symbol,
 ##    list resources available
 ##    TODO: show basic info if no specificity in query
@@ -142,21 +144,21 @@ class Element_lookup(commands.Cog):
     by either: physical, chemical, nuclear, ionization, isotopes, \
     oxistates"
     
-    async def reply_to_query(self, ctx, message):
+    async def reply_to_query(ctx, message):
+        '''
+    Takes a list or string, joins the list to a string and assigns to 
+    global_output_container.
+        '''
+        if isinstance(message,list):
+            message = str.join(message) 
         temp_array = [message]
         global global_output_container
         global_output_container = temp_array
-        await reply_to_query(join(global_output_container))
-        await ctx.send(message)
+        await ctx.send(str.join(global_output_container))
+        print(str.join(global_output_container))
         print(message)
         
 #deprecated
-#    async def user_is_a_doofus_element_message():
-#        return "Stop being a doofus and feed the data on elements that I expect! "
-#        
-#    async def user_is_a_doofus_specific_message():
-#        return "Stop being a doofus and feed the data on specifics that I expect! "
-#
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list
 #        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
@@ -174,14 +176,11 @@ class Element_lookup(commands.Cog):
         user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
         user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
         if type_of_pebkac_failure   == "element":
-            await reply_to_query(user_is_a_doofus_element_message)
+            await reply_to_query(ctx , user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            await reply_to_query(user_is_a_doofus_specific_message)
+            await reply_to_query(ctx, user_is_a_doofus_specific_message)
         else:
-            temp_array = [type_of_pebkac_failure]
-            global global_output_container
-            global_output_container = temp_array
-            await reply_to_query(join(global_output_container))
+            await reply_to_query(ctx, type_of_pebkac_failure)
 
     async def validate_user_input(ctx, element_id_user_input, specifics_requested):
         """
@@ -191,6 +190,8 @@ class Element_lookup(commands.Cog):
         """
         ########################################
         #this is bullshit                      #
+        #mendeleeve needs to implement this    #
+        #check internally                      #
         def cap_if_string(thing):              #
             """                                   
             If the element name isn't capitalized 
@@ -221,24 +222,35 @@ class Element_lookup(commands.Cog):
             if any(user_input == element_id_user_input for user_input in each) or \
                 element_id_user_input in range(1-118):
                 if any(user_input == specifics_requested for user_input in specifics_list):
-                    if specifics_requested.lower()    == "physical":
-                        await Element_lookup.get_physical_properties(cap_if_string(element_id_user_input))
-                        print(cap_if_string(element_id_user_input))
+                    if specifics_requested.lower()    == "basic":
+                        #capitalize if string and return value, feed to lookup function,, feed
+                        # return value to reply function
+                        the_info = await Element_lookup.get_basic_properties(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
+                        #await Element_lookup.format_and_print_output(global_output_container)
+                    elif specifics_requested.lower()  == "physical":
+                        the_info = await Element_lookup.get_physical_properties(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "chemical":
-                        await Element_lookup.get_chemical_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_chemical_properties(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "nuclear":
-                        await Element_lookup.get_nuclear_properties(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_nuclear_properties(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "ionization":
-                        await Element_lookup.get_ionization_energy(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_ionization_energy(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "isotopes":
-                        await Element_lookup.get_isotopes(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_isotopes(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                     elif specifics_requested.lower()  == "oxistates":
-                        await Element_lookup.get_oxistates(cap_if_string(element_id_user_input))
+                        the_info = await Element_lookup.get_oxistates(cap_if_string(element_id_user_input))
+                        await Element_lookup.reply_to_query(the_info)
                         #await Element_lookup.format_and_print_output(global_output_container)
                         # input given by user was NOT found in the validation data
                 else:
@@ -248,11 +260,9 @@ class Element_lookup(commands.Cog):
                 await Element_lookup.user_input_was_wrong(ctx, "element")
                 #await Element_lookup.format_and_print_output(global_output_container)
 
-    async def format_and_print_output(container_of_output: list):
+    async def list_2_str(container_of_output: list):
         """
-        Makes a pretty formatted message as a return value
-            This is something the creator of the bot needs to modify to suit
-            Thier community.
+    
         """
         output_string = ""
         for each in container_of_output:
@@ -314,6 +324,7 @@ class Element_lookup(commands.Cog):
         element_object = mendeleev.element(element_id_user_input)
         output_container.append("Description: " + element_object.description  + "/n")
         output_container.append("Sources: " + element_object.sources  + "/n")
+        return output_container
 
 ###############################################################################
     
@@ -330,8 +341,9 @@ class Element_lookup(commands.Cog):
         output_container.append("Discoveries: " + element_object.discoveries  + "/n")
         output_container.append("Discovery Location: " + element_object.discovery_location  + "/n")
         output_container.append("Discovery Year: " + element_object.discovery_year        + "/n")
-        await Element_lookup.format_and_print_output(output_container)
- 
+        #await Element_lookup.format_and_print_output(output_container)
+        return output_container
+
 ###############################################################################
     
     async def get_isotopes(element_id_user_input):
@@ -341,7 +353,8 @@ class Element_lookup(commands.Cog):
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
         output_container.append("Isotopes: " + element_object.isotopes + "/n")
-        await Element_lookup.format_and_print_output(output_container)
+        #await Element_lookup.format_and_print_output(output_container)
+        return output_container
 
 ###############################################################################
 
@@ -352,7 +365,8 @@ class Element_lookup(commands.Cog):
         output_container = []
         element_object = mendeleev.element(element_id_user_input)
         output_container.append("Ionization Energies: " + element_object.ionenergies  + "/n")
-        await Element_lookup.format_and_print_output(output_container)
+#        await Element_lookup.format_and_print_output(output_container)
+        return output_container
 
 ###############################################################################
 
@@ -368,7 +382,8 @@ class Element_lookup(commands.Cog):
         output_container.append("Melting Point:"  + element_object.melting_point + "/n")
         output_container.append("Specific Heat:"  + element_object.specific_heat + "/n")
         output_container.append("Thermal Conductivity:"  + element_object.thermal_conductivity + "/n")
-        await Element_lookup.format_and_print_output(output_container)
+#        await Element_lookup.format_and_print_output(output_container)
+        return output_container
 
 ###############################################################################
 
