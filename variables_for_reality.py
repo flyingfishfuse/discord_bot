@@ -1,3 +1,26 @@
+#/usr/bin/python3
+
+import colorama
+from colorama import init
+init()
+from colorama import Fore, Back, Style
+
+
+blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
+
+greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
+
+redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
+
+#deprecated
+#     def generate_element_validation_name_list(self):
+#        from variables_for_reality import element_list , symbol_list , specifics_list
+#        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+#        for element in range(1,118):
+#            element_object = return_element_by_id(element)
+#            element_list.append(element_object.name)
+#            symbol_list.append(element_object.symbol)
+
 yotta = 1000000000000000000000000#
 zetta = 1000000000000000000000  #
 exa =  1000000000000000000      #
@@ -21,7 +44,8 @@ yocto = 0.000000000000000000000001
 pi = 3.14159
 Vbe= 0.7 # volts
 
-element_list = ['hydrogen', 'helium', 'lithium', 'beryllium', 'boron', \
+# I am stupid and did dumb dumb things but this seems useful so I keep
+element_list_uncapitalized = ['hydrogen', 'helium', 'lithium', 'beryllium', 'boron', \
         'carbon', 'nitrogen', 'oxygen', 'fluorine', 'neon', 'sodium', \
         'magnesium', 'aluminum', 'silicon', 'phosphorus', 'sulfur', \
         'chlorine', 'argon', 'potassium', 'calcium', 'scandium', \
@@ -45,6 +69,30 @@ element_list = ['hydrogen', 'helium', 'lithium', 'beryllium', 'boron', \
         'darmstadtium', 'roentgenium', 'copernicium', 'nihonium', \
         'flerovium', 'moscovium', 'livermorium', 'tennessine']
 
+element_list = ['Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron', \
+        'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium', \
+        'Magnesium', 'Aluminum', 'Silicon', 'Phosphorus', 'Sulfur', \
+        'Chlorine', 'Argon', 'Potassium', 'Calcium', 'Scandium', \
+        'Titanium', 'Vanadium', 'Chromium', 'Manganese', 'Iron', 'Cobalt',\
+        'Nickel', 'Copper', 'Zinc', 'Gallium', 'Germanium', 'Arsenic', \
+        'Selenium', 'Bromine', 'Krypton', 'Rubidium', 'Strontium', \
+        'Yttrium', 'Zirconium', 'Niobium', 'Molybdenum', 'Technetium',\
+        'Ruthenium', 'Rhodium', 'Palladium', 'Silver', 'Cadmium', \
+        'Indium', 'Tin', 'Antimony', 'Tellurium', 'Iodine', 'Xenon', \
+        'Cesium', 'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', \
+        'Neodymium', 'Promethium', 'Samarium', 'Europium', 'Gadolinium', \
+        'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium', \
+        'Ytterbium','Lutetium', 'Hafnium', 'Tantalum', 'Tungsten', \
+        'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold', 'Mercury', \
+        'Thallium', 'Lead', 'Bismuth', 'Polonium', 'Astatine', \
+        'Radon', 'Francium', 'Radium', 'Actinium', 'Thorium', \
+        'Protactinium', 'Uranium', 'Neptunium', 'Plutonium', \
+        'Americium', 'Curium', 'Berkelium', 'Californium', \
+        'Einsteinium', 'Fermium', 'Mendelevium', 'Nobelium', \
+        'Lawrencium', 'Rutherfordium', 'Dubnium', 'Seaborgium', \
+        'Bohrium', 'Hassium', 'Meitnerium', 'Darmstadtium', \
+        'Roentgenium', 'Copernicium', 'Nihonium', 'Flerovium', \
+        'Moscovium', 'Livermorium', 'Tennessine']
 
 symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
         'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', \
