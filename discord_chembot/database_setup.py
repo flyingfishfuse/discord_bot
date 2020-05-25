@@ -28,6 +28,8 @@ database.init_app(discord_chembot_server)
 #parent
 
 # This is for caching any information that takes forever to grab
+#AW FUCK I FORGOT HOW THIS WORKS
+# TODO: create add_lookup_to_DB()
 class Compound(database.Model):
     __tablename__ = 'Compound'
     #PARENT: of UserShip, Primary key must link (be the same)
@@ -38,14 +40,14 @@ class Compound(database.Model):
                             backref     = 'User' , \
                             uselist     = False ))
 #    userid        = database.Column(database.Integer)
-    username      = database.Column(database.String(64), index=True)
-    email         = database.Column(database.String(120), index=True)
-    password_hash = database.Column(database.String(128))
+    name      = database.Column(database.String(64), index=True)
+    formula         = database.Column(database.String(120), index=True)
+     = database.Column(database.String(128))
 
     def __repr__(self):
         return '<User id:{} name: {} >'.format(self.user_id , self.username)
 
-class UserShip(User):
+class (User):
     __tablename__  = 'UserShip'
     #CHILD OF USER: the primary key must link
     #ID is a "universal" identification for the db, SHIP_ID will be a variable 
