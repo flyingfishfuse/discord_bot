@@ -1,20 +1,18 @@
 #!/usr/bin/python3
 import os
-import ionize
-import discord
+#import re
 import asyncio
-import argparse
+import discord
 import itertools
 import mendeleev
 import threading
 import wikipedia
 import math, cmath
-from ionize import *
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
-from discord_chembot.discord_key import *
-from discord_chembot.database_setup import *
+from discord_key import *
+
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
@@ -25,38 +23,30 @@ from discord_chembot.database_setup import *
 ##    list resources available
 ##    TODO: show basic info if no specificity in query
 # created by : mr_hai on discord / flyingfishfuse on github
+##stuff:
+# https://www.thecrazyprogrammer.com/2018/05/wikipedia-api-python-tutorial.html
+# https://pypi.org/project/mendeleev/
+# https://wikipedia.readthedocs.io/en/latest/code.html#module-wikipedia
+# https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#context
+# https://mendeleev.readthedocs.io/en/stable\notebooks/01_intro_to_mendeleev.html#Getting-list-of-elements
+
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
-#
-parser = argparse.ArgumentParser(description='Discord ChemBot')
-parser.add_argument('--devs',
-                                 dest    = 'dev_list_input',
-                                 action  = "store" ,
-                                 default = "" ,
-                                 help    = "" )
-parser.add_argument('--modules',
-                                 dest    = 'modules_to_load_input',
-                                 action  = "store" ,
-                                 default = 'everything' ,
-                                 help    = "CSVals; everything OR m_lookup,p_lookup,i_lookup" )
-parser.add_argument('--bongo',
-                                 dest    = '',
-                                 action  = "store" ,
-                                 default = '' ,
-                                 help    = "" )
 
-arguments = parser.parse_args()
-#now work on args!!
+################################################################################
+##############                BASIC VARIABLES                  #################
+################################################################################
+#bot = commands.Bot(command_prefix=("."))
+#who dis?
+#TODO: give this as an option eventually.
+#data_list           = wikipedia.page(title='List_of_data_references_for_chemical_elements')
+
+#https://discord.com/oauth2/authorize?client_id=712737412018733076&scope=bot&permissions=92160
+
 ################################################################################
 ##############                     BOT CORE                    #################
 #    Every new command, needs a corrosponding function assigned in the class   #
 ################################################################################
-
-##################################################
-##########   BASIC VARIABLES    #################
-##################################################
-#data_list         = wikipedia.page(title='List_of_data_references_for_chemical_elements')
-
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
@@ -120,21 +110,44 @@ async def lookup_usage(ctx):
 async def bot_usage(ctx):
     await ctx.send(bot_help_message)
 
+#FIRST COMMAND
+# right here we define behavior for the command
+#   we are only ALLOWING two arguments:
+#     the element identification
+#     level of data requested
+# instantiate the class and pass the data the user provided to the validation
+#   function that will call everything else and parse the arguments. Once the
+#   arguments are parsed, the algorhithm is applied, the output is formatted,
+#   and the user is sent a reply@bot.command()
+
+
 @lookup_bot.command()
 async def lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
+    #await Element_lookup.format_and_print_output(lookup_output_container)
+    #await ctx.send(lookup_output_container)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     await ctx.send(string_to_send)
+###############################################################################
 
 ###############################################################################
 class Element_lookup(commands.Cog):
     def __init__(self, ctx): #, input_container : list):
+        #generate_element_name_list()
+        #self.input_container  = input_container
+        #self.output_container = []
         print("wat")    
-
-#################################################
-##########    INTERNAL  FUNCTIONS   #############
-#################################################
+################################################################################
+##############              INTERNAL  FUNCTIONS                #################
+################################################################################
+#return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+#for each in range(1,118):
+#     asdf = return_element_by_id(each)
+#     print(asdf.name)
+#
+#   list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+################################################################################
     async def help_message():
         return "Put the element's name, symbol, or atomic number followed \
     by either: physical, chemical, nuclear, ionization, isotopes, \
@@ -145,12 +158,24 @@ class Element_lookup(commands.Cog):
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container. Sends the global output container with ctx.send()
         '''
+        # yeah yeah yeah, we are swapping between array and string like a fool
+        # but it serves a purpose. Need to keep the output as an iterable
+        # until the very last second when we send it to the user.
+        #We want to be able to allow the developer to just send a list
+        # or string to the output when adding new functions instead of
+        # having to pay attention to too much stuff!
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        # if we get a list, convert all items to string
         if isinstance(message,list):
             message = list_to_string(message) 
+        # now that we have a single string, assign that to a temporary array
         temp_array = [message]
+        # access the global
         global lookup_output_container
+        #asign the array
         lookup_output_container = temp_array
+
+        #console log of messages sent
         print(list_to_string(lookup_output_container))
         
     def user_input_was_wrong(type_of_pebkac_failure : str):
@@ -187,18 +212,41 @@ class Element_lookup(commands.Cog):
                 return thing.capitalize()      #
             else:                              #
                 return int(thing)              #
+                                               #
+        #    more validation checking maybe?   #
+        #    elif isinstance(thing, int):      #
+        #        return thing                  #
+        #                                      #
         ########################################
+
+        #lets do some preliminary checks for special things to let other people
+        # add special behavior, this is a social networking bot after all
+        #if element_id_user_input == some THING: DO SOMETHING
+        # loops over the element and symbol lists and checks if the data
+        # requested is within the range of known elements
+        # make a lambda that
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        #grab our stuff
         global lookup_output_container
-        from discord_chembot.variables_for_reality import element_list , symbol_list , specifics_list
+        from variables_for_reality import element_list , symbol_list , specifics_list
+        # Check if the user gave good data to the lookup bot
+        #if the string isnt capitalized, do it now, mendeleeve requires the first letter
+        # be capitalized
         print(element_id_user_input)
         element_id_user_input = cap_if_string(element_id_user_input)
         ## TODO: play with this to get it working right
         # it needs to evaluate ONCE NOT TWICE!
         for each in element_list and symbol_list: # (element_list, symbol_list)
+            #if its in the two lists, or the number is an atomic number, continue
+            # any() goes until it hits the end of the shortest list so we have to 
+            # sort them by size, descending.
             if any(user_input == element_id_user_input for user_input in each) or element_id_user_input in range(1-118):
+                # now we check for specifics!, if it aint in the list
+                # dont let it process!
                     if any(user_input == specifics_requested for user_input in specifics_list):
                         if specifics_requested.lower()    == "basic":
+                            #capitalize if string and return value, feed to lookup function,, feed
+                            # return value to reply function
                             Element_lookup.get_basic_element_properties(element_id_user_input)
                             Element_lookup.reply_to_query(lookup_output_container)
                         # so now you got the basic structure of the control loop!
@@ -264,25 +312,31 @@ class Element_lookup(commands.Cog):
                         element_data_list.append(element_object.electronegativity)
 
 ###############################################################################
-# this function performs an internet lookup so lets have it be an asyncronous
-# operation
-    async def pubchem_lookup(user_input:str):
+    def pubchem_lookup_by_name_or_CID(user_input:str or int):
         '''
         Future site of the "formula to name/ name to formula" converter
+        expecting either an IUPAC chemical name or integer
         '''
-        from discord_chembot.variables_for_reality import compound_name_formula_cache
-        # expecting either a chemical name or formula
+        from variables_for_reality import compound_name_formula_cache
+        # expecting either an IUPAC chemical name or integer
         ## TODO: make a cache file to store a local copy of the lookup data
         # Gotta find a way to make all this portable and fast
-        # OLD CODE (from a brother project as example for me to work with):
-        # async def lookup_compound(cmp_cid):
-#            c = pcp.Compound.from_cid(cmp_cid)
-#            return c
-        local_lookup_container = []
-        lookup = pubchem.Compound.from_cid(user_input)
+
+# have to ask the user to select which one they want
+#>>> results = pcp.get_compounds('Glucose', 'name')
+#>>> print results
+#[Compound(79025), Compound(5793), Compound(64689), Compound(206)]
+# and then we can lookup by ID to get the whole thing
+        if isinstance(user_input, str):
+            name_lookup_results_list = pubchem.get_compounds(user_input , 'name')
+            result_1 = name_lookup_results_list[0]
+            result_2 = name_lookup_results_list[1]
+            result_3 = name_lookup_results_list[2]
+         
+        elif isinstance(user_input, int):
+            name_lookup_result = pubchem.Compound(user_input)
 
 
-        pass
 
 ###############################################################################
 
@@ -320,6 +374,17 @@ class Element_lookup(commands.Cog):
 # beta FUNCTIONS
 ###########################
 #these are already integrated into the core code of the script
+
+#    async def get_information(element_id_user_input):
+#        """
+#        Returns information about the element requested
+#        takes either a name,atomic number, or symbol
+#        """
+#        output_container = []
+#        element_object = mendeleev.element(element_id_user_input)
+#        output_container.append(" yatta yatta yata " + element_object.description  + "\n")
+#        return output_container
+
 ###############################################################################
 
     def get_basic_element_properties(element_id_user_input):
@@ -343,6 +408,8 @@ class Element_lookup(commands.Cog):
         """
         Returns physical properties of the element requested
         """
+        #sends to global as a list of multiple strings
+        # those strings are then 
         temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Boiling Point:"  + str(element_object.boiling_point) + "\n")
@@ -394,6 +461,7 @@ class Element_lookup(commands.Cog):
         temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Isotopes: " + element_object.isotopes + "\n")
+        #await Element_lookup.format_and_print_output(output_container)
         global lookup_output_container
         lookup_output_container = temp_output_container
 
@@ -416,3 +484,36 @@ class Element_lookup(commands.Cog):
 ###################################################
 
 lookup_bot.run(discord_bot_token, bot=True)
+
+########################################################################
+########             RANDOM CODE SNIPPETS               ################
+########################################################################
+## links = My_table.findAll('a')
+## return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+#
+# table_headers = resource_soup.find_all('th')
+# data_table = soup.find('table',{'class':'wikitable sortable'})
+#
+#######################################################################
+### This is how you get lists of data for ALL the elements at once:
+##
+### return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+### for each in range(1,118):
+###     asdf = return_element_by_id(each)
+###     print(asdf.name)
+###############################################################################
+# CHANGE ELEMENT_OBJECT.NAME to ELEMENT_OBJECT.SOMETHING_ELSE
+#
+#    def generate_element_name_list():
+#       return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+#           for each in range(1,118):
+#               element_object = return_element_by_id(each)
+#               element_list.append(element_object.name)
+################################################################################
+#    async def list_resources(self, ctx, *,):
+#        listy_list = []
+#        resource_soup = BeautifulSoup(requests.get(data_pages_list).text,'lxml')
+#        content = resource_soup.find_all('div' , {'class' : 'mw-content-ltr'})
+#        for each in content.find_all('a'):
+#            output_container.append(each)
+###############################################################################
