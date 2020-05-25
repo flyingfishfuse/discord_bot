@@ -29,23 +29,24 @@ from discord_chembot.database_setup import *
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
 #
 parser = argparse.ArgumentParser(description='Discord ChemBot')
-parser.add_argument('--bingo',
-                                 dest    = '',
+parser.add_argument('--devs',
+                                 dest    = 'dev_list_input',
                                  action  = "store" ,
                                  default = "" ,
                                  help    = "" )
-parser.add_argument('--bango',
-                                 dest    = '',
+parser.add_argument('--modules',
+                                 dest    = 'modules_to_load_input',
                                  action  = "store" ,
-                                 default = '' ,
-                                 help    = "" )
+                                 default = 'everything' ,
+                                 help    = "CSVals; everything OR m_lookup,p_lookup,i_lookup" )
 parser.add_argument('--bongo',
                                  dest    = '',
-                                 action  = "" ,
+                                 action  = "store" ,
                                  default = '' ,
                                  help    = "" )
 
 arguments = parser.parse_args()
+#now work on args!!
 ################################################################################
 ##############                     BOT CORE                    #################
 #    Every new command, needs a corrosponding function assigned in the class   #
@@ -277,7 +278,8 @@ class Element_lookup(commands.Cog):
         # async def lookup_compound(cmp_cid):
 #            c = pcp.Compound.from_cid(cmp_cid)
 #            return c
-
+        local_lookup_container = []
+        lookup = pubchem.Compound.from_cid(user_input)
 
 
         pass
