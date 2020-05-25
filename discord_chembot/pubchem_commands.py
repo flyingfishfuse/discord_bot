@@ -1,4 +1,5 @@
 import discord
+from ionize import *
 import pubchempy as pubchem
 from discord.ext import commands
 
@@ -28,12 +29,12 @@ class pubchem_lookup(commands.Cog):
                                         'name' , \
                                         list_return='flat')
             result_1 = name_lookup_results_list[0]
-            result_2 = name_lookup_results_list[1]
-            result_3 = name_lookup_results_list[2]
+            #result_2 = name_lookup_results_list[1]
+            #result_3 = name_lookup_results_list[2]
 
         elif isinstance(compound_id, int):
             name_lookup_result = pubchem.Compound.from_cid(compound_id)
-        
+            # so now we have stuff.
     def validate_user_input(user_input: str):
         escape_mentions = lambda user_inputs: discord.utils.escape_mentions(user_inputs)
 
@@ -152,30 +153,6 @@ class pubchem_lookup(commands.Cog):
 
 
 
-
-    # @commands.Cog.listener()
-    # async def on_message(self, message):
-    #     print("d")
-    #     if message.content.startswith('$thumb'):
-    #         channel = message.channel
-    #         await channel.send('Send me that 👍 reaction, mate')
-
-    #         def check(reaction, user):
-    #             return user == message.author and str(reaction.emoji) == '👍'
-
-    #         try:
-    #             reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
-    #         except asyncio.TimeoutError:
-    #             await channel.send('👎')
-    #         else:
-    #             await channel.send('👍')
-
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.content != "embed":
-            return
-        pass
 
 
 
