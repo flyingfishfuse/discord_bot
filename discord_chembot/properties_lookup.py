@@ -9,8 +9,6 @@ import mendeleev
 import threading
 import wikipedia
 import math, cmath
-from ionize import *
-import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from discord_chembot.discord_key import *
@@ -189,44 +187,80 @@ class Element_lookup(commands.Cog):
                 return int(thing)              #
         ########################################
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        global lookup_output_container
-        from discord_chembot.variables_for_reality import element_list , symbol_list , specifics_list
-        print(element_id_user_input)
+        from variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
-        ## TODO: play with this to get it working right
-        # it needs to evaluate ONCE NOT TWICE!
-        for each in element_list and symbol_list: # (element_list, symbol_list)
-            if any(user_input == element_id_user_input for user_input in each) or element_id_user_input in range(1-118):
-                    if any(user_input == specifics_requested for user_input in specifics_list):
-                        if specifics_requested.lower()    == "basic":
-                            Element_lookup.get_basic_element_properties(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        # so now you got the basic structure of the control loop!
-                        elif specifics_requested.lower()  == "physical":
-                            Element_lookup.get_physical_properties(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        elif specifics_requested.lower()  == "chemical":
-                            Element_lookup.get_chemical_properties(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        elif specifics_requested.lower()  == "nuclear":
-                            Element_lookup.get_nuclear_properties(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        elif specifics_requested.lower()  == "ionization":
-                            Element_lookup.get_ionization_energy(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        elif specifics_requested.lower()  == "isotopes":
-                            Element_lookup.get_isotopes(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                        elif specifics_requested.lower()  == "oxistates":
-                            Element_lookup.get_oxistates(element_id_user_input)
-                            Element_lookup.reply_to_query(lookup_output_container)
-                    # input given by user was NOT found in the validation data
-                    else:
-                        Element_lookup.user_input_was_wrong("specifics")
+        element_valid   = bool
+        specifics_valid = bool
+        # if they are using an atomic number
+        if isinstance(element_id_user_input, int):
+            if element_id_user_input in range(1-118):
+                #control_loop(element_id_user_input)
+                element_valid = True
+        # if they are using a name or symbol
+        elif isinstance(element_id_user_input, str):
+            #using a symbol
+            if len(element_id_user_input) < 3:
+                #for each in symbol_list:
+                if any(user_input == element_id_user_input for user_input in symbol_list):
+                    element_valid = True
+                    print("element valid true wtf")
+                else:
+                    print("element wtf")
+                    Element_lookup.user_input_was_wrong("element") 
             else:
-                Element_lookup.user_input_was_wrong("element")
-        # then the control loop exits and the next line of code in the command is 
-        # EXECUTED
+                # using a name
+                #for each in element_list:
+                if any(user_input == element_id_user_input for user_input in element_list):
+                    element_valid = True
+                else:
+                    print("element wtf")
+                    Element_lookup.user_input_was_wrong("element")
+        # if user send a string
+        if isinstance(specifics_requested, str):
+            specifics_requested = specifics_requested.lower()
+            #for each in specifics_list:
+            if any(user_input == specifics_requested for user_input in specifics_list):
+                specifics_valid = True
+            else:
+                print("specifics wtf")
+                Element_lookup.user_input_was_wrong("specifics")
+        #they passed good data
+        if element_valid and specifics_valid == True:      
+            list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+            global lookup_output_container
+            if specifics_requested    == "basic":
+                Element_lookup.get_basic_element_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                # so now you got the basic structure of the control loop!
+            elif specifics_requested  == "physical":
+                Element_lookup.get_physical_properties(element_id_user_input)
+                print(lookup_output_container)
+                Element_lookup.reply_to_query(lookup_output_container)
+            elif specifics_requested  == "chemical":
+                Element_lookup.get_chemical_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                print(lookup_output_container)
+            elif specifics_requested  == "nuclear":
+                Element_lookup.get_nuclear_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                print(lookup_output_container)
+            elif specifics_requested  == "ionization":
+                Element_lookup.get_ionization_energy(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                print(lookup_output_container)
+            elif specifics_requested  == "isotopes":
+                Element_lookup.get_isotopes(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                print(lookup_output_container)
+            elif specifics_requested  == "oxistates":
+                Element_lookup.get_oxistates(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
+                print(lookup_output_container)
+            # input given by user was NOT found in the validation data
+            else:
+                print("wtf")
+        else:
+            print("wtf")
 
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
@@ -234,6 +268,8 @@ class Element_lookup(commands.Cog):
 # command is {prefix}{compare_element_list}{"affinity" OR "electronegativity"}{"less" OR "greater"}
 ############################
 # alpha FUNCTIONS
+## TODO: can I have an aldehyde and formic acid together under heat without them reacting?
+#### THIS TYPE OF QUESTON!!!!
 ###########################
 # these needs to be integrated to the main script
 # This function compares ALL the elements to the one you provide
@@ -262,32 +298,6 @@ class Element_lookup(commands.Cog):
                 elif less_greater == "greater":
                     if element_object.electronegativity > element_to_compare.electronegativity:
                         element_data_list.append(element_object.electronegativity)
-
-################################################################################
-    def pubchem_lookup_by_name_or_CID(user_input:str or int):
-        '''
-        Future site of the "formula to name/ name to formula" converter
-        expecting either an IUPAC chemical name or integer
-        '''
-        from variables_for_reality import compound_name_formula_cache
-        # expecting either an IUPAC chemical name or integer
-        ## TODO: make a cache file to store a local copy of the lookup data
-        # Gotta find a way to make all this portable and fast
-
-# have to ask the user to select which one they want
-#>>> results = pcp.get_compounds('Glucose', 'name')
-#>>> print results
-#[Compound(79025), Compound(5793), Compound(64689), Compound(206)]
-# and then we can lookup by ID to get the whole thing
-        if isinstance(user_input, str):
-            name_lookup_results_list = pubchem.get_compounds(user_input , 'name')
-            result_1 = name_lookup_results_list[0]
-            result_2 = name_lookup_results_list[1]
-            result_3 = name_lookup_results_list[2]
-         
-        elif isinstance(user_input, int):
-            name_lookup_result = pubchem.Compound(user_input)
-        
 
 
 ###############################################################################
