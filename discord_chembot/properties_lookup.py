@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 import os
-#import re
-import asyncio
 import discord
+import asyncio
+import argparse
 import itertools
 import mendeleev
 import threading
@@ -12,8 +12,8 @@ import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from discord_chembot.discord_key import *
-#from flask.config import Config
-
+import ionize
+from ionize import *
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
@@ -27,6 +27,24 @@ from discord_chembot.discord_key import *
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
 #
+parser = argparse.ArgumentParser(description='Discord ChemBot')
+parser.add_argument('--bingo',
+                                 dest    = '',
+                                 action  = "store" ,
+                                 default = "" ,
+                                 help    = "" )
+parser.add_argument('--bango',
+                                 dest    = '',
+                                 action  = "store" ,
+                                 default = '' ,
+                                 help    = "" )
+parser.add_argument('--bongo',
+                                 dest    = '',
+                                 action  = "" ,
+                                 default = '' ,
+                                 help    = "" )
+
+arguments = parser.parse_args()
 ################################################################################
 ##############                     BOT CORE                    #################
 #    Every new command, needs a corrosponding function assigned in the class   #
@@ -170,7 +188,7 @@ class Element_lookup(commands.Cog):
         ########################################
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         global lookup_output_container
-        from variables_for_reality import element_list , symbol_list , specifics_list
+        from discord_chembot.variables_for_reality import element_list , symbol_list , specifics_list
         print(element_id_user_input)
         element_id_user_input = cap_if_string(element_id_user_input)
         ## TODO: play with this to get it working right
@@ -244,11 +262,13 @@ class Element_lookup(commands.Cog):
                         element_data_list.append(element_object.electronegativity)
 
 ###############################################################################
-    def pubchem_lookup(user_input:str):
+# this function performs an internet lookup so lets have it be an asyncronous
+# operation
+    async def pubchem_lookup(user_input:str):
         '''
         Future site of the "formula to name/ name to formula" converter
         '''
-        from variables_for_reality import compound_name_formula_cache
+        from discord_chembot.variables_for_reality import compound_name_formula_cache
         # expecting either a chemical name or formula
         ## TODO: make a cache file to store a local copy of the lookup data
         # Gotta find a way to make all this portable and fast
@@ -256,6 +276,7 @@ class Element_lookup(commands.Cog):
         # async def lookup_compound(cmp_cid):
 #            c = pcp.Compound.from_cid(cmp_cid)
 #            return c
+
 
 
         pass
