@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import ionize
 import discord
 import asyncio
 import argparse
@@ -8,12 +9,12 @@ import mendeleev
 import threading
 import wikipedia
 import math, cmath
+from ionize import *
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from discord_chembot.discord_key import *
-import ionize
-from ionize import *
+from discord_chembot.database_setup import *
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
