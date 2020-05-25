@@ -202,51 +202,46 @@ class Element_lookup(commands.Cog):
             elif isinstance(thing , int):                              
                 return int(thing)              
 
-        from variables_for_reality import element_list , symbol_list , specifics_list
+         from variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
         element_valid   = bool
         specifics_valid = bool
-        # if they are using an atomic number
-        #OMG <3
-        if isinstance(element_id_user_input, int) and element_id_user_input in range(1-118):
-            element_valid = True
-            #for some reason its turning it into a string so we kinda have to do THIS
-            #element_id_user_input = int(element_id_user_input)
-        # if they are using a name or symbol
-        elif isinstance(element_id_user_input, str):
-            #using a symbol
-            if len(element_id_user_input) < 3:
-                #for each in symbol_list:
-                if any(user_input == element_id_user_input for user_input in symbol_list):
-                    element_valid = True
-                    print(element_id_user_input + "symbol TRUE")
-                    print("element valid true wtf")
-                elif any(user_input == element_id_user_input for user_input in element_list):
-                    print(element_id_user_input + "name TRUE")
-                    element_valid = True
-                else:
-                    print(" both false wtf")
-                    Element_lookup.user_input_was_wrong("element")
-        # if user send a string
+        #atomic number
+        if element_id_user_input.isnumeric() and int(element_id_user_input) in range(0,119):
+                element_valid = True
+                element_id_user_input = int(element_id_user_input)
+        #symbol        
+        elif isinstance(element_id_user_input, str) and (0 < len(element_id_user_input) < 3):
+            if any(user_input == element_id_user_input for user_input in symbol_list):
+                element_valid = True
+        #name        
+        elif isinstance(element_id_user_input , str) and (2 < len(element_id_user_input) < 25) :
+            if any(user_input == element_id_user_input.capitalize() for user_input in element_list):
+                element_valid = True
+        else:
+            Element_lookup.user_input_was_wrong("element")
+
         if isinstance(specifics_requested, str):
             specifics_requested = specifics_requested.lower()
-            #for each in specifics_list:
+
             if any(user_input == specifics_requested for user_input in specifics_list):
-                print(specifics_requested + "specifics")
                 specifics_valid = True
             else:
-                redprint("specifics 1 wtf")
                 Element_lookup.user_input_was_wrong("specifics")
+
         else:
-            redprint("specifics 2 wtf")
             Element_lookup.user_input_was_wrong("specifics")
-        #they passed good data
+
         if element_valid and specifics_valid == True:      
             global lookup_output_container
             if specifics_requested    == "basic":
                 Element_lookup.get_basic_element_properties(element_id_user_input)
                 Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
+            elif specifics_requested  == "historical":
+                Element_lookup.get_physical_properties(element_id_user_input)
+                print(lookup_output_container)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
                 Element_lookup.get_physical_properties(element_id_user_input)
                 print(lookup_output_container)
@@ -386,12 +381,6 @@ class Element_lookup(commands.Cog):
         #sends to global as a list of multiple strings
         # those strings are then 
         temp_output_container = []
-        if element_id_user_input.isnumeric():
-            element_object = mendeleev.element(int(element_id_user_input))
-            greenprint(element_id_user_input + " ---- IN THE FUNCTION ")
-        else:
-            element_object = mendeleev.element(element_id_user_input)
-            redprint(element_id_user_input + "---- IN THE FUNCTION")
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Boiling Point:"  + str(element_object.boiling_point) + "\n")
         temp_output_container.append("Melting Point:"  + str(element_object.melting_point) + "\n")

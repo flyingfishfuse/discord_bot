@@ -16,11 +16,11 @@ redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 # We are going to make a caching lookup function that stores the name of a 
 # Chemical compound alongside the regular nomenclature name of that compound
 # it will need a file to store the stuff in.
-import sys , os 
-cache_save_path = 
-cache_filename = "chemical_names.chemdb"
-local_cache_file = os.open(cache_filename)
-compound_name_formula_cache = []
+#import sys , os 
+#cache_save_path = "./"
+#cache_filename = "chemical_names.chemdb"
+#local_cache_file = os.open(cache_filename)
+#compound_name_formula_cache = []
 
 #deprecated
 #     def generate_element_validation_name_list(self):
@@ -115,5 +115,5 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
         'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', \
         'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts']
 
-specifics_list = ["basic" , "physical" , "chemical", "nuclear", "ionization",\
+specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
         "isotopes", "oxistates"]
