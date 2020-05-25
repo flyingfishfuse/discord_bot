@@ -16,6 +16,11 @@ ADMIN_PASSWORD     = "password"
 ADMIN_EMAIL        = "game_admin" + "@" + HTTP_HOST
 DANGER_STRING= "TACOCAT"
 
+
+
+################################################################################
+##############                      CONFIG                     #################
+################################################################################
 class Config(object):
     SQLALCHEMY_DATABASE_URI = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = True
@@ -27,6 +32,11 @@ database.init_app(discord_chembot_server)
 #One to many relationship
 #parent
 
+
+
+################################################################################
+##############                      Models                     #################
+################################################################################
 # This is for caching any information that takes forever to grab
 #AW FUCK I FORGOT HOW THIS WORKS
 # TODO: create add_lookup_to_DB()
@@ -65,14 +75,33 @@ class Compound(database.Model):
 #        return '<User id:{} name: {} >'.format(self.ship_id , self.ship_name)
 
 
-test_entry = Compound(name ='test', formula="" )
-usership = UserShip(ship_id=3, ship_name='user ship', ship_type=2)
+test_entry = Compound(name ='test', formula="HeNTaI" )
+#usership = UserShip(ship_id=3, ship_name='user ship', ship_type=2)
 database.create_all()
-database.session.add(admin)
-database.session.add(usership)
-
+database.session.add(test_entry)
+#database.session.add(usership)
 database.session.commit()
 #discord_chembot_server.run()
 
+
+################################################################################
+##############                     FUNCTIONS                   #################
+################################################################################
 def user_by_id(id_of_user):
     return User.query.all.filter_by(user_id = id_of_user).first()
+
+def add_to_db(thingie):
+    """
+    Takes SQLAchemy Class_model Objects like NEW USERS and SHIPS
+    For updating changes to Class_model.Attribute using the form:
+    Class_model.Attribute = some_var 
+    
+    for USERS: change_user_var(user_id, var, value)
+    for SHIPS: change_ship_var(ship_id, var, value)
+    for UNIV : change_game_var(var, value)
+    """
+    database.session.add(thingie)
+    database.session.commit
+
+def update_db():
+    database.session.commit()
