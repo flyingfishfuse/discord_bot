@@ -11,7 +11,8 @@ import math, cmath
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
-from discord_key import *
+from discord_chembot.discord_key import *
+#from flask.config import Config
 
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
@@ -34,7 +35,7 @@ from discord_key import *
 ##################################################
 ##########   BASIC VARIABLES    #################
 ##################################################
-#data_list           = wikipedia.page(title='List_of_data_references_for_chemical_elements')
+#data_list         = wikipedia.page(title='List_of_data_references_for_chemical_elements')
 
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
