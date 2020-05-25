@@ -61,7 +61,7 @@ database.session.commit()
 ##############                     FUNCTIONS                   #################
 ################################################################################
 def Compound_by_id(id_of_user):
-    return Compound.query.all.filter_by(user_id = id_of_user).first()
+    return Compound.query.all.filter_by(id = id_of_user).first()
 
 def add_to_db(thingie):
     """

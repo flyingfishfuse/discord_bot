@@ -312,21 +312,31 @@ class Element_lookup(commands.Cog):
                         element_data_list.append(element_object.electronegativity)
 
 ###############################################################################
-    def pubchem_lookup(user_input:str):
+    def pubchem_lookup_by_name_or_CID(user_input:str or int):
         '''
         Future site of the "formula to name/ name to formula" converter
+        expecting either an IUPAC chemical name or integer
         '''
         from variables_for_reality import compound_name_formula_cache
-        # expecting either a chemical name or formula
+        # expecting either an IUPAC chemical name or integer
         ## TODO: make a cache file to store a local copy of the lookup data
         # Gotta find a way to make all this portable and fast
-        # OLD CODE (from a brother project as example for me to work with):
-        # async def lookup_compound(cmp_cid):
-#            c = pcp.Compound.from_cid(cmp_cid)
-#            return c
+
+# have to ask the user to select which one they want
+#>>> results = pcp.get_compounds('Glucose', 'name')
+#>>> print results
+#[Compound(79025), Compound(5793), Compound(64689), Compound(206)]
+# and then we can lookup by ID to get the whole thing
+        if isinstance(user_input, str):
+            name_lookup_results_list = pubchem.get_compounds(user_input , 'name')
+            result_1 = name_lookup_results_list[0]
+            result_2 = name_lookup_results_list[1]
+            result_3 = name_lookup_results_list[2]
+         
+        elif isinstance(user_input, int):
+            name_lookup_result = pubchem.Compound(user_input)
 
 
-        pass
 
 ###############################################################################
 
