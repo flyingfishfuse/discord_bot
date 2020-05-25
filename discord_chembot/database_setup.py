@@ -6,30 +6,30 @@ from flask_sqlalchemy import SQLAlchemy
 # took this from my game, gonna change it up
 # needed a template
 DATABASE_HOST      = "localhost"
-DATABASE           = "solar_empire-python"
-DATABASE_USER      = "moop"
+DATABASE           = "chembot"
+DATABASE_USER      = "admin"
 DATABASE_PASSWORD  = "password"
-SERVER_NAME        = "Solar Empire: 2020 - Python Edition"
-HTTP_HOST          = "gamebiscuits"
-ADMIN_NAME         = "Emperor of Sol"
+SERVER_NAME        = "Discord Chemistry lookup tool"
+HTTP_HOST          = "fihtbiscuits"
+ADMIN_NAME         = "mr_hai"
 ADMIN_PASSWORD     = "password"
 ADMIN_EMAIL        = "game_admin" + "@" + HTTP_HOST
 DANGER_STRING= "TACOCAT"
 
-
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///solar_empire_test.db'
+    SQLALCHEMY_DATABASE_URI = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-solar_empire_server = Flask(__name__ , template_folder="templates" )
-solar_empire_server.config.from_object(Config)
-database = SQLAlchemy(solar_empire_server)
-database.init_app(solar_empire_server)
+discord_chembot_server = Flask(__name__ , template_folder="templates" )
+discord_chembot_server.config.from_object(Config)
+database = SQLAlchemy(discord_chembot_server)
+database.init_app(discord_chembot_server)
 #One to many relationship
 #parent
 
-class User(database.Model):
-    __tablename__ = 'User'
+# This is for caching any information that takes forever to grab
+class Compound(database.Model):
+    __tablename__ = 'Compound'
     #PARENT: of UserShip, Primary key must link (be the same)
     id            = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
     #reference to CHILD then reference to SELF
@@ -70,7 +70,7 @@ database.session.add(admin)
 database.session.add(usership)
 
 database.session.commit()
-#solar_empire_server.run()
+#discord_chembot_server.run()
 
 def user_by_id(id_of_user):
     return User.query.all.filter_by(user_id = id_of_user).first()
