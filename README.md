@@ -5,15 +5,19 @@
  https://www.gnu.org/licenses/gpl-3.0.en.html                                
 
 Functional:
+
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
  * pubchem lookups and chempy.Substance(formula) translation 
+ 
 Working on: 
+
  * user input validation for pubchem lookup
  * mendeleeve lookup and formatting
  * pubchem lookup and formatting
  * pubchem translation to chempy and ionize
 
 Planned:
+
  * reaction calculators involving time dependant systems
  * reaction calculators involving multi-variable systems
  
