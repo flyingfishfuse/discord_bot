@@ -122,23 +122,30 @@ class Pubchem_lookup(commands.Cog):
         name_lookup_results_list = [] 
 
     def pubchem_lookup_by_name_or_CID(compound_id:str or int):
-        '''
-        expecting either an IUPAC chemical name or integer
-        '''
         if isinstance(compound_id, str):
             name_lookup_results_list = pubchem.get_compounds(compound_id,\
                                         'name' , \
                                         list_return='flat')
-            #name = name_lookup_results_list[0]
-            #result_2 = name_lookup_results_list[1]
-            #result_3 = name_lookup_results_list[2]
-
         elif isinstance(compound_id, int):
             self.name_lookup_result = pubchem.Compound.from_cid(compound_id)
-            # so now we have stuff.
 
+
+def pubchem_lookup_by_name_or_CID(compound_id:str or int):
+    if isinstance(compound_id, str):
+        lookup_results = pubchem.get_compounds(compound_id,'name', list_return='flat')
+        return_relationships = [{'cid'     : lookup_results[0].cid} , \
+                                {'formula' : lookup_results[0].molecular_formula} ,\
+                                {'name'    : lookup_results[0].iupac_name}]
+        return return_relationships
+    elif isinstance(compound_id, int):
+        lookup_results = pubchem.Compound.from_cid(compound_id)
+        return_relationships = [{'cid'     : lookup_results.cid} , \
+                                {'formula' : lookup_results.molecular_formula} ,\
+                                {'name'    : lookup_results.iupac_name}]
+        return return_relationships
+
+    
     def validate_user_input(user_input: str):
-        #escape_mentions = lambda user_inputs: discord.utils.escape_mentions(user_inputs)
         pass
 
     async def send_reply(self, ctx, formatted_reply):
@@ -181,7 +188,6 @@ class Pubchem_lookup(commands.Cog):
 
     @commands.command()
     async def pubsearch(self, ctx, arg1, arg2, arg3):
-        #this is how you use an escape function
         user_input = self.validate_user_input( arg1, arg2, arg3 )
         lookup = self.pubchem_lookup_by_name_or_CID(user_input)
         #if len(lookup) >= 25:
