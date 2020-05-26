@@ -1,5 +1,5 @@
 # discord_bot
- Chemical element resource database python library for discord bot                                
+ Chemical element resource database python library for discord/social_media/IRC bot                                
 
  Licenced under GPLv3                                                        
  https://www.gnu.org/licenses/gpl-3.0.en.html                                
@@ -17,7 +17,7 @@ Working on:
  * pubchem translation to chempy and ionize
 
 Planned:
-
+ * Arbitrary comminucation platform IO
  * reaction calculators involving time dependant systems
  * reaction calculators involving multi-variable systems
  
