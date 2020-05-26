@@ -12,16 +12,6 @@ greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
 
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
-###############################################################################
-# We are going to make a caching lookup function that stores the name of a 
-# Chemical compound alongside the regular nomenclature name of that compound
-# it will need a file to store the stuff in.
-#import sys , os 
-#cache_save_path = "./"
-#cache_filename = "chemical_names.chemdb"
-#local_cache_file = os.open(cache_filename)
-#compound_name_formula_cache = []
-
 #deprecated
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list

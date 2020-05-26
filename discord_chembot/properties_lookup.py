@@ -16,8 +16,30 @@ from discord_chembot.database_setup import *
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
+################################################################################
+# Copyright (c) 2020 Adam Galindo                                             ##
+#                                                                             ##
+# Permission is hereby granted, free of charge, to any person obtaining a copy##
+# of this software and associated documentation files (the "Software"),to deal##
+# in the Software without restriction, including without limitation the rights##
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   ##
+# copies of the Software, and to permit persons to whom the Software is       ##
+# furnished to do so, subject to the following conditions:                    ##
+#                                                                             ##
 # Licenced under GPLv3                                                        ##
 # https://www.gnu.org/licenses/gpl-3.0.en.html                                ##
+#                                                                             ##
+# The above copyright notice and this permission notice shall be included in  ##
+# all copies or substantial portions of the Software.                         ##
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+####
 ################################################################################
 ##    Search by element number, symbol,
 ##    list resources available
@@ -81,6 +103,7 @@ if load_cogs == True:
 def dev_check(ctx):
     return str(ctx.author.id) in str(devs)
 
+#bot.add_cog(pubchem_commands(bot))
 #LOAD EXTENSION
 @lookup_bot.command()
 @commands.check(dev_check)
@@ -141,7 +164,7 @@ class Element_lookup(commands.Cog):
     def reply_to_query(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
-    lookup_output_container. Sends the global output container with ctx.send()
+    lookup_output_container.
         '''
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         if isinstance(message,list):
@@ -265,7 +288,8 @@ class Element_lookup(commands.Cog):
 # This function compares ALL the elements to the one you provide
 # you can extend the functionality by copying the relevant code
 ###############################################################################
-    def compare_element_list(self, element_id_user_input, data_type : str, less_greater: str):
+    @commands.command()
+    async def compare_element_list(self, ctx, element_id_user_input, data_type : str, less_greater: str):
         element_data_list = []
         return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
         element_to_compare   = return_element_by_id(element_id_user_input)

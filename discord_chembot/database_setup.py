@@ -22,7 +22,7 @@ easter_egg_string = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS ",
 ##############                      CONFIG                     #################
 ################################################################################
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = ''
+    SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 discord_chembot_server = Flask(__name__ , template_folder="templates" )
