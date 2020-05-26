@@ -12,6 +12,7 @@ greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
 
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
+discord_color = 0x3b12ef
 #deprecated
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list

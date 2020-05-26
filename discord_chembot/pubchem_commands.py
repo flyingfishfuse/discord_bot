@@ -1,10 +1,11 @@
 import discord
 from ionize import *
+import datetime
 import pubchempy as pubchem
 from discord.ext import commands
-
+from discord_chembot.variables_for_reality import *
 def size_check_256(txt):
-    if txt is None:
+    if txt == None:
         return "iupac name Not Found"
     # print(len(txt))
     if len(txt) < 255:
@@ -42,8 +43,42 @@ class pubchem_lookup(commands.Cog):
 
     async def send_reply(self, ctx, formatted_reply):
         await message.edit(content="lol", embed=formatted_reply)
-        pass
+
     
+    async def format_message(self, ctx, lookup_results_object):
+        formatted_message = discord.Embed( \
+            title=lookup_results_object.synonyms[0],
+            #change color option
+            colour=discord.Colour(discord_color),  \
+            url="",
+            description=size_check_256(lookup_results_object.iupac_name),
+            timestamp=datetime.datetime.utcfromtimestamp(1580842764))
+        #formatted_message.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
+        formatted_message.set_thumbnail(url="https://pubchem.ncbi.nlm.nih.gov/" + \
+                "rest/pug/compound/cid/{1}/PNG?record_type=3d&image_size=small" + \
+                "".format(lookup_results_object.cid))
+        formatted_message.set_author(
+            name="{1} ({2})".format(lookup_results_object.name, lookup_results_object.cid),
+            url=f"https://pubchem.ncbi.nlm.nih.gov/compound/{lookup_results_object.cid}", 
+            icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/PubChem_logo_splash.png"
+            )
+        formatted_message.add_field(
+            name="Molecular Formula",
+            value=lookup_results_object.molecular_formula
+            )
+        formatted_message.add_field(
+            name="Molecular Weight",
+            value=lookup_results_object.molecular_weight
+            )
+        formatted_message.add_field(
+            name="Charge",
+            value=lookup_results_object.charge
+            )
+        formatted_message.set_footer(
+            text="",
+            icon_url=""
+            )
+
     @commands.command()
     async def search(self, ctx, arg1, arg2, arg3):
         #this is how you use an escape function
@@ -83,37 +118,8 @@ class pubchem_lookup(commands.Cog):
         await message.edit(content=results_str)
             # cmpdataz = pcp.get_compounds(record_type='3d')
             lookup_results_name = "Synonym not found"
-            if len(lookup_results.synonyms) > 0 :
+            if len(lookup_results_object.synonyms) > 0 :
                 lookup_results_name = .synonyms[0]
 
-            formatted_message = discord.Embed( \
-                title=lookup_results.synonyms[0],
-                colour=discord.Colour(0x3b12ef),  \
-                url="",
-                description=size_check_256(lookup_results.iupac_name),
-                timestamp=datetime.datetime.utcfromtimestamp(1580842764))
-            #formatted_message.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
-            formatted_message.set_thumbnail(url=f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{lookup_results.cid}/PNG?record_type=3d&image_size=small")
-            formatted_message.set_author(
-                name=f"{lookup_results_name} ({lookup_results.cid})",
-                url=f"https://pubchem.ncbi.nlm.nih.gov/compound/{lookup_results.cid}", 
-                icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/PubChem_logo_splash.png"
-                )
-            formatted_message.set_footer(
-                text="",
-                icon_url=""
-                )
 
-            formatted_message.add_field(
-                name="Molecular Formula",
-                value=lookup_results.molecular_formula
-                )
-            formatted_message.add_field(
-                name="Molecular Weight",
-                value=lookup_results.molecular_weight
-                )
-            formatted_message.add_field(
-                name="Charge",
-                value=lookup_results.charge
-                )
 
