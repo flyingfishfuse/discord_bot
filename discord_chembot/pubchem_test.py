@@ -118,7 +118,10 @@ def size_check_256(txt):
 ##############################################################################
 
 class Pubchem_lookup(commands.Cog):
-
+    '''
+Class to perform lookups on CID's and IUPAC names
+Also does chempy translation to feed data to the calculation engine
+    '''
     def __init__(self):
         self.asdf = []
         self.name_lookup_result = None
@@ -136,17 +139,18 @@ class Pubchem_lookup(commands.Cog):
 ##############################################################################
 
 def parse_lookup_to_chempy(pubchem_lookup : list):
-    lookup_cid = chempy.Substance.from_formula(pubchem_lookup[1].get('cid'))
-    lookup_formula = chempy.Substance.from_formula(pubchem_lookup[1].get('formula'))
-    lookup_name = chempy.Substance.from_formula(pubchem_lookup[1].get('name'))
+    '''
+    creates a chempy something or other based on what you feed it
+    like cookie monster
+    '''
+    lookup_cid     = pubchem_lookup[0].get('cid')
+    lookup_formula = pubchem_lookup[1].get('formula')
+    lookup_name    = pubchem_lookup[2].get('name')
     return chempy.Substance.from_formula(lookup_formula)
 
 def pubchem_lookup_by_name_or_CID(compound_id:str or int):
     '''
-    
-    lookup_cid = chempy.Substance.from_formula(asdf[1].get('cid')
-    lookup_formula = chempy.Substance.from_formula(asdf[1].get('formula')
-    lookup_name = chempy.Substance.from_formula(asdf[1].get('name')
+    wakka wakka wakka
     '''
     return_relationships = list
     if isinstance(compound_id, str):
@@ -154,25 +158,32 @@ def pubchem_lookup_by_name_or_CID(compound_id:str or int):
                                                 list_return='flat')
         if isinstance(lookup_results, list):
             for each in lookup_results:
-                return_relationships.append([                \
-                    {'cid'     : each.cid}                  ,\
-                    {'formula' : each.molecular_formula}    ,\
-                    {'name'    : each.iupac_name}           ])
+                return_relationships.append([                      \
+                    {'cid'     : each.cid}                        ,\
+                    {'formula' : each.molecular_formula}          ,\
+                    {'name'    : each.iupac_name}                 ])
+        #TODO: fix this shit to make the above format
         else:
-            return_relationships.append(lookup_results)
+            return_relationships.append([                          \
+                    {'cid'     : lookup_results.cid              },\
+                    {'formula' : lookup_results.molecular_formula},\
+                    {'name'    : lookup_results.iupac_name       }])
 
         return return_relationships
     elif isinstance(compound_id, int):
         lookup_results = pubchem.Compound.from_cid(compound_id)
-        return_relationships.append([                       \
-            {'cid'     : lookup_results.cid}               ,\
-            {'formula' : lookup_results.molecular_formula} ,\
-            {'name'    : lookup_results.iupac_name}        ])
+        return_relationships.append([                            \
+            {'cid'     : lookup_results.cid}                    ,\
+            {'formula' : lookup_results.molecular_formula}      ,\
+            {'name'    : lookup_results.iupac_name}             ])
         return return_relationships
 ##############################################################################
 
     def validate_user_input(user_input: str):
-        lambda hard: hard ; pass  
+        # haha I made a joke!
+        # this function is going to be fucking complicated and I am not
+        # looking forward to it! PLEASE HELP!
+        lambda hard = True : hard ; pass  
 ##############################################################################
 
     async def send_reply(self, ctx, formatted_reply):
