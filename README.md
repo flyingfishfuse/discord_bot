@@ -6,8 +6,9 @@
 
 Functional:
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
- 
+ * pubchem lookups and chempy.Substance(formula) translation 
 Working on: 
+ * user input validation for pubchem lookup
  * mendeleeve lookup and formatting
  * pubchem lookup and formatting
  * pubchem translation to chempy and ionize
