@@ -99,6 +99,9 @@ async def pubchem_lookup(ctx, arg1, arg2):
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     await ctx.send(string_to_send)
+
+# now we can just start copying code and changing it slightly to implement
+# new functionality, then import the class and good to go!
 ###############################################################################
 from discord_chembot.element_lookup_class import Element_lookup
 ##############################################################################
@@ -112,6 +115,7 @@ def size_check_256(txt):
     else:
         short = (str(txt[:100])+ " .....")
         return short
+##############################################################################
 
 class Pubchem_lookup(commands.Cog):
 
@@ -129,27 +133,51 @@ class Pubchem_lookup(commands.Cog):
         elif isinstance(compound_id, int):
             self.name_lookup_result = pubchem.Compound.from_cid(compound_id)
 
+##############################################################################
+
+def parse_lookup_to_chempy(pubchem_lookup : list):
+    lookup_cid = chempy.Substance.from_formula(pubchem_lookup[1].get('cid'))
+    lookup_formula = chempy.Substance.from_formula(pubchem_lookup[1].get('formula'))
+    lookup_name = chempy.Substance.from_formula(pubchem_lookup[1].get('name'))
+    return chempy.Substance.from_formula(lookup_formula)
 
 def pubchem_lookup_by_name_or_CID(compound_id:str or int):
+    '''
+    
+    lookup_cid = chempy.Substance.from_formula(asdf[1].get('cid')
+    lookup_formula = chempy.Substance.from_formula(asdf[1].get('formula')
+    lookup_name = chempy.Substance.from_formula(asdf[1].get('name')
+    '''
+    return_relationships = list
     if isinstance(compound_id, str):
-        lookup_results = pubchem.get_compounds(compound_id,'name', list_return='flat')
-        return_relationships = [{'cid'     : lookup_results[0].cid} , \
-                                {'formula' : lookup_results[0].molecular_formula} ,\
-                                {'name'    : lookup_results[0].iupac_name}]
+        lookup_results = pubchem.get_compounds(compound_id,'name',\
+                                                list_return='flat')
+        if isinstance(lookup_results, list):
+            for each in lookup_results:
+                return_relationships.append([                \
+                    {'cid'     : each.cid}                  ,\
+                    {'formula' : each.molecular_formula}    ,\
+                    {'name'    : each.iupac_name}           ])
+        else:
+            return_relationships.append(lookup_results)
+
         return return_relationships
     elif isinstance(compound_id, int):
         lookup_results = pubchem.Compound.from_cid(compound_id)
-        return_relationships = [{'cid'     : lookup_results.cid} , \
-                                {'formula' : lookup_results.molecular_formula} ,\
-                                {'name'    : lookup_results.iupac_name}]
+        return_relationships.append([                       \
+            {'cid'     : lookup_results.cid}               ,\
+            {'formula' : lookup_results.molecular_formula} ,\
+            {'name'    : lookup_results.iupac_name}        ])
         return return_relationships
+##############################################################################
 
-    
     def validate_user_input(user_input: str):
-        pass
+        lambda hard: hard ; pass  
+##############################################################################
 
     async def send_reply(self, ctx, formatted_reply):
         await message.edit(content="lol", embed=formatted_reply)
+##############################################################################
 
     
     async def format_message(self, ctx, lookup_results_object):
@@ -185,6 +213,7 @@ def pubchem_lookup_by_name_or_CID(compound_id:str or int):
             text="",
             icon_url=""
             )
+##############################################################################
 
     @commands.command()
     async def pubsearch(self, ctx, arg1, arg2, arg3):
