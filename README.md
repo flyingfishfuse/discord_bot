@@ -21,3 +21,4 @@ Planned:
  * reaction calculators involving time dependant systems
  * reaction calculators involving multi-variable systems
  
+I dont know how to do teeny tiny letters on here so just pretend this is REALLY small PLEASE HELP DEAR LORD I NEED A TEAM OF PROGRAMMERS
