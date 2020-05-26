@@ -47,6 +47,7 @@ from discord_chembot.database_setup import *
 # created by : mr_hai on discord / flyingfishfuse on github
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
+# https://chemspipy.readthedocs.io/en/latest/
 #
 parser = argparse.ArgumentParser(description='Discord ChemBot')
 parser.add_argument('--devs',
@@ -242,7 +243,7 @@ class Element_lookup(commands.Cog):
                 Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
-                Element_lookup.get_physical_properties(element_id_user_input)
+                Element_lookup.get_history(element_id_user_input)
                 print(lookup_output_container)
                 Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":

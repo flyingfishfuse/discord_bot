@@ -172,8 +172,8 @@ class Element_lookup(commands.Cog):
 ################################################################################
     async def help_message():
         return "Put the element's name, symbol, or atomic number followed \
-    by either: physical, chemical, nuclear, ionization, isotopes, \
-    oxistates"
+by either: basic, historical, physical, chemical, nuclear, ionization, \
+isotopes, oxistates"
         
     def reply_to_query(message):
         '''
@@ -261,7 +261,7 @@ class Element_lookup(commands.Cog):
                 Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
-                Element_lookup.get_physical_properties(element_id_user_input)
+                Element_lookup.get_history(element_id_user_input)
                 print(lookup_output_container)
                 Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
@@ -331,6 +331,22 @@ class Element_lookup(commands.Cog):
 
 ###############################################################################
 
+    name_lookup_results_list = []
+    name_lookup_result = None
+    def pubchem_lookup_by_name_or_CID(compound_id:str or int):
+        if isinstance(compound_id, str):
+            name_lookup_results_list = pubchem.get_compounds(compound_id,\
+                                        'name' , \
+                                        list_return='flat')
+            #name = name_lookup_results_list[0]
+            #result_2 = name_lookup_results_list[1]
+            #result_3 = name_lookup_results_list[2]
+
+        elif isinstance(compound_id, int):
+            self.name_lookup_result = pubchem.Compound.from_cid(compound_id)
+            # so now we have stuff.
+
+###############################################################################
     def get_history(element_id_user_input):
         """
         Returns some historical information about the element requested

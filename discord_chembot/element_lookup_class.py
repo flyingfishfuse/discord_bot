@@ -96,7 +96,7 @@ isotopes, oxistates"
                 Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
-                Element_lookup.get_physical_properties(element_id_user_input)
+                Element_lookup.get_history(element_id_user_input)
                 print(lookup_output_container)
                 Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
