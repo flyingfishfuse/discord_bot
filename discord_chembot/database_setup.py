@@ -42,9 +42,9 @@ database.init_app(discord_chembot_server)
 class Compound(database.Model):
     __tablename__ = 'Compound'
     id              = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
+    cid           = database.Column(database.String(128))
     name            = database.Column(database.String(64), index=True)
     formula         = database.Column(database.String(120), index=True)
-    thing           = database.Column(database.String(128))
 
     def __repr__(self):
         return '<Compound:{} Formula: {} >'.format(self.name , self.formula)
@@ -59,18 +59,14 @@ database.session.commit()
 ################################################################################
 ##############                     FUNCTIONS                   #################
 ################################################################################
-def Compound_by_id(id_of_user):
-    return Compound.query.all.filter_by(id = id_of_user).first()
+def Compound_by_id(cid_of_compound):
+    return Compound.query.all.filter_by(id = cid_of_compound).first()
 
 def add_to_db(thingie):
     """
-    Takes SQLAchemy Class_model Objects like NEW USERS and SHIPS
+    Takes SQLAchemy Class_model Objects 
     For updating changes to Class_model.Attribute using the form:
     Class_model.Attribute = some_var 
-    
-    for USERS: change_user_var(user_id, var, value)
-    for SHIPS: change_ship_var(ship_id, var, value)
-    for UNIV : change_game_var(var, value)
     """
     database.session.add(thingie)
     database.session.commit

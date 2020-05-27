@@ -5,11 +5,30 @@ from colorama import init
 init()
 from colorama import Fore, Back, Style
 
+def function_failure_message(exception_message : str, color_to_print : str):
+    """
+    A Robust exception message passing class? that uses colorama and inspect
+    Takes red, green, blue as color arguments
+    """
+    blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
+    greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
+    redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
+    import inspect
+    if color_to_print == "red":
+        redprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        blueprint("\n" + exception_message)
+    elif color_to_print == "green":
+        greenprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        blueprint("\n" + exception_message)
+    elif color_to_print == "blue":
+        blueprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        blueprint("\n" + exception_message)
+    blueprint("\n" + exception_message)
 
+
+#make them global scope for testing purposes
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
 discord_color = 0x3b12ef
