@@ -67,8 +67,10 @@ class Composition(Compound.Model):
     notes               = database.Column(database.String(256))
 
     def __repr__(self):
-
-        return '<Compound:{} Formula: {} >'.format(self.name , self.formula)
+        return 'Compound: {} \n \
+                Units: {}    \n \
+                Formula: {}  \n \
+                Notes: {}'.format(self.name, self.units, self.compounds, self.notes)
 
 
 test_entry = Compound(name ='test', formula="HeNTaI" )
