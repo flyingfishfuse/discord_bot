@@ -14,8 +14,10 @@ from ionize import *
 from pprint import pprint
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
+from chempy import mass_fractions
 import discord_chembot.database_setup
 from discord.ext import commands, tasks
+from chempy import balance_stoichiometry
 from discord_chembot.discord_key import *
 from discord_chembot.database_setup import *
 from discord_chembot.variables_for_reality import *
@@ -124,54 +126,115 @@ Also does chempy translation to feed data to the calculation engine
         name_lookup_results_list  = [] 
         print("loaded pubchem_commands")
 
-    def validate_user_input(user_input: str):
+    def validate_user_input(self, user_input: str):
         # haha I made a joke!
         # this function is going to be fucking complicated and I am not
         # looking forward to it! PLEASE HELP!
         lambda hard = True : hard ; pass  
 
+    #remove async and ctx to make non-discord
     async def send_reply(self, ctx, formatted_reply):
-        await message.edit(content="lol", embed=formatted_reply)
+        reply = format_message_discord(self, ctx, formatted_reply)
+        #await ctx.send(content="lol", embed=formatted_reply)
+        await ctx.send(content="lol", embed=reply)
 
-    def parse_lookup_to_chempy(self, pubchem_lookup : list):
+    def parse_lookup_to_chempy(pubchem_lookup : list):
         '''
         creates a chempy something or other based on what you feed it
         like cookie monster
         '''
-        lookup_cid     = pubchem_lookup[0].get('cid')
-        lookup_formula = pubchem_lookup[1].get('formula')
-        lookup_name    = pubchem_lookup[2].get('name')
+        #lookup_cid       = pubchem_lookup[0].get('cid')
+        lookup_formula   = pubchem_lookup[1].get('formula')
+        #lookup_name      = pubchem_lookup[2].get('name')
         return chempy.Substance.from_formula(lookup_formula)
-
-    def pubchem_lookup_by_name_or_CID(self,compound_id:str or int):
+    
+    def pubchem_lookup_by_name_or_CID(self, compound_id:str or int):
         '''
         wakka wakka wakka
+        outputs in the following order:
+        CID, Formula, Name
         '''
+        #make a thing
         return_relationships = list
+        
+        #if the user supplied a name
         if isinstance(compound_id, str):
-            lookup_results = pubchem.get_compounds(compound_id,'name',\
-                                                list_return='flat')
+            lookup_results = pubchem.get_compounds(compound_id,'name',)
+            
+            #if there were multiple results
             if isinstance(lookup_results, list):
                 for each in lookup_results:
-                    return_relationships.append([                   \
-                    {'cid'     : each.cid}                         ,\
-                    {'formula' : each.molecular_formula}           ,\
-                    {'name'    : each.iupac_name}                  ])
-            #TODO: fix this shit to make the above format
-            else:
-                return_relationships.append([                       \
-                    {'cid'     : lookup_results.cid               },\
-                    {'formula' : lookup_results.molecular_formula },\
-                    {'name'    : lookup_results.iupac_name        }])
+                    return_relationships.append([                      \
+                    {'cid'     : each.cid                        },\
+                    {'formula' : each.molecular_formula          },\
+                    {'name'    : each.iupac_name                 }])
+                    compound_to_database(return_relationships)
+            
+            # if there was only one result
+            elif isinstance(lookup_results, pubchem.Compound):
+                return_relationships.append([                          \
+                    {'cid'     : lookup_results.cid              },\
+                    {'formula' : lookup_results.molecular_formula},\
+                    {'name'    : lookup_results.iupac_name       }])
+                compound_to_database(return_relationships)
 
-            return return_relationships
+        #if the user supplied a CID
         elif isinstance(compound_id, int):
             lookup_results = pubchem.Compound.from_cid(compound_id)
-            return_relationships.append([                          \
-                {'cid'     : lookup_results.cid}                  ,\
-                {'formula' : lookup_results.molecular_formula}    ,\
-                {'name'    : lookup_results.iupac_name}           ])
-            return return_relationships
+            
+            #if there were multiple results
+            if isinstance(lookup_results, list):
+                return_relationships.append([                            \
+                    {'cid'     : lookup_results.cid}                    ,\
+                    {'formula' : lookup_results.molecular_formula}      ,\
+                    {'name'    : lookup_results.iupac_name}             ])
+                compound_to_database(return_relationships)
+            #if there was only one result
+            elif isinstance(lookup_results, pubchem.Compound):
+                return_relationships.append([                          \
+                    {'cid'     : lookup_results.cid              },\
+                    {'formula' : lookup_results.molecular_formula},\
+                    {'name'    : lookup_results.iupac_name       }])
+                compound_to_database(return_relationships)
+
+
+    def compound_to_database(lookup_list: list):
+        """
+        Puts a pubchem lookup to the database
+        ["CID", "Formula", "Name"]
+        """
+        lookup_cid       = lookup_list[0].get('cid')
+        lookup_formula   = lookup_list[1].get('formula')
+        lookup_name      = lookup_list[2].get('name')
+        add_to_db(Compound(cid     = lookup_cid,      \
+                           formula = lookup_formula,  \
+                           name = lookup_name         ))
+
+    def composition_to_database(comp_name: str, units_used :str, \
+                                formula_list : list , info : str):
+        """
+        The composition is a relation between multiple Compounds
+        Each Composition entry will have required a pubchem_lookup on each
+        Compound in the Formula field. 
+        the formula is a CSV LIST WHERE: 
+        ...str_compound,int_amount,.. REPEATING (floats allowed)
+
+        """
+        # query local database for records before performing pubchem
+        # lookups
+        for each in formula_list:
+            pass
+
+        new_comp = Composition(name       = comp_name,               \
+                               units      = units_used,              \
+                               compounds  = formula_list,            \
+                               notes      = info                     )
+        add_to_db(new_comp)
+
+
+    def internal_local_database_lookup(cid_or_formula : str):
+        lookup_result = database.Query(cid_or_formula).all().first()
+        return lookup_result
 
     async def format_mesage_arbitrary(self, arg1, arg2, arg3):
         pass
@@ -208,6 +271,9 @@ Also does chempy translation to feed data to the calculation engine
         formatted_message.set_footer(
             text="",
             icon_url="")
+        return formatted_message
+            
+        
 
 ##############################################################################
 def Compound_by_id(cid_of_compound):
@@ -235,55 +301,26 @@ def update_db():
 
 ################################################################################
 
-def parse_lookup_to_chempy(pubchem_lookup : list):
-    '''
-    creates a chempy something or other based on what you feed it
-    like cookie monster
-    '''
-    lookup_cid       = pubchem_lookup[0].get('cid')
-    lookup_formula   = pubchem_lookup[1].get('formula')
-    lookup_name      = pubchem_lookup[2].get('name')
-    return chempy.Substance.from_formula(lookup_formula)
-################################################################################
-
-def compound_to_database(lookup_list: list):
-    """
-    Puts a pubchem lookup to the database
-    """
-    lookup_cid       = lookup_list[0].get('cid')
-    lookup_formula   = lookup_list[1].get('formula')
-    lookup_name      = lookup_list[2].get('name')
-    add_to_db(Compound(cid     = lookup_cid,      \
-                       formula = lookup_formula,  \
-                       name = lookup_name         ))
-
-def composition_to_database(comp_name: str, units_used :str, \
-                            formula_list : list , info : str):
-    """
-    The composition is a relation between multiple Compounds
-    Each Composition entry will have required a pubchem_lookup on each
-    Compound in the Formula field. 
-    the formula is a CSV LIST WHERE: 
-     ...str_compound,int_amount,.. REPEATING (floats allowed)
-
-    """
-    new_comp = Composition(name       = comp_name,               \
-                           units      = units_used,              \
-                           compounds  = formula_list,            \
-                           notes      = info                     )
-    add_to_db(new_comp)
-#example from docs
+#example from docs    
 def balance_simple_equation(react, prod):
-    react =  {'NH4ClO4', 'Al'}
-    prod  =  {'Al2O3', 'HCl', 'H2O', 'N2'}
     reactants, products = chempy.balance_stoichiometry(react,prod)
     #pprint(dict(reac))
     #{'Al': 10, 'NH4ClO4': 6}
     #pprint(dict(prod))
     #{'Al2O3': 5, 'H2O': 9, 'HCl': 6, 'N2': 3}
-    for fractions in map(mass_fractions, [reac, prod]):
+    react =  {'NH4ClO4', 'Al'}
+    prod  =  {'Al2O3', 'HCl', 'H2O', 'N2'}
+    for fractions in map(mass_fractions, [react, prod]):
         pprint({k: '{0:.3g} wt%'.format(v*100) for k, v in fractions.items()})
     pprint([dict(_) for _ in balance_stoichiometry({'C', 'O2'}, {'CO2', 'CO'})])  # doctest: +SKIP
     #[{'C': x1 + 2, 'O2': x1 + 1}, {'CO': 2, 'CO2': x1}]
-    
-    pass
+    #user input 
+    user_input_reactants = "NH4ClO4,Al"
+    user_input_products  = "Al2O3,HCl,H2O,N2"
+
+    for each in user_input_reactants:
+        local_db_query = local_database_lookup(each, "formula")
+        if local_db_query == True:
+            return local_db_query
+        elif local_db_query ==False:
+            function_failure_message("local db query returned NEGATIVE", "red")
