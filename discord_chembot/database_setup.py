@@ -31,7 +31,14 @@ database.init_app(discord_chembot_server)
 #One to many relationship
 #parent
 
-
+{
+  "composition": "flash",
+  "units": "%wt",
+  "formula": {
+    "Al": 27.7,
+    "NH4ClO4": 72.3
+  }
+}
 
 ################################################################################
 ##############                      Models                     #################
@@ -39,15 +46,30 @@ database.init_app(discord_chembot_server)
 # This is for caching any information that takes forever to grab
 #AW FUCK I FORGOT HOW THIS WORKS
 # TODO: create add_lookup_to_DB()
+#TODO Add composition model 
+
 class Compound(database.Model):
-    __tablename__ = 'Compound'
-    id              = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
-    cid           = database.Column(database.String(128))
-    name            = database.Column(database.String(64), index=True)
-    formula         = database.Column(database.String(120), index=True)
+    __tablename__       = 'Compound'
+    id                  = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
+    cid                 = database.Column(database.String(128))
+    name                = database.Column(database.String(64), index=True)
+    formula             = database.Column(database.String(120), index=True)
 
     def __repr__(self):
         return '<Compound:{} Formula: {} >'.format(self.name , self.formula)
+
+class Composition(Compound.Model):
+    __tablename__       = 'Compound'
+    id                  = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
+    name                = database.Column(database.String(64), index=True)
+    units               = database.Column(database.String(12))
+    compounds           = database.Column(database.String(120), index=True)
+    notes               = database.Column(database.String(256))
+
+    def __repr__(self):
+
+        return '<Compound:{} Formula: {} >'.format(self.name , self.formula)
+
 
 test_entry = Compound(name ='test', formula="HeNTaI" )
 database.create_all()

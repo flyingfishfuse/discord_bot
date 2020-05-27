@@ -14,6 +14,7 @@ from ionize import *
 from pprint import pprint
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
+import discord_chembot.database_setup
 from discord.ext import commands, tasks
 from discord_chembot.discord_key import *
 from discord_chembot.database_setup import *
@@ -105,11 +106,10 @@ from discord_chembot.element_lookup_class import Element_lookup
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
 def size_check_256(thing_to_check):
-    if len(thing_to_check) not None and \
-        len(thing_to_check) < 256:
-        return (str(txt[:100])+ " .....")
+    if len(thing_to_check) != None and 150 < len(thing_to_check) < 256:
+        return (str(txt[:100]) + "... sliced ...")
     else:
-        function_failure_message()
+        function_failure_message(thing_to_check, "red")
 ##############################################################################
 
 class Pubchem_lookup(commands.Cog):
@@ -192,7 +192,7 @@ Also does chempy translation to feed data to the calculation engine
         formatted_message.set_author(
             name="{} ({})".format(lookup_results_object.name,\
                                     lookup_results_object.cid),\
-            url=f"https://pubchem.ncbi.nlm.nih.gov/compound/{}" + \
+            url="https://pubchem.ncbi.nlm.nih.gov/compound/{}" + \
                 "".format(lookup_results_object.cid), 
             icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/" + \
                 "PubChem_logo_splash.png")
@@ -210,17 +210,68 @@ Also does chempy translation to feed data to the calculation engine
             icon_url="")
 
 ##############################################################################
+def Compound_by_id(cid_of_compound):
+    """
+    Returns a compound from the local DB
+    """
+    return Compound.query.all.filter_by(id = cid_of_compound).first()
+################################################################################
+
+def add_to_db(thingie):
+    """
+    Takes SQLAchemy Class_model Objects 
+    For updating changes to Class_model.Attribute using the form:
+    Class_model.Attribute = some_var 
+    """
+    database.session.add(thingie)
+    database.session.commit
+################################################################################
+
+def update_db():
+    """
+    DUH
+    """
+    database.session.commit()
+
+################################################################################
 
 def parse_lookup_to_chempy(pubchem_lookup : list):
     '''
     creates a chempy something or other based on what you feed it
     like cookie monster
     '''
-    lookup_cid     = pubchem_lookup[0].get('cid')
-    lookup_formula = pubchem_lookup[1].get('formula')
-    lookup_name    = pubchem_lookup[2].get('name')
+    lookup_cid       = pubchem_lookup[0].get('cid')
+    lookup_formula   = pubchem_lookup[1].get('formula')
+    lookup_name      = pubchem_lookup[2].get('name')
     return chempy.Substance.from_formula(lookup_formula)
+################################################################################
 
+def compound_to_database(lookup_list: list):
+    """
+    Puts a pubchem lookup to the database
+    """
+    lookup_cid       = lookup_list[0].get('cid')
+    lookup_formula   = lookup_list[1].get('formula')
+    lookup_name      = lookup_list[2].get('name')
+    add_to_db(Compound(cid     = lookup_cid,      \
+                       formula = lookup_formula,  \
+                       name = lookup_name         ))
+
+def composition_to_database(comp_name: str, units_used :str, \
+                            formula_list : list , info : str):
+    """
+    The composition is a relation between multiple Compounds
+    Each Composition entry will have required a pubchem_lookup on each
+    Compound in the Formula field. 
+    the formula is a CSV LIST WHERE: 
+     ...str_compound,int_amount,.. REPEATING (floats allowed)
+
+    """
+    new_comp = Composition(name       = comp_name,               \
+                           units      = units_used,              \
+                           compounds  = formula_list,            \
+                           notes      = info                     )
+    add_to_db(new_comp)
 #example from docs
 def balance_simple_equation(react, prod):
     react =  {'NH4ClO4', 'Al'}
@@ -236,33 +287,3 @@ def balance_simple_equation(react, prod):
     #[{'C': x1 + 2, 'O2': x1 + 1}, {'CO': 2, 'CO2': x1}]
     
     pass
-
-def pubchem_lookup_by_name_or_CID(compound_id:str or int):
-    '''
-    wakka wakka wakka
-    '''
-    return_relationships = list
-    if isinstance(compound_id, str):
-        lookup_results = pubchem.get_compounds(compound_id,'name',)
-        if isinstance(lookup_results, list):
-            for each in lookup_results:
-                return_relationships.append([                      \
-                    {'cid'     : each.cid                        },\
-                    {'formula' : each.molecular_formula          },\
-                    {'name'    : each.iupac_name                 }])
-        #TODO: fix this shit to make the above format
-        else:
-            return_relationships.append([                          \
-                    {'cid'     : lookup_results.cid              },\
-                    {'formula' : lookup_results.molecular_formula},\
-                    {'name'    : lookup_results.iupac_name       }])
-
-        return return_relationships
-    elif isinstance(compound_id, int):
-        lookup_results = pubchem.Compound.from_cid(compound_id)
-        return_relationships.append([                            \
-            {'cid'     : lookup_results.cid}                    ,\
-            {'formula' : lookup_results.molecular_formula}      ,\
-            {'name'    : lookup_results.iupac_name}             ])
-        return return_relationships
-
