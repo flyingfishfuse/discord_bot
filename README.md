@@ -8,6 +8,7 @@ Functional:
 
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
  * pubchem lookups and chempy.Substance(formula) translation 
+ * some database functions
  
 Working on: 
 
@@ -15,6 +16,7 @@ Working on:
  * mendeleeve lookup and formatting
  * pubchem lookup and formatting
  * pubchem translation to chempy and ionize
+ * database functions
 
 Planned:
  * Arbitrary comminucation platform IO
