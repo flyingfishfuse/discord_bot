@@ -3,7 +3,7 @@ import os
 import csv
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
-
+from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
 # took this from my game, gonna change it up
 # needed a template
 DATABASE_HOST      = "localhost"
@@ -32,15 +32,6 @@ database.init_app(discord_chembot_server)
 #One to many relationship
 #parent
 
-{
-  "composition": "flash",
-  "units": "%wt",
-  "formula": {
-    "Al": 27.7,
-    "NH4ClO4": 72.3
-  }
-}
-
 ################################################################################
 ##############                      Models                     #################
 ################################################################################
@@ -67,14 +58,34 @@ class Composition(Compound.Model):
     compounds           = database.Column(database.String(120))
     notes               = database.Column(database.String(256))
 
+#{
+#  "composition": "flash",
+#  "units": "%wt",
+#  "formula": {
+#    "Al": 27.7,
+#    "NH4ClO4": 72.3
+#  }
+#}
     def __repr__(self):
-        #TODO: transform CSV of ...formula,amount... to whatever
         # csv reader returns an iterable, here it would be the formula supplied
-        csv.reader(self.compounds, delimiter=",")
-        return 'Compound: {} \n \
-                Units: {}    \n \
-                Formula: {}  \n \
-                Notes: {}'.format(self.name, self.units, self.compounds, self.notes)
+        formula_list = csv.reader(self.compounds, delimiter=",")
+        formula = ""
+        for each in formula_list:
+            greenprint(each)
+            #catches the amount
+            if each.isnumeric:
+                amount = str(each)
+                redprint(amount)
+            #catches the element/compound
+            else:
+                compound = str(each)
+                redprint(compound)
+            formula + '{} : {} {}'.format(compound, amount , "\n\t")
+
+        return 'Composition: {} \n\
+                Units: {} \n\
+                Formula: {} \n\
+                Notes: {}'.format(self.name, self.units, formula, self.notes)
 
 
 test_entry = Compound(name ='test', formula="HeNTaI" )

@@ -1,4 +1,4 @@
-import discord_chembot
+from discord_chembot.variables_for_reality import lookup_output_container
 
 class Element_lookup(commands.Cog):
     def __init__(self, ctx): #, input_container : list):
@@ -61,7 +61,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             elif isinstance(thing , int):                              
                 return int(thing)              
 
-        from variables_for_reality import element_list , symbol_list , specifics_list
+        from discord_chembot.variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
         element_valid   = bool
         specifics_valid = bool

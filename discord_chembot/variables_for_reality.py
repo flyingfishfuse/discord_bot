@@ -1,5 +1,23 @@
 #/usr/bin/python3
+# This file contains all of the information that needs to be globally available
+# Some people will say this is a bad idea, they are wrong. Absolute statements
+# are, for the most part, not possible. Only, in matters of good and evil
+# can there be absolutes.
 
+# setup the discord variables that need to be global
+from discord.ext import commands
+lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
+bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
+    \"element\" \"type_of_data\"."
+
+# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
+global global_output_container 
+global_output_container = []
+
+global lookup_output_container
+lookup_output_container = []
+
+# Establish an error reporting function
 import colorama
 from colorama import init
 init()

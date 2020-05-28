@@ -20,65 +20,15 @@ from discord.ext import commands, tasks
 from chempy import balance_stoichiometry
 from discord_chembot.discord_key import *
 from discord_chembot.database_setup import *
+from discord_chembot.discord_commands import *
 from discord_chembot.variables_for_reality import *
-
-lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
-bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
-    \"element\" \"type_of_data\"."
-
-# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
-global global_output_container 
-global_output_container = []
-
-global lookup_output_container
-lookup_output_container = []
+from discord_chembot.element_lookup_class import Element_lookup
 
 #load the cogs into the bot
 if load_cogs == True:
     for filename in cog_directory_files:
         if filename.endswith(".py"):
             lookup_bot.load_extension(f"cogs.{filename[:-3]}")
-
-# check if the person sending the command is a developer
-def dev_check(ctx):
-    return str(ctx.author.id) in str(devs)
-
-#LOAD EXTENSION
-@lookup_bot.command()
-@commands.check(dev_check)
-async def load(ctx, extension):
-    lookup_bot.load_extension(f"cogs.{extension}")
-    await ctx.send(f"`{extension}`" + " Loaded !")
-
-#UNLOAD EXTENSION
-@lookup_bot.command()
-@commands.check(dev_check)
-async def unload(ctx, extension):
-    lookup_bot.unload_extension(f"cogs.{extension}")
-    await ctx.send(f"`{extension}`" + " Unloaded !")
-
-#RELOAD EXTENSION
-@lookup_bot.command()
-@commands.check(dev_check)
-async def reload(ctx, extension):
-    lookup_bot.unload_extension(f"cogs.{extension}")
-    lookup_bot.load_extension(f"cogs.{extension}")
-    await ctx.send(f"`{extension}`" + " Reloaded !")
-
-# WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
-@lookup_bot.event
-async def on_ready():
-    print("Element_properties_lookup_tool")
-    await lookup_bot.change_presence(activity=discord.Game(name="THIS IS BETA !"))
-
-#HELP COMMAND
-@lookup_bot.command()
-async def lookup_usage(ctx):
-    await ctx.send(await Element_lookup.help_message())
-
-@lookup_bot.command()
-async def bot_usage(ctx):
-    await ctx.send(bot_help_message)
 
 @lookup_bot.command()
 async def mendel_lookup(ctx, arg1, arg2):
@@ -102,14 +52,13 @@ async def pubchem_lookup(ctx, arg1):
 #    lookup = self.pubchem_lookup_by_name_or_CID(user_input)
 
 # now we can just start copying code and changing it slightly to implement
-# new functionality, then import the class and good to go!
-###############################################################################
-from discord_chembot.element_lookup_class import Element_lookup
+# new functionality
+
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
 def size_check_256(thing_to_check):
     if len(thing_to_check) != None and 150 < len(thing_to_check) < 256:
-        return (str(txt[:100]) + "... sliced ...")
+        return (str(thing_to_check[:100]) + "... sliced ...")
     else:
         function_failure_message(thing_to_check, "red")
 ##############################################################################
