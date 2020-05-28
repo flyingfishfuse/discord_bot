@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import csv
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 
@@ -61,12 +62,14 @@ class Compound(database.Model):
 class Composition(Compound.Model):
     __tablename__       = 'Compound'
     id                  = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
-    name                = database.Column(database.String(64), index=True)
+    name                = database.Column(database.String(64))
     units               = database.Column(database.String(12))
-    compounds           = database.Column(database.String(120), index=True)
+    compounds           = database.Column(database.String(120))
     notes               = database.Column(database.String(256))
 
     def __repr__(self):
+        #TODO: transform CSV of ...formula,amount... to whatever
+        csv.reader(self.compounds, delimiter=",")
         return 'Compound: {} \n \
                 Units: {}    \n \
                 Formula: {}  \n \
@@ -83,8 +86,22 @@ database.session.commit()
 ################################################################################
 ##############                     FUNCTIONS                   #################
 ################################################################################
+
 def Compound_by_id(cid_of_compound):
+    """
+    Returns a compound from the local DB
+    """
     return Compound.query.all.filter_by(id = cid_of_compound).first()
+################################################################################
+def internal_local_database_lookup(entity : str, id_of_record:str ):
+    """
+    feed it a formula or CID followed buy "formula" or "cid"
+    """
+    if id_of_record    == "cid":
+        lookup_result  = database.Query(entity).filter_by("cid").first()
+    elif id_of_record  == "formula":
+        lookup_result  = database.Query(entity).filter_by("formula").first()
+    return lookup_result
 
 def add_to_db(thingie):
     """
@@ -94,6 +111,10 @@ def add_to_db(thingie):
     """
     database.session.add(thingie)
     database.session.commit
+################################################################################
 
 def update_db():
+    """
+    DUH
+    """
     database.session.commit()

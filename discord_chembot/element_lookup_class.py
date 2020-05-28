@@ -8,7 +8,7 @@ class Element_lookup(commands.Cog):
     async def help_message():
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
-isotopes, oxistates"
+isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         
     def reply_to_query(message):
         '''

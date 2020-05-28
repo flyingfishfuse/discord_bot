@@ -7,8 +7,8 @@ import discord
 import datetime
 import itertools
 import mendeleev
-import threading
-import wikipedia
+#import threading
+#import wikipedia
 import math, cmath
 from ionize import *
 from pprint import pprint
@@ -125,6 +125,15 @@ Also does chempy translation to feed data to the calculation engine
         self.name_lookup_result   = None
         name_lookup_results_list  = [] 
         print("loaded pubchem_commands")
+    
+    def balancer_help_message():
+        return " Reactants and Products are Comma Seperated Values using"+\
+        "symbolic names for elements e.g. \n user input for "+\
+        "reactants => NH4ClO4,Al \n user input for products "+\
+        " => Al2O3,HCl,H2O,N2 "
+
+    def lookup_help_message():
+        return "input CID or IUPAC name"
 
     def validate_user_input(self, user_input: str):
         # haha I made a joke!
@@ -203,12 +212,12 @@ Also does chempy translation to feed data to the calculation engine
         Puts a pubchem lookup to the database
         ["CID", "Formula", "Name"]
         """
-        lookup_cid       = lookup_list[0].get('cid')
-        lookup_formula   = lookup_list[1].get('formula')
-        lookup_name      = lookup_list[2].get('name')
-        add_to_db(Compound(cid     = lookup_cid,      \
-                           formula = lookup_formula,  \
-                           name = lookup_name         ))
+        lookup_cid                 = lookup_list[0].get('cid')
+        lookup_formula             = lookup_list[1].get('formula')
+        lookup_name                = lookup_list[2].get('name')
+        add_to_db(Compound(cid     = lookup_cid,          \
+                           formula = lookup_formula,      \
+                           name    = lookup_name         ))
 
     def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
@@ -223,6 +232,7 @@ Also does chempy translation to feed data to the calculation engine
         # query local database for records before performing pubchem
         # lookups
         for each in formula_list:
+            internal_local_database_lookup(each, "formula")
             pass
 
         new_comp = Composition(name       = comp_name,               \
@@ -232,9 +242,6 @@ Also does chempy translation to feed data to the calculation engine
         add_to_db(new_comp)
 
 
-    def internal_local_database_lookup(cid_or_formula : str):
-        lookup_result = database.Query(cid_or_formula).all().first()
-        return lookup_result
 
     async def format_mesage_arbitrary(self, arg1, arg2, arg3):
         pass
@@ -272,37 +279,17 @@ Also does chempy translation to feed data to the calculation engine
             text="",
             icon_url="")
         return formatted_message
-            
-        
-
-##############################################################################
-def Compound_by_id(cid_of_compound):
-    """
-    Returns a compound from the local DB
-    """
-    return Compound.query.all.filter_by(id = cid_of_compound).first()
-################################################################################
-
-def add_to_db(thingie):
-    """
-    Takes SQLAchemy Class_model Objects 
-    For updating changes to Class_model.Attribute using the form:
-    Class_model.Attribute = some_var 
-    """
-    database.session.add(thingie)
-    database.session.commit
-################################################################################
-
-def update_db():
-    """
-    DUH
-    """
-    database.session.commit()
 
 ################################################################################
 
 #example from docs    
 def balance_simple_equation(react, prod):
+    """
+    Reactants and Products are Comma Seperated Values
+    using symbolic names for elements e.g. 
+    user input for reactants => NH4ClO4,Al
+    user input for products  => Al2O3,HCl,H2O,N2
+    """
     reactants, products = chempy.balance_stoichiometry(react,prod)
     #pprint(dict(reac))
     #{'Al': 10, 'NH4ClO4': 6}
@@ -310,6 +297,10 @@ def balance_simple_equation(react, prod):
     #{'Al2O3': 5, 'H2O': 9, 'HCl': 6, 'N2': 3}
     react =  {'NH4ClO4', 'Al'}
     prod  =  {'Al2O3', 'HCl', 'H2O', 'N2'}
+
+    #iterates over reactants and products with the function 
+    # mass_fractions(reactants)
+    # mass_fractions(products)
     for fractions in map(mass_fractions, [react, prod]):
         pprint({k: '{0:.3g} wt%'.format(v*100) for k, v in fractions.items()})
     pprint([dict(_) for _ in balance_stoichiometry({'C', 'O2'}, {'CO2', 'CO'})])  # doctest: +SKIP
@@ -318,9 +309,13 @@ def balance_simple_equation(react, prod):
     user_input_reactants = "NH4ClO4,Al"
     user_input_products  = "Al2O3,HCl,H2O,N2"
 
+    #check the DB for the reactants
     for each in user_input_reactants:
-        local_db_query = local_database_lookup(each, "formula")
+        local_db_query = internal_local_database_lookup(each, "formula")
+        #it was in the database
         if local_db_query == True:
             return local_db_query
+        #it was not in the database
         elif local_db_query ==False:
             function_failure_message("local db query returned NEGATIVE", "red")
+            Pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
