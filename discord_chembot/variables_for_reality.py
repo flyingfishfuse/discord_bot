@@ -3,6 +3,9 @@
 # Some people will say this is a bad idea, they are wrong. Absolute statements
 # are, for the most part, not possible. Only, in matters of good and evil
 # can there be absolutes.
+# THIS IS A TOP LEVEL FILE
+# DO NOT CREATE CYCLIC DEPENDENCIES!
+
 
 # setup the discord variables that need to be global
 from discord.ext import commands
@@ -14,8 +17,9 @@ bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
 global global_output_container 
 global_output_container = []
 
-global lookup_output_container
-lookup_output_container = []
+# GLOBAL INPUT CONTAINER FOR USER INPUT VALIDATION
+global lookup_input_container
+lookup_input_container = []
 
 # Establish an error reporting function
 import colorama
@@ -23,7 +27,7 @@ from colorama import init
 init()
 from colorama import Fore, Back, Style
 
-def function_failure_message(exception_message : str, color_to_print : str):
+def function_message(exception_message : str, color_to_print : str):
     """
     A Robust exception message passing class? that uses colorama and inspect
     Takes red, green, blue as color arguments. WORK IN PROGERESS!

@@ -4,7 +4,7 @@ import csv
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 from discord_chembot.variables_for_reality import \
-    greenprint,redprint,blueprint,function_failure_message
+    greenprint,redprint,blueprint,function_message
 
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
@@ -109,17 +109,20 @@ database.session.commit()
 def Compound_by_id(cid_of_compound):
     """
     Returns a compound from the local DB
+
     """
     try:
 
         return Compound.query.all.filter_by(id = cid_of_compound).first()
     except Exception:
-        function_failure_message(Exception, "red")
+        function_message(Exception, "red")
+        return False
     
 ################################################################################
 def internal_local_database_lookup(entity : str, id_of_record:str ):
     """
     feed it a formula or CID followed buy "formula" or "cid"
+    Returns False and raises and exception/prints exception on error
     """
     try:
         if id_of_record    == "cid":
@@ -130,7 +133,8 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
             blueprint(lookup_result)
         return lookup_result
     except Exception:
-        function_failure_message(Exception, "red")
+        function_message(Exception, "red")
+        return False
     
 def add_to_db(thingie):
     """
@@ -142,7 +146,7 @@ def add_to_db(thingie):
         database.session.add(thingie)
         database.session.commit
     except Exception:
-        function_failure_message(Exception, "red")
+        function_message(Exception, "red")
 ################################################################################
 
 def update_db():
@@ -152,4 +156,4 @@ def update_db():
     try:
         database.session.commit()
     except Exception:
-        function_failure_message(Exception, "red")
+        function_message(Exception, "red")

@@ -66,7 +66,7 @@ def size_check_256(thing_to_check):
     if len(thing_to_check) != None and 150 < len(thing_to_check) < 256:
         return (str(thing_to_check[:100]) + "... sliced ...")
     else:
-        function_failure_message(thing_to_check, "red")
+        function_message(thing_to_check, "red")
 ##############################################################################
 
 class Pubchem_lookup(commands.Cog):
@@ -90,8 +90,49 @@ Also does chempy translation to feed data to the calculation engine
     def lookup_help_message():
         return "input CID or IUPAC name"
 
-    def validate_user_input(self, user_input: str):
-        # haha I made a joke!
+    def user_input_was_wrong(type_of_pebkac_failure : str):
+        """
+        You can put something funny here!
+            This is something the creator of the bot needs to modify to suit
+            Thier community.
+        """
+        user_is_a_doofus_CID_message  = "Stop being a doofus and feed me a good CID! "
+        user_is_a_doofus_formula_message = "Stop being a doofus and feed me a good formula!"
+        if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
+            Element_lookup.reply_to_query(user_is_a_doofus_CID_message)
+        elif type_of_pebkac_failure == "specifics":
+            Element_lookup.reply_to_query(user_is_a_doofus_formula_message)
+        else:
+            #change this to sonething reasonable
+            Element_lookup.reply_to_query(type_of_pebkac_failure)
+
+    def lookup_failure(type_of_failure: str):
+        """
+        does what it says on the label, called when a lookup is failed
+        """
+        if type_of_failure == SQLAlchemy.Exception:
+            pass
+        elif type_of_failure == pubchem.PubChemPyError:
+            pass
+        pass
+    def validate_user_input(self, ctx, user_input: str):
+        """
+    User Input is expected to be the proper identifier.
+        only one input, we are retrieving one record for one entity
+    
+    Remove self, ctx and async from the code to transition to non-discord
+        """
+        #this is a joke: "Hard Pass". 
+        # Difficult function to write, validating input and all
+        lambda hard = True : hard ; pass  
+
+    def validate_formula_input(formula_input : str):
+        """
+        :param formula_input: comma seperated values of element symbols
+        :type formula_input: str     
+    makes sure the formula supplied to the code is valid
+    This is an input side function
+        """
         # maybe we can feed the formula CSV to chempy directly and use the 
         # error and validation functions of chempy to determine if the 
         # user supplied good information? We can strongly reduce our own checks
@@ -99,15 +140,19 @@ Also does chempy translation to feed data to the calculation engine
         # code than necessary!
 
         # SO! Here we have fed the input to a chempy.Substance!
+        parsed_csv = csv.reader(user_input, delimiter=",")
+        for each in parsed_csv:
+            greenprint(each)
+            blueprint(chempy.Substance(each))
         try:
             test_entity1 = chempy.Substance.from_formula(user_input)
-            function_failure_message(test_entity1, "red")
+            test_entity2 = chempy.Substance.from_formula
+            function_message(test_entity1, "red")
         # if it doesn't work, lets see why!
         except Exception:
-            function_failure_message(Exception, "red")
-            function_failure_message(test_entity1, "red")
-        lambda hard = True : hard ; pass  
-
+            function_message(Exception, "red")
+            function_message(test_entity1, "red")
+        
     #remove async and ctx to make non-discord
     #async def send_reply(self, ctx, formatted_reply_object):
     #    reply = format_message_discord(self, ctx, formatted_reply)
@@ -118,7 +163,7 @@ Also does chempy translation to feed data to the calculation engine
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
-        '''
+        ''' 
         # yeah yeah yeah, we are swapping between array and string like a fool
         # but it serves a purpose. Need to keep the output as an iterable
         # until the very last second when we send it to the user.
@@ -147,7 +192,9 @@ Also does chempy translation to feed data to the calculation engine
         '''
         wakka wakka wakka
         outputs in the following order:
-        CID, Formula, Name
+        CID, CAS, SMILES, Formula, Name
+
+        Stores lookup in database if lookup is valid
         '''
         #make a thing
         return_relationships = list
@@ -156,8 +203,11 @@ Also does chempy translation to feed data to the calculation engine
         #if the user supplied a name
         ###################################
         if isinstance(compound_id, str):
-            lookup_results = pubchem.get_compounds(compound_id,'name',)
-            
+            try:
+                lookup_results = pubchem.get_compounds(compound_id,'name',)
+            except Exception :# pubchem.PubChemPyError:
+                function_message(Exception)
+                user_input_was_wrong("pubchem_lookup_by_name_or_CID")
             #if there were multiple results
             # TODO: we have to figure out a good way to store the extra results
                    #as possibly a side record
@@ -166,6 +216,7 @@ Also does chempy translation to feed data to the calculation engine
                     return_relationships.append([                      \
                     {'cid'     : each.cid                        },\
                     {'cas'     : each.cas                        },\
+                    {'smiles'  : each.smiles                     },\
                     {'formula' : each.molecular_formula          },\
                     {'name'    : each.iupac_name                 }])
                     ####################################################
@@ -179,11 +230,12 @@ Also does chempy translation to feed data to the calculation engine
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                return_relationships.append([                          \
-                    {'cid'     : lookup_results.cid              },\
-                    {'cas'     : each.cas                        },\
-                    {'formula' : lookup_results.molecular_formula},\
-                    {'name'    : lookup_results.iupac_name       }])
+                return_relationships.append([                       \
+                    {'cid'     : lookup_results.cid               },\
+                    {'cas'     : lookup_results.cas               },\
+                    {'smiles'  : lookup_results.smiles            },\
+                    {'formula' : lookup_results.molecular_formula },\
+                    {'name'    : lookup_results.iupac_name        }])
                 compound_to_database(return_relationships)
 
         ###################################
@@ -196,11 +248,12 @@ Also does chempy translation to feed data to the calculation engine
                 # TODO: we have to figure out a good way to store the extra results
                    #as possibly a side record
             if isinstance(lookup_results, list):
-                return_relationships.append([                            \
-                    {'cid'     : lookup_results.cid}                    ,\
-                    {'cas'     : each.cas                              },\
-                    {'formula' : lookup_results.molecular_formula}      ,\
-                    {'name'    : lookup_results.iupac_name}             ])
+                return_relationships.append([                        \
+                    {'cid'     : lookup_results.cid                },\
+                    {'cas'     : each.cas                          },\
+                    {'smiles'  : each.smiles                       },\
+                    {'formula' : lookup_results.molecular_formula  },\
+                    {'name'    : lookup_results.iupac_name         }])
             ####################################################
             #Right here we need to find a way to store multiple records
             # and determine the best record to store as the main entry
@@ -212,11 +265,12 @@ Also does chempy translation to feed data to the calculation engine
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                return_relationships.append([                          \
-                    {'cid'     : lookup_results.cid              },\
-                    {'cas'     : each.cas                        },\
-                    {'formula' : lookup_results.molecular_formula},\
-                    {'name'    : lookup_results.iupac_name       }])
+                return_relationships.append([                        \
+                    {'cid'     : lookup_results.cid                },\
+                    {'cas'     : lookup_results.cas                },\
+                    {'smiles'  : lookup_results.smiles             },\
+                    {'formula' : lookup_results.molecular_formula  },\
+                    {'name'    : lookup_results.iupac_name         }])
 
                 compound_to_database(return_relationships)
 
@@ -245,11 +299,17 @@ Also does chempy translation to feed data to the calculation engine
         """
         # query local database for records before performing pubchem
         # lookups
+        # expected to return FALSE if no record found
+        # if something is there, it will evaluate to true
         for each in formula_list:
-            internal_local_database_lookup(each, "formula")
-            pass
-            #TODO: do pubchem lookup now
-
+            input = formula_input_validation(each)
+            internal_lookup = internal_local_database_lookup(each, "formula")
+            if internal_lookup == False:
+                redprint("Internal Lookup returned false")
+                return "Internal Lookup returned false"
+            else :
+                #TODO: do pubchem lookup now
+                Pubche
         # extend this but dont forget to add more fields in the database model!
         add_to_db(Composition(name       = comp_name,               \
                               units      = units_used,              \
@@ -334,5 +394,5 @@ def balance_simple_equation(react, prod):
             return local_db_query
         #it was not in the database
         elif local_db_query ==False:
-            function_failure_message("local db query returned NEGATIVE", "red")
+            function_message("local db query returned NEGATIVE", "red")
             Pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
