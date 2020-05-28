@@ -3,9 +3,9 @@ import os
 import csv
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
-from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
-# took this from my game, gonna change it up
-# needed a template
+from discord_chembot.variables_for_reality import \
+    greenprint,redprint,blueprint,function_failure_message
+
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
 DATABASE_USER      = "admin"
@@ -36,15 +36,19 @@ database.init_app(discord_chembot_server)
 ##############                      Models                     #################
 ################################################################################
 # This is for caching any information that takes forever to grab
-#AW FUCK I FORGOT HOW THIS WORKS
 # TODO: create add_lookup_to_DB()
-#TODO Add composition model 
 
 class Compound(database.Model):
     __tablename__       = 'Compound'
-    id                  = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
+    id                  = database.Column(database.Integer, \
+                            index=True, \
+                            primary_key = True, \
+                            unique=True, \
+                            autoincrement=True)
     cid                 = database.Column(database.String(128))
-    name                = database.Column(database.String(64), index=True)
+    name                = database.Column(database.String(64))
+    cas                 = database.Column(database.String(64))
+    smiles              = database.Column(database.Text)
     formula             = database.Column(database.String(120), index=True)
 
     def __repr__(self):
@@ -52,7 +56,10 @@ class Compound(database.Model):
 
 class Composition(Compound.Model):
     __tablename__       = 'Compound'
-    id                  = database.Column(database.Integer, primary_key = True, unique=True, autoincrement=True)
+    id                  = database.Column(database.Integer, \
+                            primary_key = True, \
+                            unique=True, \
+                            autoincrement=True)
     name                = database.Column(database.String(64))
     units               = database.Column(database.String(12))
     compounds           = database.Column(database.String(120))
@@ -80,14 +87,14 @@ class Composition(Compound.Model):
             else:
                 compound = str(each)
                 redprint(compound)
+            ## OOF I hope this does what I expect
             formula + '{} : {} {}'.format(compound, amount , "\n\t")
-
         return 'Composition: {} \n\
                 Units: {} \n\
                 Formula: {} \n\
                 Notes: {}'.format(self.name, self.units, formula, self.notes)
 
-
+# dirty, dirty, chemistry
 test_entry = Compound(name ='test', formula="HeNTaI" )
 database.create_all()
 database.session.add(test_entry)
@@ -103,30 +110,46 @@ def Compound_by_id(cid_of_compound):
     """
     Returns a compound from the local DB
     """
-    return Compound.query.all.filter_by(id = cid_of_compound).first()
+    try:
+
+        return Compound.query.all.filter_by(id = cid_of_compound).first()
+    except Exception:
+        function_failure_message(Exception, "red")
+    
 ################################################################################
 def internal_local_database_lookup(entity : str, id_of_record:str ):
     """
     feed it a formula or CID followed buy "formula" or "cid"
     """
-    if id_of_record    == "cid":
-        lookup_result  = database.Query(entity).filter_by("cid").first()
-    elif id_of_record  == "formula":
-        lookup_result  = database.Query(entity).filter_by("formula").first()
-    return lookup_result
-
+    try:
+        if id_of_record    == "cid":
+            lookup_result  = database.Query(entity).filter_by("cid").first()
+            blueprint(lookup_result)
+        elif id_of_record  == "formula":
+            lookup_result  = database.Query(entity).filter_by("formula").first()
+            blueprint(lookup_result)
+        return lookup_result
+    except Exception:
+        function_failure_message(Exception, "red")
+    
 def add_to_db(thingie):
     """
     Takes SQLAchemy Class_model Objects 
     For updating changes to Class_model.Attribute using the form:
     Class_model.Attribute = some_var 
     """
-    database.session.add(thingie)
-    database.session.commit
+    try:
+        database.session.add(thingie)
+        database.session.commit
+    except Exception:
+        function_failure_message(Exception, "red")
 ################################################################################
 
 def update_db():
     """
     DUH
     """
-    database.session.commit()
+    try:
+        database.session.commit()
+    except Exception:
+        function_failure_message(Exception, "red")

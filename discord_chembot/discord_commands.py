@@ -1,5 +1,8 @@
+import discord
 from discord.ext import commands, tasks
-from discord_chembot.variables_for_reality import dev
+from discord_chembot.discord_key import *
+from discord_chembot.variables_for_reality import lookup_bot, bot_help_message
+from discord_chembot import Element_lookup
 # check if the person sending the command is a developer
 def dev_check(ctx):
     return str(ctx.author.id) in str(devs)
