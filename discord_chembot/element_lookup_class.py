@@ -1,3 +1,5 @@
+import discord_chembot
+
 class Element_lookup(commands.Cog):
     def __init__(self, ctx): #, input_container : list):
         #generate_element_name_list()

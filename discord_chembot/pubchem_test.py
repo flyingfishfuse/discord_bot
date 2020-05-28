@@ -90,16 +90,16 @@ async def mendel_lookup(ctx, arg1, arg2):
     await ctx.send(string_to_send)
 
 @lookup_bot.command()
-async def pubchem_lookup(ctx, arg1, arg2):
+async def pubchem_lookup(ctx, arg1):
     await Pubchem_lookup.validate_user_input(ctx, arg1)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     await ctx.send(string_to_send)
 
 @lookup_bot.command()
-async def pubsearch(self, ctx, arg1, arg2, arg3):
-    user_input = self.validate_user_input( arg1, arg2, arg3 )
-    lookup = self.pubchem_lookup_by_name_or_CID(user_input)
+#async def pubsearch(ctx, arg1, arg2, arg3):
+#    user_input = self.validate_user_input( arg1, arg2, arg3 )
+#    lookup = self.pubchem_lookup_by_name_or_CID(user_input)
 
 # now we can just start copying code and changing it slightly to implement
 # new functionality, then import the class and good to go!
@@ -120,11 +120,11 @@ Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
     '''
     def __init__(self):
-        self.asdf                 = []
-        self,lookup_result        = []
+        self.asdf                 = ["test_init : self.asdf"]
+        self,lookup_result        = ["test_init : self.lookup_result"]
         self.name_lookup_result   = None
-        name_lookup_results_list  = [] 
-        print("loaded pubchem_commands")
+        name_lookup_results_list  = ["test_init : self.name_lookup_results_list"] 
+        greenprint("loaded pubchem_commands")
     
     def balancer_help_message():
         return " Reactants and Products are Comma Seperated Values using"+\
@@ -137,8 +137,18 @@ Also does chempy translation to feed data to the calculation engine
 
     def validate_user_input(self, user_input: str):
         # haha I made a joke!
-        # this function is going to be fucking complicated and I am not
-        # looking forward to it! PLEASE HELP!
+        # maybe we can feed the formula CSV to chempy directly and use the 
+        # error and validation functions of chempy to determine if the 
+        # user supplied good information? We can strongly reduce our own checks
+        # EVERYWHERE if we validate on the input function. Don't write more 
+        # code than necessary!
+
+        # SO! Here we have fed the input to a chempy.Substance!
+        try:
+            test_entity1 = chempy.Substance.from_formula(user_input)
+        # if it doesn't work, lets see why!
+        except Exception:
+            function_failure_message(Exception, "red")
         lambda hard = True : hard ; pass  
 
     #remove async and ctx to make non-discord

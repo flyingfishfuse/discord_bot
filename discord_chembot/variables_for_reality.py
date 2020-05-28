@@ -8,7 +8,7 @@ from colorama import Fore, Back, Style
 def function_failure_message(exception_message : str, color_to_print : str):
     """
     A Robust exception message passing class? that uses colorama and inspect
-    Takes red, green, blue as color arguments
+    Takes red, green, blue as color arguments. WORK IN PROGERESS!
     """
     blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
     greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -32,7 +32,7 @@ greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
 discord_color = 0x3b12ef
-#deprecated
+#deprecated but VERY useful
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list
 #        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)

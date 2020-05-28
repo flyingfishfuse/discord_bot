@@ -69,6 +69,7 @@ class Composition(Compound.Model):
 
     def __repr__(self):
         #TODO: transform CSV of ...formula,amount... to whatever
+        # csv reader returns an iterable, here it would be the formula supplied
         csv.reader(self.compounds, delimiter=",")
         return 'Compound: {} \n \
                 Units: {}    \n \
