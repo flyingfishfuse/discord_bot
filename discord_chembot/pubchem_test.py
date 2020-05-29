@@ -23,7 +23,7 @@ from discord_chembot.database_setup import *
 #from discord_chembot.discord_commands import *
 from discord_chembot.element_lookup_class import Element_lookup
 from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
-from discord_chembot.variables_for_reality import show_line_number
+from discord_chembot.variables_for_reality import show_line_number,cas_regex
 #pretend main file, move contents to properties_lookup.py
 
 # setup the discord variables that need to be global
@@ -232,12 +232,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
         #this is a joke: "Hard Pass". 
         # lambda hard = True : hard ; pass  
         import inspect
+        temp_output_container = []
         ######################################################
         # if CAS
         if type_of_input == "cas":
             try:
                 #regex for a CAS number
-                cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
                 # if good
                 if re.match(cas_regex,user_input):
                     greenprint("GOOD CAS NUMBER")
@@ -246,13 +246,21 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     internal_lookup = internal_local_database_lookup(user_input, "cas")
                     # NOT IN THE LOCAL DB
                     if internal_lookup == False:
-                        redprint("============Internal Lookup returned false===========")
+                        redprint("============Internal Lookup returned FALSE===========")
                         blueprint("Performing a PubChem lookup")
                         # every good lookup will add an entry to the db
-                        Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                        print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
+                        #this returns an SQLAlchemy Object
+                        lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                        #output is now object in list in list
+                        # [ [lookup_object] ]
+                        temp_output_container.append(lookup_object)
+                        global lookup_output_container
+                        lookup_output_container = temp_output_container
                     #IN THE LOCAL DB
                     elif internal_lookup == True:
                         greenprint("============Internal Lookup returned TRUE===========")
+                        print(internal_lookup)
                         self.dump_db()
                     else:
                         function_message("validation lookup checks", "red")                    
