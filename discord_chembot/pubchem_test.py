@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import os
-#import re
+import re
 import chempy
 import ionize
 import asyncio
@@ -20,25 +20,99 @@ from discord.ext import commands, tasks
 from chempy import balance_stoichiometry
 from discord_chembot.discord_key import *
 from discord_chembot.database_setup import *
-from discord_chembot.discord_commands import *
-from discord_chembot.variables_for_reality import *
+#from discord_chembot.discord_commands import *
 from discord_chembot.element_lookup_class import Element_lookup
-
+from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
+#from discord_chembot.variables_for_reality import lookup_output_container
 #pretend main file, move contents to properties_lookup.py
+
+# setup the discord variables that need to be global
+from discord.ext import commands
+lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
+bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
+    \"element\" \"type_of_data\"."
+
+# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
+global lookup_output_container 
+lookup_output_container = []
+
+# GLOBAL INPUT CONTAINER FOR USER INPUT VALIDATION
+global lookup_input_container
+lookup_input_container = []
 
 #load the cogs into the bot
 if load_cogs == True:
     for filename in cog_directory_files:
         if filename.endswith(".py"):
             lookup_bot.load_extension(f"cogs.{filename[:-3]}")
+# check if the person sending the command is a developer
+def dev_check(ctx):
+    return str(ctx.author.id) in str(devs)
 
+#LOAD EXTENSION
+@lookup_bot.command()
+#@commands.check(dev_check)
+#async def load(ctx, extension):
+#    lookup_bot.load_extension("cogs.{}".format(extension))
+#    await ctx.send(f"'{}'".format(extension) + " Loaded !")
+
+#UNLOAD EXTENSION
+@lookup_bot.command()
+@commands.check(dev_check)
+async def unload(ctx, extension):
+    lookup_bot.unload_extension(f"cogs.{extension}")
+    await ctx.send(f"`{extension}`" + " Unloaded !")
+
+#RELOAD EXTENSION
+@lookup_bot.command()
+@commands.check(dev_check)
+async def reload(ctx, extension):
+    lookup_bot.unload_extension(f"cogs.{extension}")
+    lookup_bot.load_extension(f"cogs.{extension}")
+    await ctx.send(f"`{extension}`" + " Reloaded !")
+    #LOAD EXTENSION
+@lookup_bot.command()
+#@commands.check(dev_check)
+#async def load(ctx, extension):
+#    lookup_bot.load_extension("cogs.{}".format(extension))
+#    await ctx.send(f"'{}'".format(extension) + " Loaded !")
+
+#UNLOAD EXTENSION
+@lookup_bot.command()
+@commands.check(dev_check)
+async def unload(ctx, extension):
+    lookup_bot.unload_extension(f"cogs.{extension}")
+    await ctx.send(f"`{extension}`" + " Unloaded !")
+
+#RELOAD EXTENSION
+@lookup_bot.command()
+@commands.check(dev_check)
+async def reload(ctx, extension):
+    lookup_bot.unload_extension(f"cogs.{extension}")
+    lookup_bot.load_extension(f"cogs.{extension}")
+    await ctx.send(f"`{extension}`" + " Reloaded !")
+
+# WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
+@lookup_bot.event
+async def on_ready():
+    print("Element_properties_lookup_tool")
+    await lookup_bot.change_presence(activity=discord.Game(name="THIS IS BETA !"))
+
+#HELP COMMAND
+@lookup_bot.command()
+async def lookup_usage(ctx):
+    await ctx.send(await Element_lookup.help_message())
+
+@lookup_bot.command()
+async def bot_usage(ctx):
+    await ctx.send(bot_help_message)
 @lookup_bot.command()
 async def mendel_lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
     #await Element_lookup.format_and_print_output(lookup_output_container)
     #await ctx.send(lookup_output_container)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    string_to_send = list_to_string(lookup_output_container)
+    string_to_send = list_to_string(global_output_container)
     await ctx.send(string_to_send)
 
 @lookup_bot.command()
@@ -50,7 +124,7 @@ async def pubchem_lookup(ctx, arg1):
     
     # The lookup_output_container can be used to store objects!    
     #await ctx.send(content="lol", embed=formatted_reply_object)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
+    await ctx.send(content="lol", embed=global_output_container[0])
 
 @lookup_bot.command()
 #async def pubsearch(ctx, arg1, arg2, arg3):
@@ -74,7 +148,7 @@ class Pubchem_lookup(commands.Cog):
 Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
     '''
-    def __init__(self):
+    def __init__(self, ctx):
         self.asdf                 = ["test_init : self.asdf"]
         self,lookup_result        = ["test_init : self.lookup_result"]
         self.name_lookup_result   = None
@@ -110,12 +184,29 @@ Also does chempy translation to feed data to the calculation engine
         """
         does what it says on the label, called when a lookup is failed
         """
-        if type_of_failure == SQLAlchemy.Exception:
-            pass
+        #TODO: find sqlalchemy excep[tion object]
+        # why cant I find the type of object I need fuck me
+        if type_of_failure == "SQL":
+            global lookup_output_container
+            lookup_output_container = ["SQL QUERY FAILURE"]
         elif type_of_failure == pubchem.PubChemPyError:
-            pass
+            global lookup_output_container
+            lookup_output_container = ["chempy failure"]
         pass
-    def validate_user_input(self, ctx, user_input: str):
+    
+    def dump_db():
+        """
+    Prints database to screen
+        """
+        redprint("--------------DUMPING DATABASE-----------")
+        records1 = database.session.query(Compound).all()
+        records2 = database.session.query(Composition).all()
+        for each in records1, records2:
+            print (each)
+        redprint("-----------END DATABASE DUMP------------")
+
+
+    def validate_user_input(self, ctx, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         only one input, we are retrieving one record for one entity
@@ -123,8 +214,53 @@ Also does chempy translation to feed data to the calculation engine
     Remove self, ctx and async from the code to transition to non-discord
         """
         #this is a joke: "Hard Pass". 
-        # Difficult function to write, validating input and all
-        lambda hard = True : hard ; pass  
+        # lambda hard = True : hard ; pass  
+        cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
+##############################################################################
+# if formula
+        if type_of_input == "formula":
+            try:
+                wat = Pubchem_lookup.validate_formula_input()
+                internal_lookup = internal_local_database_lookup(user_input, "formula")
+                if internal_lookup == False:
+                    redprint("============Internal Lookup returned false===========")
+                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                elif internal_lookup == True:
+                    greenprint("============Internal Lookup returned TRUE===========")
+                else:
+                    function_message("validation lookup checks", "red")
+            except Exception:
+                function_message(Exception, "blue")            
+##############################################################################
+#if CAS
+        if type_of_input == "cid":
+            try:
+                wat = Pubchem_lookup.validate_formula_input()
+                internal_lookup = internal_local_database_lookup(user_input, "formula")
+                if internal_lookup == False:
+                    redprint("============Internal Lookup returned false===========")
+                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                elif internal_lookup == True:
+                    greenprint("============Internal Lookup returned TRUE===========")
+                else:
+                    function_message("validation lookup checks", "red")
+            except Exception:
+                function_message(Exception, "blue") 
+##############################################################################
+# if CID
+        if type_of_input == "cid":
+            try:
+                wat = Pubchem_lookup.validate_formula_input()
+                internal_lookup = internal_local_database_lookup(user_input, "formula")
+                if internal_lookup == False:
+                    redprint("============Internal Lookup returned false===========")
+                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                elif internal_lookup == True:
+                    greenprint("============Internal Lookup returned TRUE===========")
+                else:
+                    function_message("validation lookup checks", "red")
+            except Exception:
+                function_message(Exception, "blue") 
 
     def validate_formula_input(formula_input : str):
         """
@@ -140,12 +276,12 @@ Also does chempy translation to feed data to the calculation engine
         # code than necessary!
 
         # SO! Here we have fed the input to a chempy.Substance!
-        parsed_csv = csv.reader(user_input, delimiter=",")
+        parsed_csv = csv.reader(formula_input, delimiter=",")
         for each in parsed_csv:
             greenprint(each)
             blueprint(chempy.Substance(each))
         try:
-            test_entity1 = chempy.Substance.from_formula(user_input)
+            test_entity1 = chempy.Substance.from_formula(formula_input)
             test_entity2 = chempy.Substance.from_formula
             function_message(test_entity1, "red")
         # if it doesn't work, lets see why!
@@ -186,15 +322,19 @@ Also does chempy translation to feed data to the calculation engine
         #lookup_cid       = pubchem_lookup[0].get('cid')
         lookup_formula   = pubchem_lookup[1].get('formula')
         #lookup_name      = pubchem_lookup[2].get('name')
-        return chempy.Substance.from_formula(lookup_formula)
+        try:
+            greenprint(chempy.Substance.from_formula(lookup_formula))
+        except Exception:
+            function_message(asdf, "blue")
     
-    def pubchem_lookup_by_name_or_CID(self, compound_id:str or int):
+    def pubchem_lookup_by_name_or_CID(compound_id:str or int):
         '''
         wakka wakka wakka
         outputs in the following order:
         CID, CAS, SMILES, Formula, Name
 
         Stores lookup in database if lookup is valid
+        TODO: SEARCH BY CAS!!!!
         '''
         #make a thing
         return_relationships = list
@@ -226,6 +366,7 @@ Also does chempy translation to feed data to the calculation engine
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
+                    blueprint(return_relationships)
                     compound_to_database(return_relationships[0])
             
             # if there was only one result
@@ -236,6 +377,7 @@ Also does chempy translation to feed data to the calculation engine
                     {'smiles'  : lookup_results.smiles            },\
                     {'formula' : lookup_results.molecular_formula },\
                     {'name'    : lookup_results.iupac_name        }])
+                blueprint(return_relationships)
                 compound_to_database(return_relationships)
 
         ###################################
@@ -261,6 +403,7 @@ Also does chempy translation to feed data to the calculation engine
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
+                blueprint(return_relationships)
                 compound_to_database(return_relationships[0])
 
             #if there was only one result
@@ -271,7 +414,7 @@ Also does chempy translation to feed data to the calculation engine
                     {'smiles'  : lookup_results.smiles             },\
                     {'formula' : lookup_results.molecular_formula  },\
                     {'name'    : lookup_results.iupac_name         }])
-
+                blueprint(return_relationships)
                 compound_to_database(return_relationships)
 
 
@@ -293,9 +436,11 @@ Also does chempy translation to feed data to the calculation engine
         The composition is a relation between multiple Compounds
         Each Composition entry will have required a pubchem_lookup on each
         Compound in the Formula field. 
-        the formula is a CSV LIST WHERE: 
+        the formula_list is a CSV STRING WHERE: 
         ...str_compound,int_amount,.. REPEATING (floats allowed)
+        EXAMPLE : Al,27.7,NH4ClO4,72.3
 
+        BIG TODO: be able to input list of cas/cid/whatever for formula_list
         """
         # query local database for records before performing pubchem
         # lookups
@@ -303,22 +448,24 @@ Also does chempy translation to feed data to the calculation engine
         # if something is there, it will evaluate to true
         for each in formula_list:
             input = formula_input_validation(each)
-            internal_lookup = internal_local_database_lookup(each, "formula")
             if internal_lookup == False:
                 redprint("Internal Lookup returned false")
                 return "Internal Lookup returned false"
             else :
                 #TODO: do pubchem lookup now
-                Pubche
+                pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
+
         # extend this but dont forget to add more fields in the database model!
         add_to_db(Composition(name       = comp_name,               \
                               units      = units_used,              \
                               compounds  = formula_list,            \
-                              notes      = info                     )
+                              notes      = info                     ))
 
-    async def format_mesage_arbitrary(self, arg1, arg2, arg3):
+    
+    async def format_mesage_arbitrary(self, ctx, arg1, arg2, arg3):
         pass
 
+    
     async def format_message_discord(self, ctx, lookup_results_object):
         formatted_message = discord.Embed( \
             title=lookup_results_object.synonyms[0],

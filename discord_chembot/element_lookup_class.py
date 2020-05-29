@@ -1,5 +1,12 @@
 from discord_chembot.variables_for_reality import lookup_output_container
 
+#@lookup_bot.command()
+#async def lookup(ctx, arg1, arg2):
+#    await Element_lookup.validate_user_input(ctx, arg1, arg2)
+#    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+#    string_to_send = list_to_string(lookup_output_container)
+#    await ctx.send(string_to_send)
+
 class Element_lookup(commands.Cog):
     def __init__(self, ctx): #, input_container : list):
         #generate_element_name_list()

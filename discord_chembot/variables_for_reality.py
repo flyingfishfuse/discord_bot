@@ -6,21 +6,6 @@
 # THIS IS A TOP LEVEL FILE
 # DO NOT CREATE CYCLIC DEPENDENCIES!
 
-
-# setup the discord variables that need to be global
-from discord.ext import commands
-lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
-bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
-    \"element\" \"type_of_data\"."
-
-# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
-global global_output_container 
-global_output_container = []
-
-# GLOBAL INPUT CONTAINER FOR USER INPUT VALIDATION
-global lookup_input_container
-lookup_input_container = []
-
 # Establish an error reporting function
 import colorama
 from colorama import init
@@ -37,13 +22,18 @@ def function_message(exception_message : str, color_to_print : str):
     redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
     import inspect
     if color_to_print == "red":
-        redprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        # gets name of object calling this function, the previous frame calling this object
+        #f_back next outer frame object (this frame’s caller)
+
+        #This code would be used INSIDE the function being tested
+        #f_code code object being executed in this frame
+        redprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
         blueprint("\n" + exception_message)
     elif color_to_print == "green":
-        greenprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        greenprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
         blueprint("\n" + exception_message)
     elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + inspect.currentframe().f_code.co_name)
+        blueprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
         blueprint("\n" + exception_message)
     blueprint("\n" + exception_message)
 

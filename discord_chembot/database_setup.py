@@ -6,6 +6,15 @@ from flask_sqlalchemy import SQLAlchemy
 from discord_chembot.variables_for_reality import \
     greenprint,redprint,blueprint,function_message
 
+###############################################################################
+## TESTING VARS
+TESTING = True
+#The sqlite :memory: identifier is the default if no filepath is present. 
+# Specify sqlite:// and nothing else:
+#e = create_engine('sqlite://')
+TEST_DB = 'sqlite://'
+###############################################################################
+
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
 DATABASE_USER      = "admin"
@@ -16,19 +25,31 @@ ADMIN_NAME         = "mr_hai"
 ADMIN_PASSWORD     = "password"
 ADMIN_EMAIL        = "game_admin" + "@" + HTTP_HOST
 DANGER_STRING      = "TACOCAT"
+
 LOCAL_CACHE_FILE   = 'sqlite:///' + DATABASE + DATABASE_HOST + DATABASE_USER + ".db"
 easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS ", "CoCaINe"]
 ################################################################################
 ##############                      CONFIG                     #################
 ################################################################################
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
+    try:
+        if TESTING == True:
+            SQLALCHEMY_DATABASE_URI = TEST_DB
+        elif TESTING == False:
+            SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
+        else:
+            function_message(TESTING, "red")
+    except Exception:
+        function_message(Exception, "red")
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+try:
+    discord_chembot_server = Flask(__name__ , template_folder="templates" )
+    discord_chembot_server.config.from_object(Config)
+    database = SQLAlchemy(discord_chembot_server)
+    database.init_app(discord_chembot_server)
+except Exception:
+    function_message(Exception,"red")
 
-discord_chembot_server = Flask(__name__ , template_folder="templates" )
-discord_chembot_server.config.from_object(Config)
-database = SQLAlchemy(discord_chembot_server)
-database.init_app(discord_chembot_server)
 #One to many relationship
 #parent
 
@@ -52,13 +73,16 @@ class Compound(database.Model):
     formula             = database.Column(database.String(120), index=True)
 
     def __repr__(self):
-        return '<Compound:{} Formula: {} >'.format(self.name , self.formula)
+        return 'Compound: {} \n \
+                CAS     : {} \n \
+                Formula : {} \n '.format(self.name , self.cas, self.formula)
 
 class Composition(Compound.Model):
     __tablename__       = 'Compound'
     id                  = database.Column(database.Integer, \
-                            primary_key = True, \
-                            unique=True, \
+                            index=True,                     \
+                            primary_key = True,             \
+                            unique=True,                    \
                             autoincrement=True)
     name                = database.Column(database.String(64))
     units               = database.Column(database.String(12))
@@ -80,7 +104,7 @@ class Composition(Compound.Model):
         for each in formula_list:
             greenprint(each)
             #catches the amount
-            if each.isnumeric:
+            if each.isnumeric():
                 amount = str(each)
                 redprint(amount)
             #catches the element/compound
@@ -95,9 +119,15 @@ class Composition(Compound.Model):
                 Notes: {}'.format(self.name, self.units, formula, self.notes)
 
 # dirty, dirty, chemistry
-test_entry = Compound(name ='test', formula="HeNTaI" )
+test_comp_notes = """
+This is a test entry for the DB, it is a flash composition.
+Remember, the finer the Aluminum, the faster the flash. 
+"""
+test_entry1 = Compound(name ='test', formula="HeNTaI" )
+test_entry2 = Composition(name = "flash", units="%wt", compounds="Al,27.7,NH4ClO4,72.3", notes=test_comp_notes )
 database.create_all()
-database.session.add(test_entry)
+database.session.add(test_entry1)
+database.session.add(test_entry2)
 database.session.commit()
 #discord_chembot_server.run()
 
