@@ -139,3 +139,5 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
 
 specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
         "isotopes", "oxistates"]
+
+pubchem_search_types = ["cas", "cid" , "name" ] #, "formula"]

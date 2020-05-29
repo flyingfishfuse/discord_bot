@@ -161,6 +161,9 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
         elif id_of_record  == "formula":
             lookup_result  = database.Query(entity).filter_by("formula").first()
             blueprint(lookup_result)
+        elif id_of_record  == "cas":
+            lookup_result  = database.Query(entity).filter_by("cas").first()
+            blueprint(lookup_result)
         return lookup_result
     except Exception:
         function_message(Exception, "red")

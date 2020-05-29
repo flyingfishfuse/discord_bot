@@ -231,6 +231,17 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     greenprint("GOOD CAS NUMBER")
                     blueprint( 'line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
                     print(self.pubchem_lookup_by_CAS(user_input))
+                    internal_lookup = internal_local_database_lookup(user_input, "cas")
+                    # NOT IN THE LOCAL DB
+                    if internal_lookup == False:
+                        redprint("============Internal Lookup returned false===========")
+                        blueprint("Performing a PubChem lookup")
+                        Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                    #IN THE LOCAL DB
+                    elif internal_lookup == True:
+                        greenprint("============Internal Lookup returned TRUE===========")
+                    else:
+                        function_message("validation lookup checks", "red")                    
             except Exception:
                 function_message(Exception, "blue") 
         ######################################################
@@ -483,17 +494,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     {'name'    : lookup_results.iupac_name         }])
                 blueprint(return_relationships)
                 compound_to_database(return_relationships)
+
     def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
-        ["CID", "Formula", "Name"]
+        ["CID", "cas" , "Formula", "Name"]
         """
         lookup_cid                 = lookup_list[0].get('cid')
-        lookup_formula             = lookup_list[1].get('formula')
-        lookup_name                = lookup_list[2].get('name')
-        add_to_db(Compound(cid     = lookup_cid,          \
-                           formula = lookup_formula,      \
-                           name    = lookup_name         ))
+        lookup_cas                 = lookup_list[1].get('cas')
+        lookup_smiles              = lookup_list[2].get('smiles')
+        lookup_formula             = lookup_list[3].get('formula')
+        lookup_name                = lookup_list[4].get('name')
+        add_to_db(Compound(cid     = lookup_cid,                    \
+                           cas     = lookup_cas,                    \
+                           smiles  = lookup_smiles,                 \
+                           formula = lookup_formula,                \
+                           name    = lookup_name                   ))
 
     def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
@@ -512,13 +528,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # expected to return FALSE if no record found
         # if something is there, it will evaluate to true
         for each in formula_list:
-            input = formula_input_validation(each)
-            if internal_lookup == False:
-                redprint("Internal Lookup returned false")
-                return "Internal Lookup returned false"
-            else :
-                #TODO: do pubchem lookup now
-                pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
+            input = Pubchem_lookup.formula_input_validation(each)
 
         # extend this but dont forget to add more fields in the database model!
         add_to_db(Composition(name       = comp_name,               \
