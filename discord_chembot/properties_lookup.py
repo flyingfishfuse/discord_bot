@@ -45,6 +45,7 @@ from discord_chembot.database_setup import *
 ##    list resources available
 ##    TODO: show basic info if no specificity in query
 # created by : mr_hai on discord / flyingfishfuse on github
+## Test/Personal Server : https://discord.gg/95V7Mn
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
 # https://chemspipy.readthedocs.io/en/latest/
