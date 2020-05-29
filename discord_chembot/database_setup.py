@@ -153,6 +153,7 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
     """
     feed it a formula or CID followed buy "formula" or "cid"
     Returns False and raises and exception/prints exception on error
+    Returns an SQLAlchemy database object if record exists
     """
     try:
         if id_of_record    == "cid":

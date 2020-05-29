@@ -11,6 +11,9 @@ import colorama
 from colorama import init
 init()
 from colorama import Fore, Back, Style
+#Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+#Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+#Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
 def function_message(exception_message : str, color_to_print : str):
     """
@@ -44,6 +47,8 @@ blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
+
+cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
 discord_color = 0x3b12ef
 #deprecated but VERY useful
 #     def generate_element_validation_name_list(self):
