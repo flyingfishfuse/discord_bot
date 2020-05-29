@@ -215,7 +215,12 @@ Also does chempy translation to feed data to the calculation engine
         """
         #this is a joke: "Hard Pass". 
         # lambda hard = True : hard ; pass  
-        cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
+        import inspect
+        if type_of_input == "cas":
+            cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
+            if re.match(cas_regex,user_input):
+                greenprint("GOOD CAS NUMBER")
+                blueprint( 'line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 ##############################################################################
 # if formula
         if type_of_input == "formula":
