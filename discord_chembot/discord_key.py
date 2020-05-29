@@ -38,7 +38,7 @@
 #https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID_GOES_HERE&scope=bot&permissions=0
 #https://discordapp.com/oauth2/authorize?client_id=714607502985003080&scope=bot&permissions=3072
 import os
-discord_bot_token   = "NzE0NjA3NTAyOTg1MDAzMDgw.XsxIQA.6yt4UP9u8BXy5Jg7eZJzBVYLfSU"
+discord_bot_token   = "I done goofed again"
 COMMAND_PREFIX      = "."
 BOT_PERMISSIONS     = 3072
 devs                = [712737412018733076]
