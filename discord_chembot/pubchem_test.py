@@ -1,4 +1,40 @@
 #!/usr/bin/python3
+################################################################################
+## Chemical element resource database from wikipedia/mendeleev python library ##
+##                             for discord bot                                ##
+################################################################################
+# Copyright (c) 2020 Adam Galindo                                             ##
+#                                                                             ##
+# Permission is hereby granted, free of charge, to any person obtaining a copy##
+# of this software and associated documentation files (the "Software"),to deal##
+# in the Software without restriction, including without limitation the rights##
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   ##
+# copies of the Software, and to permit persons to whom the Software is       ##
+# furnished to do so, subject to the following conditions:                    ##
+#                                                                             ##
+# Licenced under GPLv3                                                        ##
+# https://www.gnu.org/licenses/gpl-3.0.en.html                                ##
+#                                                                             ##
+# The above copyright notice and this permission notice shall be included in  ##
+# all copies or substantial portions of the Software.                         ##
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+####
+################################################################################
+##    Search by element number, symbol,
+##    list resources available
+##    TODO: show basic info if no specificity in query
+# created by : mr_hai on discord / flyingfishfuse on github
+## Test/Personal Server : https://discord.gg/95V7Mn
+#list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
+#data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
+# https://chemspipy.readthedocs.io/en/latest/
 import os
 import re
 import chempy
@@ -252,15 +288,23 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
                         #this returns an SQLAlchemy Object
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-                        #output is now object in list in list
+                        # pass that object to the formatting 
+                        # function to assemble the message
+                        formatted_message = self.format_message_discord(lookup_object)
+                        # output is now formatted Discord.Embed() object
+                        # in list in list
                         # [ [lookup_object] ]
-                        temp_output_container.append(lookup_object)
+                        temp_output_container.append([formatted_message])
                         global lookup_output_container
                         lookup_output_container = temp_output_container
                     #IN THE LOCAL DB
                     elif internal_lookup == True:
                         greenprint("============Internal Lookup returned TRUE===========")
                         print(internal_lookup)
+                        formatted_message = self.format_message_discord(internal_lookup)
+                        temp_output_container.append([formatted_message])
+                        global lookup_output_container
+                        lookup_output_container = temp_output_container
                         self.dump_db()
                     else:
                         function_message("validation lookup checks", "red")                    
