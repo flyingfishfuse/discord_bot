@@ -39,6 +39,7 @@ def function_message(exception_message : str, color_to_print : str):
 
 
 #make them global scope for testing purposes
+show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)

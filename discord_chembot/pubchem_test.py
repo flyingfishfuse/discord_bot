@@ -23,7 +23,7 @@ from discord_chembot.database_setup import *
 #from discord_chembot.discord_commands import *
 from discord_chembot.element_lookup_class import Element_lookup
 from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
-#from discord_chembot.variables_for_reality import lookup_output_container
+from discord_chembot.variables_for_reality import show_line_number
 #pretend main file, move contents to properties_lookup.py
 
 # setup the discord variables that need to be global
@@ -222,7 +222,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         redprint("------------END DATABASE DUMP------------")
 
 
-    def validate_user_input(self, ctx, user_input: str, type_of_input:str):
+    async def validate_user_input(self, ctx, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         only one input, we are retrieving one record for one entity
@@ -236,11 +236,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # if CAS
         if type_of_input == "cas":
             try:
+                #regex for a CAS number
                 cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
+                # if good
                 if re.match(cas_regex,user_input):
                     greenprint("GOOD CAS NUMBER")
-                    blueprint( 'line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
-                    print(self.pubchem_lookup_by_CAS(user_input))
+                    print(self.pubchem_lookup_by_name_or_CID(user_input))
+                    show_line_number()
                     internal_lookup = internal_local_database_lookup(user_input, "cas")
                     # NOT IN THE LOCAL DB
                     if internal_lookup == False:
@@ -251,6 +253,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #IN THE LOCAL DB
                     elif internal_lookup == True:
                         greenprint("============Internal Lookup returned TRUE===========")
+                        self.dump_db()
                     else:
                         function_message("validation lookup checks", "red")                    
             except Exception:
@@ -259,12 +262,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # if formula
         if type_of_input == "formula":
             try:
-                wat = Pubchem_lookup.validate_formula_input()
-                internal_lookup = internal_local_database_lookup(user_input, "formula")
-                if internal_lookup == False:
+                if Pubchem_lookup.validate_formula_input(user_input) == True:
+                    lookup = internal_local_database_lookup(user_input, "formula")
+                if lookup == False:
                     redprint("============Internal Lookup returned false===========")
                     Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-                elif internal_lookup == True:
+                elif lookup == True:
                     greenprint("============Internal Lookup returned TRUE===========")
                 else:
                     function_message("validation lookup checks", "red")
@@ -275,8 +278,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
         if type_of_input == "cid":
             try:
                 wat = Pubchem_lookup.validate_formula_input()
-                internal_lookup = internal_local_database_lookup(user_input, "formula")
-                if internal_lookup == False:
+                lookup = internal_local_database_lookup(user_input, "formula")
+                if lookup == False:
                     redprint("============Internal Lookup returned false===========")
                     Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
                 elif internal_lookup == True:
@@ -285,7 +288,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     function_message("validation lookup checks", "red")
             except Exception:
                 function_message(Exception, "blue") 
-##############################################################################
+###############################################################################
 # if CID
         if type_of_input == "cid":
             try:
@@ -300,7 +303,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     function_message("validation lookup checks", "red")
             except Exception:
                 function_message(Exception, "blue") 
-
+###############################################################################
     def validate_formula_input(formula_input : str):
         """
         :param formula_input: comma seperated values of element symbols
@@ -333,7 +336,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
     #    reply = format_message_discord(self, ctx, formatted_reply)
     #    await ctx.send(content="lol", embed=formatted_reply_object)
     #    await ctx.send(content="lol", embed=reply)
-
+###############################################################################
     def send_lookup_to_output(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
@@ -352,7 +355,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         global lookup_output_container
         lookup_output_container = temp_array 
 
-
+###############################################################################
     def parse_lookup_to_chempy(pubchem_lookup : list):
         '''
         creates a chempy something or other based on what you feed it
@@ -365,7 +368,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             greenprint(chempy.Substance.from_formula(lookup_formula))
         except Exception:
             function_message(asdf, "blue")
-    
+###############################################################################    
     def pubchem_lookup_by_name_or_CID(compound_id:str or int, type_of_data:str):
         '''
         Provide a search term and record type
@@ -419,7 +422,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
+                    redprint("=========RETURN RELATIONSHIPS=======")
                     blueprint(return_relationships)
+                    redprint("=========RETURN RELATIONSHIPS=======")
                     compound_to_database(return_relationships[return_index])
             
             # if there was only one result
@@ -430,7 +435,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     {'smiles'  : lookup_results.smiles            },\
                     {'formula' : lookup_results.molecular_formula },\
                     {'name'    : lookup_results.iupac_name        }])
+                redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
+                redprint("=========RETURN RELATIONSHIPS=======")
                 compound_to_database(return_relationships)
 
         ###################################
@@ -459,7 +466,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
+                redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
+                redprint("=========RETURN RELATIONSHIPS=======")
                 compound_to_database(return_relationships[return_index])
 
             #if there was only one result
@@ -470,7 +479,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     {'smiles'  : lookup_results.smiles             },\
                     {'formula' : lookup_results.molecular_formula  },\
                     {'name'    : lookup_results.iupac_name         }])
+                redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
+                redprint("=========RETURN RELATIONSHIPS=======")
                 compound_to_database(return_relationships)
 
         ###################################
@@ -499,7 +510,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
+                redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
+                redprint("=========RETURN RELATIONSHIPS=======")
                 compound_to_database(return_relationships[return_index])
 
             #if there was only one result
@@ -510,9 +523,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     {'smiles'  : lookup_results.smiles             },\
                     {'formula' : lookup_results.molecular_formula  },\
                     {'name'    : lookup_results.iupac_name         }])
+                redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
+                redprint("=========RETURN RELATIONSHIPS=======")
                 compound_to_database(return_relationships)
+            else:
+                function_message("PUBCHEM LOOKUP BY CID", "red")
+        #and then, once all that is done return the LOCAL database entry to
+        # the calling function so this is just an API to the db code
+        return_query = return_relationships[return_index.get("cid")]
+        redprint("==BEGINNING==return query for pubchem/local lookup===========")
+        blueprint(return_query)
+        redprint("=====END=====return query for pubchem/local lookup===========")
 
+        return Compound_by_id(return_query)
+
+###############################################################################
     def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
@@ -528,7 +554,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                            smiles  = lookup_smiles,                 \
                            formula = lookup_formula,                \
                            name    = lookup_name                   ))
-
+###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
         """
@@ -554,11 +580,11 @@ Example 3 : .pubchemlookup 113-00-8 cas
                               compounds  = formula_list,            \
                               notes      = info                     ))
 
-    
+ ###############################################################################   
     async def format_mesage_arbitrary(self, ctx, arg1, arg2, arg3):
         pass
 
-    
+###############################################################################    
     async def format_message_discord(self, ctx, lookup_results_object):
         formatted_message = discord.Embed( \
             title=lookup_results_object.synonyms[0],
