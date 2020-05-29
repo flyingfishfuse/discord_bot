@@ -162,7 +162,13 @@ Also does chempy translation to feed data to the calculation engine
         "user input for products  => Al2O3,HCl,H2O,N2 \n"
 
     def lookup_help_message():
-        return "input CID or IUPAC name"
+        return """
+input CID or IUPAC name or synonym
+Provide a search term and "term type", term types are "cas" , "name" , "cid"
+Example 1 : .pubchemlookup methanol name
+Example 2 : .pubchemlookup 3520 cid
+Example 3 : .pubchemlookup 113-00-8 cas
+"""
 
     def user_input_was_wrong(type_of_pebkac_failure : str):
         """
@@ -216,13 +222,19 @@ Also does chempy translation to feed data to the calculation engine
         #this is a joke: "Hard Pass". 
         # lambda hard = True : hard ; pass  
         import inspect
+        ######################################################
+        # if CAS
         if type_of_input == "cas":
-            cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
-            if re.match(cas_regex,user_input):
-                greenprint("GOOD CAS NUMBER")
-                blueprint( 'line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
-##############################################################################
-# if formula
+            try:
+                cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
+                if re.match(cas_regex,user_input):
+                    greenprint("GOOD CAS NUMBER")
+                    blueprint( 'line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
+                    print(self.pubchem_lookup_by_CAS(user_input))
+            except Exception:
+                function_message(Exception, "blue") 
+        ######################################################
+        # if formula
         if type_of_input == "formula":
             try:
                 wat = Pubchem_lookup.validate_formula_input()
@@ -332,13 +344,19 @@ Also does chempy translation to feed data to the calculation engine
         except Exception:
             function_message(asdf, "blue")
     
-    def pubchem_lookup_by_name_or_CID(compound_id:str or int):
+    def pubchem_lookup_by_name_or_CID(compound_id:str or int, type_of_data:str):
         '''
-        wakka wakka wakka
+        Provide a search term and record type
+        requests can be CAS,CID,IUPAC NAME/SYNONYM
+
         outputs in the following order:
         CID, CAS, SMILES, Formula, Name
 
         Stores lookup in database if lookup is valid
+        I know it looks like it can be refactored into a smaller block 
+        but they actually require slightly different code for each lookup
+        and making a special function to do that would be just as long probably
+        I'll look at it
         TODO: SEARCH BY CAS!!!!
         '''
         #make a thing
@@ -347,9 +365,10 @@ Also does chempy translation to feed data to the calculation engine
         ###################################
         #if the user supplied a name
         ###################################
-        if isinstance(compound_id, str):
+        if type_of_data == "name":
+        #if isinstance(compound_id, str):
             try:
-                lookup_results = pubchem.get_compounds(compound_id,'name',)
+                lookup_results = pubchem.get_compounds(compound_id,'name')
             except Exception :# pubchem.PubChemPyError:
                 function_message(Exception)
                 user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -388,9 +407,12 @@ Also does chempy translation to feed data to the calculation engine
         ###################################
         #if the user supplied a CID
         ###################################
-
-        elif isinstance(compound_id, int):
-            lookup_results = pubchem.Compound.from_cid(compound_id)
+        elif type_of_data == "cid":
+        #elif isinstance(compound_id, int):
+            try:
+                lookup_results = pubchem.Compound.from_cid(compound_id)
+            except Exception :# pubchem.PubChemPyError:
+                function_message(Exception)
                 #if there were multiple results
                 # TODO: we have to figure out a good way to store the extra results
                    #as possibly a side record
@@ -422,7 +444,45 @@ Also does chempy translation to feed data to the calculation engine
                 blueprint(return_relationships)
                 compound_to_database(return_relationships)
 
+        ###################################
+        #if the user supplied a CAS
+        ###################################
+        elif type_of_data == "cas":
+        #elif isinstance(compound_id, int):
+            try:
+                lookup_results = pubchem.get_compounds(compound_id,'name',)
+            except Exception :# pubchem.PubChemPyError:
+                function_message(Exception)                
+            #if there were multiple results
+            # TODO: we have to figure out a good way to store the extra results
+            #as possibly a side record
+            if isinstance(lookup_results, list):
+                return_relationships.append([                        \
+                    {'cid'     : lookup_results.cid                },\
+                    {'cas'     : each.cas                          },\
+                    {'smiles'  : each.smiles                       },\
+                    {'formula' : lookup_results.molecular_formula  },\
+                    {'name'    : lookup_results.iupac_name         }])
+            ####################################################
+            #Right here we need to find a way to store multiple records
+            # and determine the best record to store as the main entry
+            ####################################################
+                    #compound_to_database() TAKES A LIST
+                    # first element of first element
+                    #[ [this thing here] , [not this one] ]
+                blueprint(return_relationships)
+                compound_to_database(return_relationships[0])
 
+            #if there was only one result
+            elif isinstance(lookup_results, pubchem.Compound):
+                return_relationships.append([                        \
+                    {'cid'     : lookup_results.cid                },\
+                    {'cas'     : lookup_results.cas                },\
+                    {'smiles'  : lookup_results.smiles             },\
+                    {'formula' : lookup_results.molecular_formula  },\
+                    {'name'    : lookup_results.iupac_name         }])
+                blueprint(return_relationships)
+                compound_to_database(return_relationships)
     def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
