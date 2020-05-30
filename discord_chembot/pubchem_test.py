@@ -347,7 +347,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     temp_output_container.append([formatted_message])
                     global lookup_output_container
                     lookup_output_container = temp_output_container
-                elif internal_lookup == True:
+                elif isinstance(internal_lookup, SQLAlchemy.Query()):
                     greenprint("============Internal Lookup returned TRUE===========")
                     formatted_message = self.format_message_discord(internal_lookup)
                     temp_output_container.append([formatted_message])
@@ -359,7 +359,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             except Exception:
                 function_message(Exception, "blue") 
 ###############################################################################
-    def validate_formula_input(formula_input : str):
+    def validate_formula_input(equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -379,14 +379,25 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # E.G.   =>
         #
         # parsed_equation = csv.reader(formula_input, delimiter=" => ")
-        user_input_reactants = "NH4ClO4,Al"
-        user_input_products  = "Al2O3,HCl,H2O,N2"
-        eq = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
-        parsed_equation = str.split(" => ")
+
+        # How do I validate somthing with an arbitrary "bad data" dataset...
+        # hmmm... cannot plan for anything but good stuff...
+        # reject anything but good stuff... hmmm
+
+        #user_input_reactants = "NH4ClO4,Al"
+        #user_input_products  = "Al2O3,HCl,H2O,N2"
+        #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
         formula_list1 , formula_list2 = []
-        good_data = ""
-        parsed_formula_front  = csv.reader(str.StringIO(parsed_equation[0]), delimiter=",")
-        parsed_formula_back   = csv.reader(parsed_equation[1], delimiter=",")
+        try:
+            parsed_equation = equation_user_input.split(" => ")
+            user_input_reactants = parsed_equation[0]
+            user_input_products  = parsed_equation[1]
+
+        except Exception:
+            function_message(Exception, "red")
+
+        parsed_formula_front  = str.split(parsed_equation[0], sep =",")
+        parsed_formula_back   = str.split(parsed_equation[1], sep =",")
         for each in parsed_formula_front:
             formula_list1.append(chempy.Substance(each))
         for each in parsed_formula_back:
