@@ -39,8 +39,9 @@ import os
 import csv
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
-from discord_chembot.variables_for_reality import \
-    greenprint,redprint,blueprint,function_message
+#from discord_chembot.variables_for_reality import \
+#    greenprint,redprint,blueprint,function_message
+from variables_for_reality import greenprint,redprint,blueprint,function_message
 
 ###############################################################################
 ## TESTING VARS
@@ -68,16 +69,12 @@ easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS "
 ##############                      CONFIG                     #################
 ################################################################################
 class Config(object):
-    try:
-        if TESTING == True:
-            SQLALCHEMY_DATABASE_URI = TEST_DB
-        elif TESTING == False:
-            SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
-        else:
-            function_message(TESTING, "red")
-    except Exception:
-        function_message(Exception, "red")
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    if TESTING == True:
+        SQLALCHEMY_DATABASE_URI = TEST_DB
+        #SQLALCHEMY_TRACK_MODIFICATIONS = True
+    elif TESTING == False:
+        SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
+
 try:
     discord_chembot_server = Flask(__name__ , template_folder="templates" )
     discord_chembot_server.config.from_object(Config)
@@ -93,10 +90,9 @@ except Exception:
 ##############                      Models                     #################
 ################################################################################
 # This is for caching any information that takes forever to grab
-# TODO: create add_lookup_to_DB()
-
 class Compound(database.Model):
     __tablename__       = 'Compound'
+    __table_args__      = {'extend_existing': True}
     id                  = database.Column(database.Integer, \
                             index=True, \
                             primary_key = True, \
@@ -113,8 +109,9 @@ class Compound(database.Model):
                 CAS     : {} \n \
                 Formula : {} \n '.format(self.name , self.cas, self.formula)
 
-class Composition(Compound.Model):
+class Composition(database.Model):
     __tablename__       = 'Compound'
+    __table_args__      = {'extend_existing': True}
     id                  = database.Column(database.Integer, \
                             index=True,                     \
                             primary_key = True,             \

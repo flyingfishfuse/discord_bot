@@ -51,16 +51,25 @@ from pprint import pprint
 import pubchempy as pubchem
 #from bs4 import BeautifulSoup
 from chempy import mass_fractions
-import discord_chembot.database_setup
+#import discord_chembot.database_setup
 from discord.ext import commands, tasks
-from chempy import balance_stoichiometry
-from discord_chembot.discord_key import *
-from discord_chembot.database_setup import *
+#from chempy import balance_stoichiometry
+#from discord_chembot.discord_key import *
+#from discord_chembot.database_setup import *
 #from discord_chembot.discord_commands import *
-from discord_chembot.element_lookup_class import Element_lookup
-from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
-from discord_chembot.variables_for_reality import show_line_number,cas_regex
+#from discord_chembot.element_lookup_class import Element_lookup
+#from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
+#from discord_chembot.variables_for_reality import show_line_number,cas_regex
 #pretend main file, move contents to properties_lookup.py
+import database_setup
+from chempy import balance_stoichiometry
+from discord_key import *
+from database_setup import *
+#from discord_chembot.discord_commands import *
+from element_lookup_class import Element_lookup
+from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import show_line_number,cas_regex
+
 
 # setup the discord variables that need to be global
 from discord.ext import commands
@@ -152,6 +161,12 @@ async def balancer_usage(ctx):
 async def bot_usage(ctx):
     await ctx.send(bot_help_message)
 
+#even though you a dev, why should I trust you?
+# give a password!
+@lookup_bot.command()
+async def restart_bot(secret_code):
+    Restart_bot(secret_code)
+
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
@@ -188,6 +203,9 @@ def size_check_256(thing_to_check):
     else:
         function_message(thing_to_check, "red")
 ##############################################################################
+class RestartBot(commands.Cog):
+
+    pass
 
 class Pubchem_lookup(commands.Cog):
     '''
@@ -231,7 +249,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_array 
 
     #remove async and ctx to make non-discord
@@ -291,10 +309,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         #TODO: find sqlalchemy exception object
         # why cant I find the type of object I need fuck me
         if type_of_failure == "SQL":
-            global lookup_output_container
+            ##global lookup_output_container
             lookup_output_container = ["SQL QUERY FAILURE"]
         elif type_of_failure == pubchem.PubChemPyError:
-            global lookup_output_container
+            ##global lookup_output_container
             lookup_output_container = ["chempy failure"]
         pass
     
@@ -332,7 +350,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         # in list in list
                         # [ [lookup_object] ]
                         temp_output_container.append([formatted_message])
-                        global lookup_output_container
+                        #global lookup_output_container
                         lookup_output_container = temp_output_container
                     #IN THE LOCAL DB
                     elif isinstance(internal_lookup, SQLAlchemy.Query()):
@@ -340,7 +358,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         print(internal_lookup)
                         formatted_message = self.format_message_discord(internal_lookup)
                         temp_output_container.append([formatted_message])
-                        global lookup_output_container
+                        ##global lookup_output_container
                         lookup_output_container = temp_output_container
                         self.dump_db()
                     else:
@@ -357,13 +375,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
                     formatted_message = self.format_message_discord(lookup_object)
                     temp_output_container.append([formatted_message])
-                    global lookup_output_container
+                    ##global lookup_output_container
                     lookup_output_container = temp_output_container
                 elif isinstance(internal_lookup, SQLAlchemy.Query()):
                     greenprint("============Internal Lookup returned TRUE===========")
                     formatted_message = self.format_message_discord(internal_lookup)
                     temp_output_container.append([formatted_message])
-                    global lookup_output_container
+                    #global lookup_output_container
                     lookup_output_container = temp_output_container
                     self.dump_db()
                 else:
@@ -380,13 +398,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
                     formatted_message = self.format_message_discord(lookup_object)
                     temp_output_container.append([formatted_message])
-                    global lookup_output_container
+                    #global lookup_output_container
                     lookup_output_container = temp_output_container
                 elif isinstance(internal_lookup, SQLAlchemy.Query()):
                     greenprint("============Internal Lookup returned TRUE===========")
                     formatted_message = self.format_message_discord(internal_lookup)
                     temp_output_container.append([formatted_message])
-                    global lookup_output_container
+                    #global lookup_output_container
                     lookup_output_container = temp_output_container
                     self.dump_db()
                 else:
@@ -788,7 +806,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_array        
         
     def user_input_was_wrong(type_of_pebkac_failure : str):
@@ -853,7 +871,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             Element_lookup.user_input_was_wrong("specifics")
 
         if element_valid and specifics_valid == True:      
-            global lookup_output_container
+            #global lookup_output_container
             if specifics_requested    == "basic":
                 Element_lookup.get_basic_element_properties(element_id_user_input)
                 Element_lookup.reply_to_query(lookup_output_container)
@@ -950,7 +968,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         Returns some historical information about the element requested
         takes either a name,atomic number, or symbol
         """
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         lookup_output_container.append("Uses: " + element_object.uses        + "\n")
@@ -1004,7 +1022,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Mass: "           + str(element_object.mass)          + "\n")
         temp_output_container.append("Description: " + element_object.description  + "\n")
         temp_output_container.append("Sources: " + element_object.sources  + "\n")
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container
         print(temp_output_container)
 
@@ -1022,7 +1040,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Melting Point:"  + str(element_object.melting_point) + "\n")
         temp_output_container.append("Specific Heat:"  + str(element_object.specific_heat) + "\n")
         temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "\n")
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container
 
 ###############################################################################
@@ -1039,7 +1057,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         #temp_output_container.append("Electronegativity: "    + str(element_object.electronegativity)  + "\n")
         #temp_output_container.append("Covalent Radius: "      + str(element_object.covalent_radius)    + "\n")
         #temp_output_container.append("Polarizability: "       + str(element_object.dipole_polarizability)  + "\n")
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container
 
 ###############################################################################
@@ -1055,7 +1073,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Atomic Radius: "  + str(element_object.atomic_radius)  + "\n")
         temp_output_container.append("Atomic Weight: "  + str(element_object.atomic_weight)  + "\n")
         temp_output_container.append("Radioactivity: "  + str(element_object.is_radioactive)  + "\n")
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container
 
 ###############################################################################
@@ -1068,7 +1086,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Isotopes: " + str(element_object.isotopes) + "\n")
         #await Element_lookup.format_and_print_output(output_container)
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container
 
 ###############################################################################
@@ -1080,5 +1098,5 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Ionization Energies: " + str(element_object.ionenergies)  + "\n")
-        global lookup_output_container
+        #global lookup_output_container
         lookup_output_container = temp_output_container

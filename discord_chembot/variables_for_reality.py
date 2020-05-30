@@ -44,6 +44,7 @@
 # DO NOT CREATE CYCLIC DEPENDENCIES!
 
 # Establish an error reporting function
+import re
 import colorama
 from colorama import init
 init()
