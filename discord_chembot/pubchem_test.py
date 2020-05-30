@@ -215,19 +215,65 @@ Example 1 : .pubchemlookup methanol name
 Example 2 : .pubchemlookup 3520 cid
 Example 3 : .pubchemlookup 113-00-8 cas
 """
+###############################################################################
+    def send_lookup_to_output(message):
+        '''
+    Takes a list or string, if list, joins the list to a string and assigns to 
+    lookup_output_container.
+        ''' 
+        # yeah yeah yeah, we are swapping between array and string like a fool
+        # but it serves a purpose. Need to keep the output as an iterable
+        # until the very last second when we send it to the user.
+        #We want to be able to allow the developer to just send a list
+        # or string to the output when adding new functions instead of
+        # having to pay attention to too much stuff!
+        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        if isinstance(message,list):
+            message = list_to_string(message) 
+        temp_array = [message]
+        global lookup_output_container
+        lookup_output_container = temp_array 
 
-    def user_input_was_wrong(type_of_pebkac_failure : str):
+###############################################################################
+    def parse_lookup_to_chempy(pubchem_lookup : list):
+        '''
+        creates a chempy something or other based on what you feed it
+        like cookie monster
+        '''
+        #lookup_cid       = pubchem_lookup[0].get('cid')
+        lookup_formula   = pubchem_lookup[1].get('formula')
+        #lookup_name      = pubchem_lookup[2].get('name')
+        try:
+            greenprint(chempy.Substance.from_formula(lookup_formula))
+        except Exception:
+            function_message(asdf, "blue")
+###############################################################################
+
+    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = str):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        user_is_a_doofus_CID_message  = "Stop being a doofus and feed me a good CID! "
-        user_is_a_doofus_formula_message = "Stop being a doofus and feed me a good formula!"
+        
+        user_is_a_doofus_CID_message = \
+            "Stop being a doofus and feed me a good CID! "
+        user_is_a_doofus_formula_message = \
+            "Stop being a doofus and feed me a good formula!"
+        user_is_a_doofus_form_react_message = \
+            "the following input was invalid: " + bad_string 
+        user_is_a_doofus_form_prod_message = \
+            "the following input was invalid: " + bad_string
+        user_is_a_doofus_form_gen_message = \
+            "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
             Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
             Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
+        elif type_of_pebkac_failure == "formula_reactants":
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
+        elif type_of_pebkac_failure == "formula_products":
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
         else:
             #change this to sonething reasonable
             Element_lookup.reply_to_query(type_of_pebkac_failure)
@@ -265,8 +311,6 @@ Example 3 : .pubchemlookup 113-00-8 cas
     
     Remove self, ctx and async from the code to transition to non-discord
         """
-        #this is a joke: "Hard Pass". 
-        # lambda hard = True : hard ; pass  
         import inspect
         temp_output_container = []
         ######################################################
@@ -288,10 +332,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         # every good lookup will add an entry to the db and return 
                         # the local db entry... two queries... gotta fix that...
                         print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
-                        #this returns an SQLAlchemy Object
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-                        # pass that object to the formatting 
-                        # function to assemble the message
                         formatted_message = self.format_message_discord(lookup_object)
                         # output is now formatted Discord.Embed() object
                         # in list in list
@@ -300,7 +341,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         global lookup_output_container
                         lookup_output_container = temp_output_container
                     #IN THE LOCAL DB
-                    elif internal_lookup == True:
+                    elif isinstance(internal_lookup, SQLAlchemy.Query()):
                         greenprint("============Internal Lookup returned TRUE===========")
                         print(internal_lookup)
                         formatted_message = self.format_message_discord(internal_lookup)
@@ -318,7 +359,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             try:
                 internal_lookup = internal_local_database_lookup(user_input, "cid")
                 if isinstance(internal_lookup, SQLAlchemy.Query()) == False:
-                    redprint("============Internal Lookup returned false===========")
+                    redprint("============Internal Lookup returned FALSE===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
                     formatted_message = self.format_message_discord(lookup_object)
                     temp_output_container.append([formatted_message])
@@ -359,7 +400,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             except Exception:
                 function_message(Exception, "blue") 
 ###############################################################################
-    def validate_formula_input(equation_user_input : str):
+    def validate_formula_input(self, ctx, equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -368,33 +409,44 @@ Example 3 : .pubchemlookup 113-00-8 cas
     eq = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
     note the two spaces
         """
-        # maybe we can feed the formula CSV to chempy directly and use the 
-        # error and validation functions of chempy to determine if the 
-        # user supplied good information? We can strongly reduce our own checks
-        # EVERYWHERE if we validate on the input function. Don't write more 
-        # code than necessary!
-
-        # SO! Here we have fed the input to a chempy.Substance!
-        # split reaction by equals delimiter from nomenclature
-        # E.G.   =>
-        #
-        # parsed_equation = csv.reader(formula_input, delimiter=" => ")
-
-        # How do I validate somthing with an arbitrary "bad data" dataset...
-        # hmmm... cannot plan for anything but good stuff...
-        # reject anything but good stuff... hmmm
-
         #user_input_reactants = "NH4ClO4,Al"
         #user_input_products  = "Al2O3,HCl,H2O,N2"
         #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
         formula_list1 , formula_list2 = []
         try:
+            # validate equation formatting
             parsed_equation = equation_user_input.split(" => ")
-            user_input_reactants = parsed_equation[0]
-            user_input_products  = parsed_equation[1]
+
+            try:
+                #validate reactants formatting
+                user_input_reactants = str.split(parsed_equation[0], sep =",")
+            except Exception:
+                self.user_input_was_wrong("formula_reactants", user_input_reactants)                
+            
+            try:
+                #validate products formatting
+                user_input_products  = str.split(parsed_equation[1], sep =",")
+            except Exception:
+                self.user_input_was_wrong("formula_products", user_input_products)  
+            
+            try:
+                #validate reactants contents
+                for each in user_input_reactants:
+                    validation_check = chempy.Substance(each)
+            except Exception:
+                self.user_input_was_wrong("formula_reactants", each)  
+            
+            try:
+                #validate products contents
+                for each in user_input_products:
+                    validation_check = chempy.Substance(each)
+            except Exception:
+                self.user_input_was_wrong("formula_products", each)  
 
         except Exception:
             function_message(Exception, "red")
+            self.user_input_was_wrong("formula_general")
+        
 
         parsed_formula_front  = str.split(parsed_equation[0], sep =",")
         parsed_formula_back   = str.split(parsed_equation[1], sep =",")
@@ -416,38 +468,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
     #    reply = format_message_discord(self, ctx, formatted_reply)
     #    await ctx.send(content="lol", embed=formatted_reply_object)
     #    await ctx.send(content="lol", embed=reply)
-###############################################################################
-    def send_lookup_to_output(message):
-        '''
-    Takes a list or string, if list, joins the list to a string and assigns to 
-    lookup_output_container.
-        ''' 
-        # yeah yeah yeah, we are swapping between array and string like a fool
-        # but it serves a purpose. Need to keep the output as an iterable
-        # until the very last second when we send it to the user.
-        #We want to be able to allow the developer to just send a list
-        # or string to the output when adding new functions instead of
-        # having to pay attention to too much stuff!
-        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        if isinstance(message,list):
-            message = list_to_string(message) 
-        temp_array = [message]
-        global lookup_output_container
-        lookup_output_container = temp_array 
 
-###############################################################################
-    def parse_lookup_to_chempy(pubchem_lookup : list):
-        '''
-        creates a chempy something or other based on what you feed it
-        like cookie monster
-        '''
-        #lookup_cid       = pubchem_lookup[0].get('cid')
-        lookup_formula   = pubchem_lookup[1].get('formula')
-        #lookup_name      = pubchem_lookup[2].get('name')
-        try:
-            greenprint(chempy.Substance.from_formula(lookup_formula))
-        except Exception:
-            function_message(asdf, "blue")
 ###############################################################################    
     def pubchem_lookup_by_name_or_CID(compound_id:str or int, type_of_data:str):
         '''

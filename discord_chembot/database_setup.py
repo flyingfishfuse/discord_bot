@@ -175,6 +175,7 @@ database.session.commit()
 def Compound_by_id(cid_of_compound):
     """
     Returns a compound from the local DB
+    Returns FALSE if entry does not exist
 
     """
     try:
@@ -210,7 +211,10 @@ def add_to_db(thingie):
     """
     Takes SQLAchemy Class_model Objects 
     For updating changes to Class_model.Attribute using the form:
-    Class_model.Attribute = some_var 
+
+        Class_model.Attribute = some_var 
+        add_to_db(some_var)
+
     """
     try:
         database.session.add(thingie)
