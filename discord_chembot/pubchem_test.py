@@ -255,7 +255,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        
+
         user_is_a_doofus_CID_message = \
             "Stop being a doofus and feed me a good CID! "
         user_is_a_doofus_formula_message = \
@@ -428,24 +428,24 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 user_input_products  = str.split(parsed_equation[1], sep =",")
             except Exception:
                 self.user_input_was_wrong("formula_products", user_input_products)  
-            
-            try:
+
                 #validate reactants contents
-                for each in user_input_reactants:
+            for each in user_input_reactants:
+                try:
                     validation_check = chempy.Substance(each)
-            except Exception:
-                self.user_input_was_wrong("formula_reactants", each)  
-            
-            try:
+                except Exception:
+                    self.user_input_was_wrong("formula_reactants", each)  
+
                 #validate products contents
-                for each in user_input_products:
+            for each in user_input_products:
+                try:
                     validation_check = chempy.Substance(each)
-            except Exception:
-                self.user_input_was_wrong("formula_products", each)  
+                except Exception:
+                    self.user_input_was_wrong("formula_products", each)  
 
         except Exception:
             function_message(Exception, "red")
-            self.user_input_was_wrong("formula_general")
+            self.user_input_was_wrong("formula_general", equation_user_input)
         
 
         parsed_formula_front  = str.split(parsed_equation[0], sep =",")
