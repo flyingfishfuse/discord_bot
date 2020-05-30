@@ -69,6 +69,8 @@ easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS "
 ################################################################################
 ##############                      CONFIG                     #################
 ################################################################################
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 class Config(object):
     if TESTING == True:
         SQLALCHEMY_DATABASE_URI = TEST_DB

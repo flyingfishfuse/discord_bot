@@ -68,13 +68,14 @@ def function_message(exception_message : str, color_to_print : str):
 
         #This code would be used INSIDE the function being tested
         #f_code code object being executed in this frame
-        redprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
+        inspect.currentframe().f_back.__base__
+        redprint("something wierd happened in: " + inspect.currentframe().f_back.__base__)#co_name)
         blueprint("\n" + exception_message)
     elif color_to_print == "green":
-        greenprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
+        greenprint("something wierd happened in: " + inspect.currentframe().f_back.__base__)#co_name)
         blueprint("\n" + exception_message)
     elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + inspect.currentframe().f_back.co_name)
+        blueprint("something wierd happened in: " + inspect.currentframe().f_back.__base__)#co_name)
         blueprint("\n" + exception_message)
     blueprint("\n" + exception_message)
 

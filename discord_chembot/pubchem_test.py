@@ -147,15 +147,15 @@ async def on_ready():
 #HELP COMMAND
 @lookup_bot.command()
 async def element_lookup_usage(ctx):
-    await ctx.send(await Element_lookup.help_message())
+    await ctx.send(Element_lookup.help_message())
 
 @lookup_bot.command()
 async def pubchem_lookup_usage(ctx):
-    await ctx.send(await Pubchem_lookup.help_message())
+    await ctx.send(Pubchem_lookup.help_message())
 
 @lookup_bot.command()
 async def balancer_usage(ctx):
-    await ctx.send(await Pubchem_lookup.balancer_message())
+    await ctx.send(Pubchem_lookup.balancer_message())
 
 @lookup_bot.command()
 async def bot_usage(ctx):
@@ -177,8 +177,8 @@ async def element_lookup(ctx, arg1, arg2):
     await ctx.send(string_to_send)
 
 @lookup_bot.command()
-async def pubchem_lookup(ctx, arg1):
-    await Pubchem_lookup.validate_user_input(ctx, arg1)
+async def pubchem_lookup(ctx, arg1, arg2):
+    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     #await ctx.send(string_to_send)
@@ -316,7 +316,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             lookup_output_container = ["chempy failure"]
         pass
     
-    async def validate_user_input(self, ctx, user_input: str, type_of_input:str):
+    async def validate_user_input(ctx, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         only one input, we are retrieving one record for one entity
@@ -392,6 +392,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
 # if NAME
         if type_of_input == "name":
             try:
+                blueprint("[+] attempting internal lookup")
                 internal_lookup = internal_local_database_lookup(user_input, "name")
                 if isinstance(internal_lookup, SQLAlchemy.Query()) == False:
                     redprint("============Internal Lookup returned false===========")
