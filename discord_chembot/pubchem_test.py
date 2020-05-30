@@ -279,12 +279,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     greenprint("GOOD CAS NUMBER")
                     print(self.pubchem_lookup_by_name_or_CID(user_input))
                     show_line_number()
+                    #returns an SQLAlchemy object or false
                     internal_lookup = internal_local_database_lookup(user_input, "cas")
                     # NOT IN THE LOCAL DB
-                    if internal_lookup == False:
+                    if isinstance(internal_lookup, SQLAlchemy.Query()) == False:
                         redprint("============Internal Lookup returned FALSE===========")
                         blueprint("Performing a PubChem lookup")
-                        # every good lookup will add an entry to the db
+                        # every good lookup will add an entry to the db and return 
+                        # the local db entry... two queries... gotta fix that...
                         print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
                         #this returns an SQLAlchemy Object
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
@@ -309,48 +311,49 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     else:
                         function_message("validation lookup checks", "red")                    
             except Exception:
-                function_message(Exception, "blue") 
-        ######################################################
-        # if formula
-        if type_of_input == "formula":
-            try:
-                if Pubchem_lookup.validate_formula_input(user_input) == True:
-                    lookup = internal_local_database_lookup(user_input, "formula")
-                if lookup == False:
-                    redprint("============Internal Lookup returned false===========")
-                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-                elif lookup == True:
-                    greenprint("============Internal Lookup returned TRUE===========")
-                else:
-                    function_message("validation lookup checks", "red")
-            except Exception:
-                function_message(Exception, "blue")            
-##############################################################################
-#if CAS
+                function_message(Exception, "red") 
+ ##############################################################################
+#if CID
         if type_of_input == "cid":
             try:
-                wat = Pubchem_lookup.validate_formula_input()
-                lookup = internal_local_database_lookup(user_input, "formula")
-                if lookup == False:
+                internal_lookup = internal_local_database_lookup(user_input, "cid")
+                if isinstance(internal_lookup, SQLAlchemy.Query()) == False:
                     redprint("============Internal Lookup returned false===========")
-                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-                elif internal_lookup == True:
+                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                    formatted_message = self.format_message_discord(lookup_object)
+                    temp_output_container.append([formatted_message])
+                    global lookup_output_container
+                    lookup_output_container = temp_output_container
+                elif isinstance(internal_lookup, SQLAlchemy.Query()):
                     greenprint("============Internal Lookup returned TRUE===========")
+                    formatted_message = self.format_message_discord(internal_lookup)
+                    temp_output_container.append([formatted_message])
+                    global lookup_output_container
+                    lookup_output_container = temp_output_container
+                    self.dump_db()
                 else:
                     function_message("validation lookup checks", "red")
             except Exception:
                 function_message(Exception, "blue") 
 ###############################################################################
-# if CID
-        if type_of_input == "cid":
+# if NAME
+        if type_of_input == "name":
             try:
-                wat = Pubchem_lookup.validate_formula_input()
-                internal_lookup = internal_local_database_lookup(user_input, "formula")
-                if internal_lookup == False:
+                internal_lookup = internal_local_database_lookup(user_input, "name")
+                if isinstance(internal_lookup, SQLAlchemy.Query()) == False:
                     redprint("============Internal Lookup returned false===========")
-                    Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
+                    formatted_message = self.format_message_discord(lookup_object)
+                    temp_output_container.append([formatted_message])
+                    global lookup_output_container
+                    lookup_output_container = temp_output_container
                 elif internal_lookup == True:
                     greenprint("============Internal Lookup returned TRUE===========")
+                    formatted_message = self.format_message_discord(internal_lookup)
+                    temp_output_container.append([formatted_message])
+                    global lookup_output_container
+                    lookup_output_container = temp_output_container
+                    self.dump_db()
                 else:
                     function_message("validation lookup checks", "red")
             except Exception:
@@ -361,7 +364,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
     makes sure the formula supplied to the code is valid
-    This is an input side function
+    user input will be valid only in the form of:
+    eq = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
+    note the two spaces
         """
         # maybe we can feed the formula CSV to chempy directly and use the 
         # error and validation functions of chempy to determine if the 
@@ -370,10 +375,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # code than necessary!
 
         # SO! Here we have fed the input to a chempy.Substance!
-        parsed_csv = csv.reader(formula_input, delimiter=",")
-        for each in parsed_csv:
-            greenprint(each)
-            blueprint(chempy.Substance(each))
+        # split reaction by equals delimiter from nomenclature
+        # E.G.   =>
+        #
+        # parsed_equation = csv.reader(formula_input, delimiter=" => ")
+        user_input_reactants = "NH4ClO4,Al"
+        user_input_products  = "Al2O3,HCl,H2O,N2"
+        eq = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
+        parsed_equation = str.split(" => ")
+        formula_list1 , formula_list2 = []
+        good_data = ""
+        parsed_formula_front  = csv.reader(str.StringIO(parsed_equation[0]), delimiter=",")
+        parsed_formula_back   = csv.reader(parsed_equation[1], delimiter=",")
+        for each in parsed_formula_front:
+            formula_list1.append(chempy.Substance(each))
+        for each in parsed_formula_back:
+            formula_list2.append(chempy.Substance(each))
         try:
             test_entity1 = chempy.Substance.from_formula(formula_input)
             test_entity2 = chempy.Substance.from_formula
@@ -382,7 +399,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         except Exception:
             function_message(Exception, "red")
             function_message(test_entity1, "red")
-        
+
     #remove async and ctx to make non-discord
     #async def send_reply(self, ctx, formatted_reply_object):
     #    reply = format_message_discord(self, ctx, formatted_reply)
@@ -690,30 +707,28 @@ def balance_simple_equation(react, prod):
     #pprint(dict(prod))
     #{'Al2O3': 5, 'H2O': 9, 'HCl': 6, 'N2': 3}
     #iterates over reactants and products with the function 
-
     for each in mass_fractions(chem_react):
         pass
     for each in mass_fractions(chem_prod):
         pass
-
     for fractions in map(mass_fractions, [react, prod]):
         #{k: '{0:.3g} wt%'.format(v*100) for k, v in fractions.items()}
         #[{'C': x1 + 2, 'O2': x1 + 1}, {'CO': 2, 'CO2': x1}]
         print(fractions)
     #user input 
-    user_input_reactants = "NH4ClO4,Al"
-    user_input_products  = "Al2O3,HCl,H2O,N2"
-
+   
+    #THIS CODE IS FOR LATER WHEN I WORK ON 
+    # ADVANCED BALANCING
     #check the DB for the reactants
-    for each in user_input_reactants:
-        local_db_query = internal_local_database_lookup(each, "formula")
+    #for each in user_input_reactants:
+        #local_db_query = internal_local_database_lookup(each, "formula")
         #it was in the database
-        if local_db_query == True:
-            return local_db_query
+        #if local_db_query == True:
+        #    return local_db_query
         #it was not in the database
-        elif local_db_query ==False:
-            function_message("local db query returned NEGATIVE", "red")
-            Pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
+        #elif local_db_query ==False:
+        #    function_message("local db query returned NEGATIVE", "red")
+        #    Pubchem_lookup.pubchem_lookup_by_name_or_CID(each)
 
 
 ################################################################################
