@@ -298,18 +298,6 @@ Example 3 : .pubchemlookup 113-00-8 cas
             lookup_output_container = ["chempy failure"]
         pass
     
-    def dump_db():
-        """
-    Prints database to screen
-        """
-        redprint("--------------DUMPING DATABASE-----------")
-        records1 = database.session.query(Compound).all()
-        records2 = database.session.query(Composition).all()
-        for each in records1, records2:
-            print (each)
-        redprint("------------END DATABASE DUMP------------")
-
-
     async def validate_user_input(self, ctx, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.

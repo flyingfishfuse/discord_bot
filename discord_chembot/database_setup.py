@@ -231,3 +231,40 @@ def update_db():
         database.session.commit()
     except Exception:
         function_message(Exception, "red")
+
+###############################################################################
+
+def dump_db():
+    """
+Prints database to screen
+    """
+    redprint("-------------DUMPING DATABASE------------")
+    records1 = database.session.query(Compound).all()
+    records2 = database.session.query(Composition).all()
+    for each in records1, records2:
+        print (each)
+    redprint("------------END DATABASE DUMP------------")
+
+###############################################################################
+
+def dump_compositions():
+    """
+Prints database to screen
+    """
+    redprint("-------------DUMPING COMPOSITIONS------------")
+    records = database.session.query(Composition).all()
+    for each in records:
+        print (each)
+    redprint("--------------END DATABASE DUMP--------------")
+
+###############################################################################
+
+def dump_compounds():
+    """
+Prints database to screen
+    """
+    redprint("-------------DUMPING COMPOUNDS------------")
+    records = database.session.query(Compounds).all()
+    for each in records:
+        print (each)
+    redprint("-------------END DATABASE DUMP------------")
