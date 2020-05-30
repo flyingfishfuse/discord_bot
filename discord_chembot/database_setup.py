@@ -206,18 +206,19 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
     """
     try:
         if id_of_record    == "cid":
-            lookup_result  = database.Query(entity).filter_by("cid").first()
+            lookup_result  = Compound.query.filter_by(cid=entity).first()
             blueprint(lookup_result)
         elif id_of_record  == "formula":
-            lookup_result  = database.Query(entity).filter_by("formula").first()
+            lookup_result  = Compound.query.filter_by(formula=entity).first()
             blueprint(lookup_result)
         elif id_of_record  == "cas":
-            lookup_result  = database.Query(entity).filter_by("cas").first()
+            lookup_result  = Compound.query.filter_by(cas=entity).first()
             blueprint(lookup_result)
-        return lookup_result
     except Exception:
         function_message(Exception, "red")
         return False
+    finally:
+        return lookup_result
     
 def add_to_db(thingie):
     """

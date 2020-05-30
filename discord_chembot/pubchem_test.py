@@ -86,6 +86,7 @@ global lookup_input_container
 lookup_input_container = []
 
 #load the cogs into the bot
+cog_directory_files = os.listdir("./things_it_does/cogs")
 if load_cogs == True:
     for filename in cog_directory_files:
         if filename.endswith(".py"):
