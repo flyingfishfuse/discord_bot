@@ -66,7 +66,7 @@ from chempy import balance_stoichiometry
 from discord_key import *
 from database_setup import *
 #from discord_chembot.discord_commands import *
-from element_lookup_class import Element_lookup
+#from element_lookup_class import Element_lookup
 from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import show_line_number,cas_regex
 
@@ -1100,3 +1100,9 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Ionization Energies: " + str(element_object.ionenergies)  + "\n")
         #global lookup_output_container
         lookup_output_container = temp_output_container
+
+
+
+###############################################################################
+######## AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
+lookup_bot.run(discord_bot_token, bot=True)

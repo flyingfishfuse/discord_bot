@@ -50,6 +50,7 @@ TESTING = True
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
+
 ###############################################################################
 
 DATABASE_HOST      = "localhost"
@@ -83,9 +84,20 @@ try:
 except Exception:
     function_message(Exception,"red")
 
-#One to many relationship
-#parent
+###############################################################################
+# from stack overflow
+#In the second case when you're just restarting the app I would write a 
+#test to see if the table already exists using the reflect method:
 
+#db.metadata.reflect(engine=engine)
+
+#Where engine is your db connection created using create_engine(), and see 
+#if your tables already exist and only define the class if the table is undefined.
+
+#this will clear the everything?
+database.metadata.clear()
+
+################################################################################
 ################################################################################
 ##############                      Models                     #################
 ################################################################################
@@ -102,7 +114,7 @@ class Compound(database.Model):
     name                = database.Column(database.String(64))
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
-    formula             = database.Column(database.String(120), index=True)
+    formula             = database.Column(database.String(120))
 
     def __repr__(self):
         return 'Compound: {} \n \
@@ -110,7 +122,7 @@ class Compound(database.Model):
                 Formula : {} \n '.format(self.name , self.cas, self.formula)
 
 class Composition(database.Model):
-    __tablename__       = 'Compound'
+    __tablename__       = 'Composition'
     __table_args__      = {'extend_existing': True}
     id                  = database.Column(database.Integer, \
                             index=True,                     \
@@ -156,6 +168,7 @@ test_comp_notes = """
 This is a test entry for the DB, it is a flash composition.
 Remember, the finer the Aluminum, the faster the flash. 
 """
+redprint("made it this far")
 test_entry1 = Compound(name ='test', formula="HeNTaI" )
 test_entry2 = Composition(name = "flash", units="%wt", compounds="Al,27.7,NH4ClO4,72.3", notes=test_comp_notes )
 database.create_all()
