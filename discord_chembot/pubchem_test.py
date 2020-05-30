@@ -234,6 +234,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
         global lookup_output_container
         lookup_output_container = temp_array 
 
+    #remove async and ctx to make non-discord
+    #async def send_reply(self, ctx, formatted_reply_object):
+    #    reply = format_message_discord(self, ctx, formatted_reply)
+    #    await ctx.send(content="lol", embed=formatted_reply_object)
+    #    await ctx.send(content="lol", embed=reply)
+
 ###############################################################################
     def parse_lookup_to_chempy(pubchem_lookup : list):
         '''
@@ -412,63 +418,45 @@ Example 3 : .pubchemlookup 113-00-8 cas
         #user_input_reactants = "NH4ClO4,Al"
         #user_input_products  = "Al2O3,HCl,H2O,N2"
         #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
-        formula_list1 , formula_list2 = []
+
+        # if it doesn't work, lets see why!
         try:
             # validate equation formatting
             parsed_equation = equation_user_input.split(" => ")
-
             try:
                 #validate reactants formatting
                 user_input_reactants = str.split(parsed_equation[0], sep =",")
             except Exception:
+                function_message(Exception , "red")
                 self.user_input_was_wrong("formula_reactants", user_input_reactants)                
-            
             try:
                 #validate products formatting
                 user_input_products  = str.split(parsed_equation[1], sep =",")
             except Exception:
+                function_message(Exception , "red")
                 self.user_input_was_wrong("formula_products", user_input_products)  
-
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
+                    function_message(Exception , "red")
                     self.user_input_was_wrong("formula_reactants", each)  
-
                 #validate products contents
             for each in user_input_products:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
-                    self.user_input_was_wrong("formula_products", each)  
-
+                    function_message(Exception , "red")
+                    self.user_input_was_wrong("formula_products", each)
+        # if the inputs passed all the checks
+        # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
+        # [ [reactants] , [products] ]
+            return [user_input_reactants, user_input_products]
         except Exception:
             function_message(Exception, "red")
             self.user_input_was_wrong("formula_general", equation_user_input)
         
-
-        parsed_formula_front  = str.split(parsed_equation[0], sep =",")
-        parsed_formula_back   = str.split(parsed_equation[1], sep =",")
-        for each in parsed_formula_front:
-            formula_list1.append(chempy.Substance(each))
-        for each in parsed_formula_back:
-            formula_list2.append(chempy.Substance(each))
-        try:
-            test_entity1 = chempy.Substance.from_formula(formula_input)
-            test_entity2 = chempy.Substance.from_formula
-            function_message(test_entity1, "red")
-        # if it doesn't work, lets see why!
-        except Exception:
-            function_message(Exception, "red")
-            function_message(test_entity1, "red")
-
-    #remove async and ctx to make non-discord
-    #async def send_reply(self, ctx, formatted_reply_object):
-    #    reply = format_message_discord(self, ctx, formatted_reply)
-    #    await ctx.send(content="lol", embed=formatted_reply_object)
-    #    await ctx.send(content="lol", embed=reply)
-
 ###############################################################################    
     def pubchem_lookup_by_name_or_CID(compound_id:str or int, type_of_data:str):
         '''
@@ -730,8 +718,23 @@ def balance_simple_equation(react, prod):
     user input for reactants => NH4ClO4,Al
     user input for products  => Al2O3,HCl,H2O,N2
     """
-    reactants =  {'NH4ClO4', 'Al'} 
-    products  =  {'Al2O3', 'HCl', 'H2O', 'N2'}
+    #user_input_reactants = "NH4ClO4,Al"
+    #user_input_products  = "Al2O3,HCl,H2O,N2"
+    #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
+#    reactants =  {'NH4ClO4', 'Al'} 
+#    products  =  {'Al2O3', 'HCl', 'H2O', 'N2'}
+
+    
+    formula_list1 , formula_list2 = []
+    reactants  = str.split(parsed_equation[0], sep =",")
+    products   = str.split(parsed_equation[1], sep =",")
+    for each in reactants:
+        formula_list1.append(chempy.Substance(each))
+    for each in products:
+        formula_list2.append(chempy.Substance(each))
+        test_entity1 = chempy.Substance.from_formula(formula_input)
+        test_entity2 = chempy.Substance.from_formula
+        function_message(test_entity1, "red")
     #balance the equation
     chem_react , chem_prod = chempy.balance_stoichiometry(reactants,products)
     #pprint(dict(reac))
