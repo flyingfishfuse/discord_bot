@@ -42,7 +42,7 @@ from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
 #    greenprint,redprint,blueprint,function_message
 from variables_for_reality import greenprint,redprint,blueprint,function_message
-
+import inspect
 ###############################################################################
 ## TESTING VARS
 TESTING = True
@@ -162,11 +162,14 @@ class Composition(database.Model):
 Units: {} \n\
 Formula: {} \n\
 Notes: {}'.format(self.name, self.units, formula, self.notes)
+
 # dirty, dirty, chemistry
+
 test_comp_notes = """
 This is a test entry for the DB, it is a flash composition.
 Remember, the finer the Aluminum, the faster the flash. 
 """
+
 redprint("made it this far")
 test_entry1 = Compound(name ='test', formula="HeNTaI" )
 test_entry2 = Composition(name = "flash", units="%wt", compounds="Al,27.7,NH4ClO4,72.3", notes=test_comp_notes )
@@ -187,11 +190,12 @@ def Compound_by_id(cid_of_compound):
     Returns FALSE if entry does not exist
 
     """
+    print(inspect.stack()[1][3])
     try:
 
         return Compound.query.all.filter_by(id = cid_of_compound).first()
     except Exception:
-        function_message(Exception, "red")
+        function_message("compound by cid local db" , Exception, "red")
         return False
     
 ################################################################################
@@ -200,19 +204,22 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
     feed it a formula or CID followed buy "formula" or "cid"
     Returns False and raises and exception/prints exception on error
     Returns an SQLAlchemy database object if record exists
+    Don't forget this is for compounds only!
     """
+    print(inspect.stack()[1][3])
+
     try:
         if id_of_record    == "cid":
             lookup_result  = Compound.query.filter_by(cid=entity).first()
             blueprint(lookup_result)
-        elif id_of_record  == "formula":
-            lookup_result  = Compound.query.filter_by(formula=entity).first()
+        elif id_of_record  == "name":
+            lookup_result  = Compound.query.filter_by(name=entity).first()
             blueprint(lookup_result)
         elif id_of_record  == "cas":
             lookup_result  = Compound.query.filter_by(cas=entity).first()
             blueprint(lookup_result)
     except Exception:
-        function_message(Exception, "red")
+        function_message("internal lookup" , Exception, "red")
         return False
     finally:
         return lookup_result

@@ -44,7 +44,6 @@
 # DO NOT CREATE CYCLIC DEPENDENCIES!
 
 # Establish an error reporting function
-import re
 import colorama
 from colorama import init
 init()
@@ -53,7 +52,7 @@ from colorama import Fore, Back, Style
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
-def function_message(exception_message : str, color_to_print : str):
+def function_message(exception_message : str,  location="", color_to_print="red"):
     """
     A Robust exception message passing class? that uses colorama and inspect
     Takes red, green, blue as color arguments. WORK IN PROGERESS!
@@ -68,14 +67,14 @@ def function_message(exception_message : str, color_to_print : str):
 
         #This code would be used INSIDE the function being tested
         #f_code code object being executed in this frame
-        inspect.currentframe().f_back.__base__
-        redprint("something wierd happened in: " + inspect.currentframe().f_back)#co_name)
+        #inspect.currentframe().f_back.__base__
+        redprint("something wierd happened in: "  + location)
         blueprint("\n" + exception_message)
     elif color_to_print == "green":
-        greenprint("something wierd happened in: " + inspect.currentframe().f_back)#co_name)
+        greenprint("something wierd happened in: " + location)
         blueprint("\n" + exception_message)
     elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + inspect.currentframe().f_back)#co_name)
+        blueprint("something wierd happened in: " + location)
         blueprint("\n" + exception_message)
     blueprint("\n" + exception_message)
 
