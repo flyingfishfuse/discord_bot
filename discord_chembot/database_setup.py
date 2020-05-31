@@ -145,26 +145,23 @@ class Composition(database.Model):
 #  }
 #}
     def __repr__(self):
-        # csv reader returns an iterable, here it would be the formula supplied
-        formula_list = csv.reader(self.compounds, delimiter=",")
+        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        formula_list = str.split(self.compounds, sep=",")
+        print(formula_list)
         formula = ""
-        for each in formula_list:
-            greenprint(each)
+        def format_asdf():
+            for each in formula_list:
             #catches the amount
-            if each.isnumeric():
-                amount = str(each)
-                redprint(amount)
-            #catches the element/compound
-            else:
-                compound = str(each)
-                redprint(compound)
-            ## OOF I hope this does what I expect
-            formula + '{} : {} {}'.format(compound, amount , "\n\t")
+                if list_to_string(each).isnumeric():
+                    amount  = list_to_string(str(each))
+                #catches the element/compound
+                else:
+                    compound = str(each)
+                formula + '{} : {} {}'.format(compound, amount , "\n\t")
         return 'Composition: {} \n\
-                Units: {} \n\
-                Formula: {} \n\
-                Notes: {}'.format(self.name, self.units, formula, self.notes)
-
+Units: {} \n\
+Formula: {} \n\
+Notes: {}'.format(self.name, self.units, formula, self.notes)
 # dirty, dirty, chemistry
 test_comp_notes = """
 This is a test entry for the DB, it is a flash composition.
