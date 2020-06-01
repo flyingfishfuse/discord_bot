@@ -27,7 +27,7 @@ from colorama import Fore, Back, Style
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
-def function_message(exception_message : str,  location="", color_to_print="red"):
+def function_message(exception_message,  location="", color_to_print="red"):
     """
     A Robust exception message passing class? that uses colorama and inspect
     Takes red, green, blue as color arguments. WORK IN PROGERESS!
@@ -37,12 +37,6 @@ def function_message(exception_message : str,  location="", color_to_print="red"
     redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
     import inspect
     if color_to_print == "red":
-        # gets name of object calling this function, the previous frame calling this object
-        #f_back next outer frame object (this frame’s caller)
-
-        #This code would be used INSIDE the function being tested
-        #f_code code object being executed in this frame
-        #inspect.currentframe().f_back.__base__
         redprint("something wierd happened in: "  + location)
         blueprint("\n" + exception_message)
     elif color_to_print == "green":
@@ -54,7 +48,9 @@ def function_message(exception_message : str,  location="", color_to_print="red"
     blueprint("\n" + exception_message)
 
 
-#make them global scope for testing purposes
+#testing lambdas!
+#make them global scope for testing purposes!
+list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -132,7 +128,7 @@ class Compound(database.Model):
                             primary_key = True, \
                             unique=True, \
                             autoincrement=True)
-    cid                 = database.Column(database.String(128))
+    cid                 = database.Column(database.Integer)
     name                = database.Column(database.String(64))
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
@@ -152,7 +148,7 @@ class Composition(database.Model):
                             unique=True,                    \
                             autoincrement=True)
     name                = database.Column(database.String(64))
-    units               = database.Column(database.String(12))
+    units               = database.Column(database.Integer)
     compounds           = database.Column(database.String(120))
     notes               = database.Column(database.String(256))
 
@@ -197,8 +193,7 @@ database.create_all()
 database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
-#chembot_server.run()
-
+#database_server = threading.Thread.start(chembot_server.run() )
 
 ################################################################################
 ##############                     FUNCTIONS                   #################
@@ -210,12 +205,14 @@ def Compound_by_id(cid_of_compound):
     Returns FALSE if entry does not exist
 
     """
+    redprint("start of Compound_by_id()")
+    blueprint("CID passed to function: " + str(cid_of_compound[0].get("cid")))
     print(inspect.stack()[1][3])
     try:
-
-        return Compound.query.all.filter_by(id = cid_of_compound).first()
+        print(Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first())
+        return Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first()
     except Exception:
-        function_message("compound by cid local db" , Exception, "red")
+        print(str(Exception.__cause__))
         return False
     
 ################################################################################
@@ -254,10 +251,11 @@ def add_to_db(thingie):
 
     """
     try:
+        blueprint("start of add_to_db()")
         database.session.add(thingie)
         database.session.commit
     except Exception:
-        function_message(Exception, "red")
+        print(Exception.__cause__)
 ################################################################################
 
 def update_db():
@@ -345,7 +343,7 @@ Example 2 : .pubchemlookup 3520 cid
 Example 3 : .pubchemlookup 113-00-8 cas
 """
 ###############################################################################
-    def send_lookup_to_output(self, message):
+    def send_lookup_to_output(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
@@ -370,7 +368,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
     #    await ctx.send(content="lol", embed=reply)
 
 ###############################################################################
-    def parse_lookup_to_chempy(self, pubchem_lookup : list):
+    def parse_lookup_to_chempy(pubchem_lookup : list):
         '''
         creates a chempy something or other based on what you feed it
         like cookie monster
@@ -384,7 +382,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             function_message(asdf, "blue")
 ###############################################################################
 
-    def user_input_was_wrong(self, type_of_pebkac_failure : str, bad_string = str):
+    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = str):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -414,7 +412,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             #change this to sonething reasonable
             Element_lookup.reply_to_query(type_of_pebkac_failure)
 
-    def lookup_failure(self, type_of_failure: str):
+    def lookup_failure(type_of_failure: str):
         """
         does what it says on the label, called when a lookup is failed
         """
@@ -534,7 +532,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             except Exception:
                 function_message(Exception, "blue") 
 ###############################################################################
-    def validate_formula_input(self, equation_user_input : str):
+    def validate_formula_input(equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -586,7 +584,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
         
 ###############################################################################    
-    def pubchem_lookup_by_name_or_CID(self, compound_id, type_of_data:str):
+    def pubchem_lookup_by_name_or_CID(compound_id, type_of_data:str):
         '''
         Provide a search term and record type
         requests can be CAS,CID,IUPAC NAME/SYNONYM
@@ -645,7 +643,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     redprint("=========RETURN RELATIONSHIPS=======")
                     blueprint(str(return_relationships[return_index]))
                     redprint("=========RETURN RELATIONSHIPS=======")
-                    self.compound_to_database(return_relationships[return_index])
+                    Pubchem_lookup.compound_to_database(return_relationships[return_index])
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
@@ -658,7 +656,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships)
+                Pubchem_lookup.compound_to_database(return_relationships)
 
         ###################################
         #if the user supplied a CID
@@ -691,7 +689,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships[return_index])
+                Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
@@ -704,7 +702,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships)
+                Pubchem_lookup.compound_to_database(return_relationships)
 
         ###################################
         #if the user supplied a CAS
@@ -737,7 +735,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships[return_index])
+                Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
@@ -750,14 +748,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships)
+                Pubchem_lookup.compound_to_database(return_relationships)
             else:
                 function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
         #and then, once all that is done return the LOCAL database entry to
         # the calling function so this is just an API to the db code
-        return_query = return_relationships[return_index.get("cid")]
+        return_query = return_relationships[return_index]
         redprint("==BEGINNING==return query for pubchem/local lookup===========")
-        blueprint(return_query)
+        blueprint(str(return_query[0]))
         redprint("=====END=====return query for pubchem/local lookup===========")
 
         return Compound_by_id(return_query)
@@ -772,9 +770,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
         lookup_cid                 = lookup_list[0].get('cid')
         #lookup_cas                 = lookup_list[1].get('cas')
-        lookup_smiles              = lookup_list[2].get('smiles')
-        lookup_formula             = lookup_list[3].get('formula')
-        lookup_name                = lookup_list[4].get('name')
+        lookup_smiles              = lookup_list[0].get('smiles')
+        lookup_formula             = lookup_list[0].get('formula')
+        lookup_name                = lookup_list[0].get('name')
         add_to_db(Compound(cid     = lookup_cid,                    \
                            #cas     = lookup_cas,                    \
                            smiles  = lookup_smiles,                 \
@@ -1228,4 +1226,5 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         #global lookup_output_container
         lookup_output_container = temp_output_container
 
-test = Pubchem_lookup.pubchem_lookup_by_name_or_CID("methanol","name")
+#while threading.Thread.start(chembot_server.run()):
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("methanol","name")
