@@ -597,7 +597,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         but they actually require slightly different code for each lookup
         and making a special function to do that would be just as long probably
         I'll look at it
-        TODO: SEARCH BY CAS!!!!
+        TODO: SEARCH LOCAL BY CAS!!!!
         '''
         #make a thing
         return_relationships = []
@@ -617,7 +617,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Performing Pubchem Query")
                 lookup_results = pubchem.get_compounds(compound_id,'name')
             except Exception :# pubchem.PubChemPyError:
-                function_message("lookup by cid exception - name", Exception, "red")
+                function_message("lookup by NAME exception - name", Exception, "red")
                 user_input_was_wrong("pubchem_lookup_by_name_or_CID")
             #if there were multiple results
             # TODO: we have to figure out a good way to store the extra results
@@ -647,16 +647,16 @@ Example 3 : .pubchemlookup 113-00-8 cas
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                return_relationships.append([                       \
-                    {'cid'     : lookup_results.cid               },\
-                    #{'cas'     : lookup_results.cas               },\
-                    {'smiles'  : lookup_results.isomeric_smiles   },\
-                    {'formula' : lookup_results.molecular_formula },\
-                    {'name'    : lookup_results.iupac_name        }])
+                asdf = [{'cid'     : lookup_results.cid               ,\
+                        #'cas'     : lookup_results.cas               ,\
+                        'smiles'  : lookup_results.isomeric_smiles   ,\
+                        'formula' : lookup_results.molecular_formula ,\
+                        'name'    : lookup_results.iupac_name        }]
+                return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(return_relationships)
+                blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships)
+                Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
         ###################################
         #if the user supplied a CID
@@ -673,12 +673,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                    #as possibly a side record
             if isinstance(lookup_results, list):
                 greenprint("[+] Multiple results returned ")
-                return_relationships.append([                        \
-                    {'cid'     : lookup_results.cid                },\
-                    #{'cas'     : each.cas                          },\
-                    {'smiles'  : each.isomeric_smiles              },\
-                    {'formula' : lookup_results.molecular_formula  },\
-                    {'name'    : lookup_results.iupac_name         }])
+                for each in lookup_results:
+                    redprint(each.molecular_formula)
+                    asdf = [{'cid'     : each.cid               ,\
+                            #{'cas'     : each.cas              ,\
+                            'smiles'  : each.isomeric_smiles    ,\
+                            'formula' : each.molecular_formula  ,\
+                            'name'    : each.iupac_name         }]
+                    return_relationships.append(asdf)
             ####################################################
             #Right here we need to find a way to store multiple records
             # and determine the best record to store as the main entry
@@ -687,22 +689,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
                 redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(return_relationships)
+                blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                return_relationships.append([                        \
-                    {'cid'     : lookup_results.cid                },\
-                    #{'cas'     : lookup_results.cas                },\
-                    {'smiles'  : lookup_results.isomeric_smiles    },\
-                    {'formula' : lookup_results.molecular_formula  },\
-                    {'name'    : lookup_results.iupac_name         }])
+                asdf = [{'cid'     : lookup_results.cid               ,\
+                        #'cas'     : lookup_results.cas               ,\
+                        'smiles'  : lookup_results.isomeric_smiles    ,\
+                        'formula' : lookup_results.molecular_formula  ,\
+                        'name'    : lookup_results.iupac_name         }]
+                return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(return_relationships)
+                blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships)
+                Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
         ###################################
         #if the user supplied a CAS
@@ -719,12 +721,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
             #as possibly a side record
             if isinstance(lookup_results, list):
                 greenprint("[+] Multiple results returned ")
-                return_relationships.append([                        \
-                    {'cid'     : lookup_results.cid                },\
-                    #{'cas'     : each.cas                          },\
-                    {'smiles'  : each.isomeric_smiles              },\
-                    {'formula' : lookup_results.molecular_formula  },\
-                    {'name'    : lookup_results.iupac_name         }])
+                for each in lookup_results:
+                    asdf = [{'cid'     : each.cid               ,\
+                            #'cas'     : each.cas               ,\
+                            'smiles'  : each.isomeric_smiles    ,\
+                            'formula' : each.molecular_formula  ,\
+                            'name'    : each.iupac_name         }]
+                    return_relationships.append(asdf)
             ####################################################
             #Right here we need to find a way to store multiple records
             # and determine the best record to store as the main entry
@@ -733,18 +736,18 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
                 redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(return_relationships)
+                blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Pubchem_lookup.compound_to_database(return_relationships[return_index])
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                return_relationships.append([                        \
-                    {'cid'     : lookup_results.cid                },\
-                    #{'cas'     : lookup_results.cas                },\
-                    {'smiles'  : lookup_results.isomeric_smiles    },\
-                    {'formula' : lookup_results.molecular_formula  },\
-                    {'name'    : lookup_results.iupac_name         }])
+                asdf = [{'cid'     : lookup_results.cid                ,\
+                        #'cas'     : lookup_results.cas               ,\
+                        'smiles'  : lookup_results.isomeric_smiles    ,\
+                        'formula' : lookup_results.molecular_formula  ,\
+                        'name'    : lookup_results.iupac_name         }]
+                return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
                 redprint("=========RETURN RELATIONSHIPS=======")
@@ -1228,3 +1231,5 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 
 #while threading.Thread.start(chembot_server.run()):
 Pubchem_lookup.pubchem_lookup_by_name_or_CID("methanol","name")
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("420","cid")
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("113-00-8","cas")
