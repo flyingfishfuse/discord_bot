@@ -193,7 +193,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     # The lookup_output_container can be used to store objects!    
     #await ctx.send(content="lol", embed=formatted_reply_object)
     #redprint(lookup_output_container[0])
-    await ctx.send(content="lol", embed=lookup_output_container)
+    await ctx.send(content="lol", embed=lookup_output_container[0])
 
 #@lookup_bot.command()
 #async def pubsearch(ctx, arg1, arg2, arg3):
@@ -412,14 +412,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 if internal_lookup == None:
                     redprint("============Internal Lookup returned false===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "name")
-                    formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                    await Pubchem_lookup.format_message_discord(ctx, lookup_object)
                     temp_output_container.append([formatted_message])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
                 elif internal_lookup == True:
                     greenprint("============Internal Lookup returned TRUE===========")
                     formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
-                    temp_output_container.append([formatted_message])
+                    temp_output_container.append(formatted_message)
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
                     database_setup.dump_db()
@@ -522,12 +522,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
-                    asdf = [{'cid'     : each.cid                ,\
+                    asdf = [{'cid'      : each.cid                ,\
                             #dis bitch dont have a CAS NUMBER!
-                            #'cas'     : each.cas                 ,\
-                            'smiles'  : each.isomeric_smiles     ,\
-                            'formula' : each.molecular_formula   ,\
-                            'name'    : each.iupac_name          }]
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                     return_relationships.append(asdf)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -710,17 +712,15 @@ Example 3 : .pubchemlookup 113-00-8 cas
     async def format_mesage_arbitrary(self, arg1, arg2, arg3):
         pass
 
-###############################################################################    
+############################################################################### 
     async def format_message_discord(ctx, lookup_results_object):
-        greenprint("start of for4matting function")
         formatted_message = discord.Embed( \
-            title=lookup_results_object.synonyms[0],
+            title=lookup_results_object.name,
             #change color option
-            colour=discord.Colour(discord_color),  \
+            colour=discord.Colour(0x3b12ef),  \
             url="",
-            description=size_check_256(lookup_results_object.iupac_name),
+            description=size_check_256(lookup_results_object.formula),
             timestamp=datetime.datetime.utcfromtimestamp(1580842764))
-        #formatted_message.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
         formatted_message.set_thumbnail(    \
             url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{}" + \
                 "/PNG?record_type=3d&image_size=small" + \
