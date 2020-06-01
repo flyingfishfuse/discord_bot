@@ -198,111 +198,111 @@ database.session.commit()
 ################################################################################
 ##############                     FUNCTIONS                   #################
 ################################################################################
+class Database_functions():
+    def _init_(self):
+        print("whyyyyy!")
+     
+    def Compound_by_id(cid_of_compound):
+        """
+        Returns a compound from the local DB
+        Returns FALSE if entry does not exist
 
-def Compound_by_id(cid_of_compound):
-    """
-    Returns a compound from the local DB
-    Returns FALSE if entry does not exist
+        """
+        redprint("start of Compound_by_id()")
+        blueprint("CID passed to function: " + str(cid_of_compound[0].get("cid")))
+        print(inspect.stack()[1][3])
+        try:
+            print(Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first())
+            return Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first()
+        except Exception:
+            print(str(Exception.__cause__))
+            return False
 
-    """
-    redprint("start of Compound_by_id()")
-    blueprint("CID passed to function: " + str(cid_of_compound[0].get("cid")))
-    print(inspect.stack()[1][3])
-    try:
-        print(Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first())
-        return Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first()
-    except Exception:
-        print(str(Exception.__cause__))
-        return False
-    
-################################################################################
-def internal_local_database_lookup(entity : str, id_of_record:str ):
-    """
-    feed it a formula or CID followed buy "formula" or "cid"
-    Returns False and raises and exception/prints exception on error
-    Returns an SQLAlchemy database object if record exists
-    Don't forget this is for compounds only!
-    """
-    print(inspect.stack()[1][3])
+    ################################################################################
+    def internal_local_database_lookup(entity : str, id_of_record:str ):
+        """
+        feed it a formula or CID followed buy "formula" or "cid"
+        Returns False and raises and exception/prints exception on error
+        Returns an SQLAlchemy database object if record exists
+        Don't forget this is for compounds only!
+        """
+        try:
+            if id_of_record    == "cid":
+                lookup_result  = Compound.query.filter_by(cid=entity).first()
+                return lookup_result
+            elif id_of_record  == "name":
+                lookup_result  = Compound.query.filter_by(name=entity).first()
+                return lookup_result
+            elif id_of_record  == "cas":
+                lookup_result  = Compound.query.filter_by(cas=entity).first()
+                return lookup_result
+        except Exception:
+            function_message("internal lookup" , Exception, "red")
+            return False
 
-    try:
-        if id_of_record    == "cid":
-            lookup_result  = Compound.query.filter_by(cid=entity).first()
-            blueprint(lookup_result)
-        elif id_of_record  == "name":
-            lookup_result  = Compound.query.filter_by(name=entity).first()
-            blueprint(lookup_result)
-        elif id_of_record  == "cas":
-            lookup_result  = Compound.query.filter_by(cas=entity).first()
-            blueprint(lookup_result)
-    except Exception:
-        function_message("internal lookup" , Exception, "red")
-        return False
-    finally:
-        return lookup_result
-    
-def add_to_db(thingie):
-    """
-    Takes SQLAchemy Class_model Objects 
-    For updating changes to Class_model.Attribute using the form:
 
-        Class_model.Attribute = some_var 
+    def add_to_db(thingie):
+        """
+        Takes SQLAchemy Class_model Objects 
+        For updating changes to Class_model.Attribute using the form:
+
+            Class_model.Attribute = some_var 
         add_to_db(some_var)
 
-    """
-    try:
-        blueprint("start of add_to_db()")
-        database.session.add(thingie)
-        database.session.commit
-    except Exception:
-        print(Exception.__cause__)
-################################################################################
+        """
+        try:
+            blueprint("start of Database_functions.add_to_db()")
+            database.session.add(thingie)
+            database.session.commit
+        except Exception:
+            print(Exception.__cause__)
+    ################################################################################
 
-def update_db():
-    """
-    DUH
-    """
-    try:
-        database.session.commit()
-    except Exception:
-        function_message(Exception, "red")
+    def update_db():
+        """
+        DUH
+        """
+        try:
+            database.session.commit()
+        except Exception:
+            function_message(Exception, "red")
 
-###############################################################################
+    ###############################################################################
 
-def dump_db():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING DATABASE------------")
-    records1 = database.session.query(Compound).all()
-    records2 = database.session.query(Composition).all()
-    for each in records1, records2:
-        print (each)
-    redprint("------------END DATABASE DUMP------------")
+    def dump_db():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING DATABASE------------")
+        records1 = database.session.query(Compound).all()
+        records2 = database.session.query(Composition).all()
+        for each in records1, records2:
+            print (each)
+        redprint("------------END DATABASE DUMP------------")
 
-###############################################################################
+    ###############################################################################
 
-def dump_compositions():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING COMPOSITIONS------------")
-    records = database.session.query(Composition).all()
-    for each in records:
-        print (each)
-    redprint("--------------END DATABASE DUMP--------------")
+    def dump_compositions():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING COMPOSITIONS------------")
+        records = database.session.query(Composition).all()
+        for each in records:
+            print (each)
+        redprint("--------------END DATABASE DUMP--------------")
 
-###############################################################################
+    ###############################################################################
 
-def dump_compounds():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING COMPOUNDS------------")
-    records = database.session.query(Compounds).all()
-    for each in records:
-        print (each)
-    redprint("-------------END DATABASE DUMP------------")
+    def dump_compounds():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING COMPOUNDS------------")
+        records = database.session.query(Compounds).all()
+        for each in records:
+            print (each)
+        redprint("-------------END DATABASE DUMP------------")
 
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
@@ -442,23 +442,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
         if type_of_input == "cas":
             greenprint("user supplied a CAS")
             try:
-                #regex for a CAS number
-                # if good
                 greenprint("trying to match regular expression for CAS")
                 if re.match(cas_regex,user_input):
                     greenprint("GOOD CAS NUMBER")
-                    print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
-                    show_line_number()
-                    #returns an SQLAlchemy object or false
-                    internal_lookup = internal_local_database_lookup(user_input, "cas")
-                    print(internal_lookup + "step 1")
+                    internal_lookup = Database_functions.internal_local_database_lookup(user_input, "cas")
                     # NOT IN THE LOCAL DB
                     if internal_lookup == False:
                         redprint("============Internal Lookup returned FALSE===========")
                         blueprint("Performing a PubChem lookup")
-                        # every good lookup will add an entry to the db and return 
-                        # the local db entry... two queries... gotta fix that...
-                        print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input))
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "cas")
                         formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
                         # output is now formatted Discord.Embed() object
@@ -470,12 +461,11 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #IN THE LOCAL DB
                     elif internal_lookup == True:
                         greenprint("============Internal Lookup returned TRUE===========")
-                        print(internal_lookup)
                         formatted_message = Pubchem_lookup.format_message_discord(internal_lookup)
                         temp_output_container.append([formatted_message])
                         ##global lookup_output_container
                         lookup_output_container = temp_output_container
-                        dump_db()
+                        Database_functions.dump_db()
                     else:
                         function_message("reached an else", "validation CAS lookup checks", "red") 
                 else:
@@ -487,7 +477,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         if type_of_input == "cid":
             greenprint("user supplied a CID")
             try:
-                internal_lookup = internal_local_database_lookup(user_input, "cid")
+                internal_lookup = Database_functions.internal_local_database_lookup(user_input, "cid")
                 if internal_lookup == False:
                     redprint("============Internal Lookup returned FALSE===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "cid")
@@ -501,7 +491,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     temp_output_container.append([formatted_message])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
-                    dump_db()
+                    Database_functions.dump_db()
                 else:
                     function_message("cid - main loop, else at end", "red")
             except Exception:
@@ -512,7 +502,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             greenprint("user supplied a name")
             try:
                 blueprint("[+] attempting internal lookup")
-                internal_lookup = internal_local_database_lookup(user_input, "name")
+                internal_lookup = Database_functions.internal_local_database_lookup(user_input, "name")
                 if internal_lookup == False:
                     redprint("============Internal Lookup returned false===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "name")
@@ -526,7 +516,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     temp_output_container.append([formatted_message])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
-                    dump_db()
+                    Database_functions.dump_db()
                 else:
                     function_message("validation lookup checks", "red")
             except Exception:
@@ -761,7 +751,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         blueprint(str(return_query[0]))
         redprint("=====END=====return query for pubchem/local lookup===========")
 
-        return Compound_by_id(return_query)
+        return Database_functions.Compound_by_id(return_query)
 
 ###############################################################################
     def compound_to_database(lookup_list: list):
@@ -776,7 +766,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         lookup_smiles              = lookup_list[0].get('smiles')
         lookup_formula             = lookup_list[0].get('formula')
         lookup_name                = lookup_list[0].get('name')
-        add_to_db(Compound(cid     = lookup_cid,                    \
+        Database_functions.add_to_db(Compound(cid     = lookup_cid,                    \
                            #cas     = lookup_cas,                    \
                            smiles  = lookup_smiles,                 \
                            formula = lookup_formula,                \
@@ -805,7 +795,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             input = Pubchem_lookup.formula_input_validation(each)
 
         # extend this but dont forget to add more fields in the database model!
-        add_to_db(Composition(name       = comp_name,               \
+        Database_functions.add_to_db(Composition(name       = comp_name,               \
                               units      = units_used,              \
                               compounds  = formula_list,            \
                               notes      = info                     ))
@@ -898,7 +888,7 @@ def balance_simple_equation(react, prod):
     # ADVANCED BALANCING
     #check the DB for the reactants
     #for each in user_input_reactants:
-        #local_db_query = internal_local_database_lookup(each, "formula")
+        #local_db_query = Database_functions.internal_local_database_lookup(each, "formula")
         #it was in the database
         #if local_db_query == True:
         #    return local_db_query

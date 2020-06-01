@@ -42,7 +42,7 @@
 # can there be absolutes.
 # THIS IS A TOP LEVEL FILE
 # DO NOT CREATE CYCLIC DEPENDENCIES!
-
+import os
 # Establish an error reporting function
 import colorama
 from colorama import init
@@ -85,8 +85,6 @@ blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
-
-cas_regex = re.compile('\b[1-9]{1}[0-9]{1,5}-\d{2}-\d\b')
 discord_color = 0x3b12ef
 #deprecated but VERY useful
 #     def generate_element_validation_name_list(self):

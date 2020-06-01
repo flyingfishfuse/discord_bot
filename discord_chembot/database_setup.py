@@ -79,10 +79,10 @@ class Config(object):
         SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
 
 try:
-    discord_chembot_server = Flask(__name__ , template_folder="templates" )
-    discord_chembot_server.config.from_object(Config)
-    database = SQLAlchemy(discord_chembot_server)
-    database.init_app(discord_chembot_server)
+    chembot_server = Flask(__name__ , template_folder="templates" )
+    chembot_server.config.from_object(Config)
+    database = SQLAlchemy(chembot_server)
+    database.init_app(chembot_server)
 except Exception:
     function_message(Exception,"red")
 
@@ -112,7 +112,7 @@ class Compound(database.Model):
                             primary_key = True, \
                             unique=True, \
                             autoincrement=True)
-    cid                 = database.Column(database.String(128))
+    cid                 = database.Column(database.Integer)
     name                = database.Column(database.String(64))
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
@@ -132,7 +132,7 @@ class Composition(database.Model):
                             unique=True,                    \
                             autoincrement=True)
     name                = database.Column(database.String(64))
-    units               = database.Column(database.String(12))
+    units               = database.Column(database.Integer)
     compounds           = database.Column(database.String(120))
     notes               = database.Column(database.String(256))
 
@@ -177,111 +177,113 @@ database.create_all()
 database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
-#discord_chembot_server.run()
-
+#database_server = threading.Thread.start(chembot_server.run() )
 
 ################################################################################
 ##############                     FUNCTIONS                   #################
 ################################################################################
+class Database_functions():
+    def _init_(self):
+        print("whyyyyy!")
+     
+    def Compound_by_id(cid_of_compound):
+        """
+        Returns a compound from the local DB
+        Returns FALSE if entry does not exist
 
-def Compound_by_id(cid_of_compound):
-    """
-    Returns a compound from the local DB
-    Returns FALSE if entry does not exist
+        """
+        redprint("start of Compound_by_id()")
+        blueprint("CID passed to function: " + str(cid_of_compound[0].get("cid")))
+        print(inspect.stack()[1][3])
+        try:
+            print(Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first())
+            return Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first()
+        except Exception:
+            print(str(Exception.__cause__))
+            return False
 
-    """
-    print(inspect.stack()[1][3])
-    try:
+    ################################################################################
+    def internal_local_database_lookup(entity : str, id_of_record:str ):
+        """
+        feed it a formula or CID followed buy "formula" or "cid"
+        Returns False and raises and exception/prints exception on error
+        Returns an SQLAlchemy database object if record exists
+        Don't forget this is for compounds only!
+        """
+        try:
+            if id_of_record    == "cid":
+                lookup_result  = Compound.query.filter_by(cid=entity).first()
+                return lookup_result
+            elif id_of_record  == "name":
+                lookup_result  = Compound.query.filter_by(name=entity).first()
+                return lookup_result
+            elif id_of_record  == "cas":
+                lookup_result  = Compound.query.filter_by(cas=entity).first()
+                return lookup_result
+        except Exception:
+            function_message("internal lookup" , Exception, "red")
+            return False
 
-        return Compound.query.all.filter_by(id = cid_of_compound).first()
-    except Exception:
-        function_message("compound by cid local db" , Exception, "red")
-        return False
-    
-################################################################################
-def internal_local_database_lookup(entity : str, id_of_record:str ):
-    """
-    feed it a formula or CID followed buy "formula" or "cid"
-    Returns False and raises and exception/prints exception on error
-    Returns an SQLAlchemy database object if record exists
-    Don't forget this is for compounds only!
-    """
-    print(inspect.stack()[1][3])
 
-    try:
-        if id_of_record    == "cid":
-            lookup_result  = Compound.query.filter_by(cid=entity).first()
-            blueprint(lookup_result)
-        elif id_of_record  == "name":
-            lookup_result  = Compound.query.filter_by(name=entity).first()
-            blueprint(lookup_result)
-        elif id_of_record  == "cas":
-            lookup_result  = Compound.query.filter_by(cas=entity).first()
-            blueprint(lookup_result)
-    except Exception:
-        function_message("internal lookup" , Exception, "red")
-        return False
-    finally:
-        return lookup_result
-    
-def add_to_db(thingie):
-    """
-    Takes SQLAchemy Class_model Objects 
-    For updating changes to Class_model.Attribute using the form:
+    def add_to_db(thingie):
+        """
+        Takes SQLAchemy Class_model Objects 
+        For updating changes to Class_model.Attribute using the form:
 
-        Class_model.Attribute = some_var 
+            Class_model.Attribute = some_var 
         add_to_db(some_var)
 
-    """
-    try:
-        database.session.add(thingie)
-        database.session.commit
-    except Exception:
-        function_message(Exception, "red")
-################################################################################
+        """
+        try:
+            blueprint("start of Database_functions.add_to_db()")
+            database.session.add(thingie)
+            database.session.commit
+        except Exception:
+            print(Exception.__cause__)
+    ################################################################################
 
-def update_db():
-    """
-    DUH
-    """
-    try:
-        database.session.commit()
-    except Exception:
-        function_message(Exception, "red")
+    def update_db():
+        """
+        DUH
+        """
+        try:
+            database.session.commit()
+        except Exception:
+            function_message(Exception, "red")
 
-###############################################################################
+    ###############################################################################
 
-def dump_db():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING DATABASE------------")
-    records1 = database.session.query(Compound).all()
-    records2 = database.session.query(Composition).all()
-    for each in records1, records2:
-        print (each)
-    redprint("------------END DATABASE DUMP------------")
+    def dump_db():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING DATABASE------------")
+        records1 = database.session.query(Compound).all()
+        records2 = database.session.query(Composition).all()
+        for each in records1, records2:
+            print (each)
+        redprint("------------END DATABASE DUMP------------")
 
-###############################################################################
+    ###############################################################################
 
-def dump_compositions():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING COMPOSITIONS------------")
-    records = database.session.query(Composition).all()
-    for each in records:
-        print (each)
-    redprint("--------------END DATABASE DUMP--------------")
+    def dump_compositions():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING COMPOSITIONS------------")
+        records = database.session.query(Composition).all()
+        for each in records:
+            print (each)
+        redprint("--------------END DATABASE DUMP--------------")
 
-###############################################################################
+    ###############################################################################
 
-def dump_compounds():
-    """
-Prints database to screen
-    """
-    redprint("-------------DUMPING COMPOUNDS------------")
-    records = database.session.query(Compounds).all()
-    for each in records:
-        print (each)
-    redprint("-------------END DATABASE DUMP------------")
+    def dump_compounds():
+        """
+    Prints database to screen
+        """
+        redprint("-------------DUMPING COMPOUNDS------------")
+        records = database.session.query(Compounds).all()
+        for each in records:
+            print (each)
+        redprint("-------------END DATABASE DUMP------------")
