@@ -185,7 +185,7 @@ async def element_lookup(ctx, arg1, arg2):
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(arg1, arg2)
+    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     #await ctx.send(string_to_send)
@@ -328,7 +328,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             lookup_output_container = ["chempy failure"]
         pass
     
-    async def validate_user_input(user_input: str, type_of_input:str):
+    async def validate_user_input(ctx, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         only one input, we are retrieving one record for one entity
@@ -350,14 +350,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #returns an SQLAlchemy object or false
                     internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
                     # NOT IN THE LOCAL DB
-                    if internal_lookup == False:
+                    if internal_lookup == None:
                         redprint("============Internal Lookup returned FALSE===========")
                         blueprint("Performing a PubChem lookup")
                         # every good lookup will add an entry to the db and return 
                         # the local db entry... two queries... gotta fix that...
-                        print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input))
-                        lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "cas")
-                        formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
+                        #print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input))
+                        lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                        formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                         # output is now formatted Discord.Embed() object
                         # in list in list
                         # [ [lookup_object] ]
@@ -371,7 +371,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         temp_output_container.append([formatted_message])
                         ##global lookup_output_container
                         lookup_output_container = temp_output_container
-                        dump_db()
+                        database_setup.Database_functions.dump_db()
                     else:
                         function_message("reached an else", "validation CAS lookup checks", "red") 
                 else:
@@ -384,10 +384,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
             greenprint("user supplied a CID")
             try:
                 internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                if internal_lookup == False:
+                if internal_lookup == None:
                     redprint("============Internal Lookup returned FALSE===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                    formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
+                    formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                     temp_output_container.append([formatted_message])
                     ##global lookup_output_container
                     lookup_output_container = temp_output_container
@@ -409,16 +409,16 @@ Example 3 : .pubchemlookup 113-00-8 cas
             try:
                 blueprint("[+] attempting internal lookup")
                 internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, "name")
-                if internal_lookup == False:
+                if internal_lookup == None:
                     redprint("============Internal Lookup returned false===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "name")
-                    formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
+                    formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                     temp_output_container.append([formatted_message])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
-                elif internal_lookup:
+                elif internal_lookup == True:
                     greenprint("============Internal Lookup returned TRUE===========")
-                    formatted_message = Pubchem_lookup.format_message_discord(internal_lookup)
+                    formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
                     temp_output_container.append([formatted_message])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
@@ -552,7 +552,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships[return_index])
+                Pubchem_lookup.Database_functions.compound_to_database(return_relationships[return_index])
 
         ###################################
         #if the user supplied a CID
@@ -657,7 +657,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         blueprint(str(return_query[0]))
         redprint("=====END=====return query for pubchem/local lookup===========")
 
-        return Compound_by_id(return_query)
+        return database_setup.Database_functions.Compound_by_id(return_query)
 
 ###############################################################################
     def compound_to_database(lookup_list: list):
@@ -672,7 +672,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         lookup_smiles              = lookup_list[0].get('smiles')
         lookup_formula             = lookup_list[0].get('formula')
         lookup_name                = lookup_list[0].get('name')
-        add_to_db(Compound(cid     = lookup_cid,                    \
+        database_setup.Database_functions.add_to_db(Compound(cid     = lookup_cid,\
                            #cas     = lookup_cas,                    \
                            smiles  = lookup_smiles,                 \
                            formula = lookup_formula,                \
