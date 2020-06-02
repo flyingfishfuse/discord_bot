@@ -447,7 +447,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     greenprint("GOOD CAS NUMBER")
                     internal_lookup = Database_functions.internal_local_database_lookup(user_input, "cas")
                     # NOT IN THE LOCAL DB
-                    if internal_lookup == False:
+                    if internal_lookup == None:
                         redprint("============Internal Lookup returned FALSE===========")
                         blueprint("Performing a PubChem lookup")
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "cas")
@@ -478,7 +478,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             greenprint("user supplied a CID")
             try:
                 internal_lookup = Database_functions.internal_local_database_lookup(user_input, "cid")
-                if internal_lookup == False:
+                if internal_lookup == None:
                     redprint("============Internal Lookup returned FALSE===========")
                     lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "cid")
                     formatted_message = Pubchem_lookup.format_message_discord(lookup_object)

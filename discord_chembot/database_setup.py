@@ -113,10 +113,12 @@ class Compound(database.Model):
                             unique=True, \
                             autoincrement=True)
     cid                 = database.Column(database.Integer)
-    name                = database.Column(database.String(64))
+    name                = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
     formula             = database.Column(database.String(120))
+    molweight           = database.Column(database.String(32))
+    charge              = database.Column(database.String(32))
 
     def __repr__(self):
         return 'Compound: {} \n \

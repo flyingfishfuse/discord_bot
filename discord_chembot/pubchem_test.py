@@ -357,18 +357,18 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         # the local db entry... two queries... gotta fix that...
                         #print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input))
                         lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                        formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                        #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                         # output is now formatted Discord.Embed() object
                         # in list in list
                         # [ [lookup_object] ]
-                        temp_output_container.append([formatted_message])
+                        temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
                         #global lookup_output_container
                         lookup_output_container = temp_output_container
                     #IN THE LOCAL DB
                     elif internal_lookup == True:
                         greenprint("============Internal Lookup returned TRUE===========")
                         formatted_message = Pubchem_lookup.format_message_discord(internal_lookup)
-                        temp_output_container.append([formatted_message])
+                        temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
                         ##global lookup_output_container
                         lookup_output_container = temp_output_container
                         database_setup.Database_functions.dump_db()
@@ -404,22 +404,28 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 function_message(Exception, "cid - main loop", "blue") 
 ###############################################################################
 # if NAME
+
+#the following is code to slim down the control flow to a single stack of conditionals
+    #input_types_requestable = ["name", "cid", "cas"]
+    #for each in input_types_requestable:
+    #    if type_of_input == each:
+        greenprint("user supplied a : " + type_of_input)
         if type_of_input == "name":
-            greenprint("user supplied a name")
             try:
                 blueprint("[+] attempting internal lookup")
-                internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, "name")
+                internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
                 if internal_lookup == None:
                     redprint("============Internal Lookup returned false===========")
-                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, "name")
-                    await Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                    formatted_message = await Pubchem_lookup.format_message_discord(ctx, lookup_object)
                     temp_output_container.append([formatted_message])
+                    #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
                 elif internal_lookup == True:
                     greenprint("============Internal Lookup returned TRUE===========")
-                    formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
-                    temp_output_container.append(formatted_message)
+                    #formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
+                    await temp_output_container.append(Pubchem_lookup.format_message_discord(ctx, internal_lookup))
                     #global lookup_output_container
                     lookup_output_container = temp_output_container
                     database_setup.dump_db()
@@ -545,11 +551,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'     : lookup_results.cid               ,\
-                        #'cas'     : lookup_results.cas               ,\
-                        'smiles'  : lookup_results.isomeric_smiles   ,\
-                        'formula' : lookup_results.molecular_formula ,\
-                        'name'    : lookup_results.iupac_name        }]
+                asdf = [{'cid'      : each.cid                ,\
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                 return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
@@ -573,11 +582,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
-                    asdf = [{'cid'     : each.cid               ,\
-                            #{'cas'     : each.cas              ,\
-                            'smiles'  : each.isomeric_smiles    ,\
-                            'formula' : each.molecular_formula  ,\
-                            'name'    : each.iupac_name         }]
+                    asdf = [{'cid'      : each.cid                ,\
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                     return_relationships.append(asdf)
             ####################################################
             #Right here we need to find a way to store multiple records
@@ -593,11 +605,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'     : lookup_results.cid               ,\
-                        #'cas'     : lookup_results.cas               ,\
-                        'smiles'  : lookup_results.isomeric_smiles    ,\
-                        'formula' : lookup_results.molecular_formula  ,\
-                        'name'    : lookup_results.iupac_name         }]
+                asdf = [{'cid'      : each.cid                ,\
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                 return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
@@ -620,11 +635,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
             if isinstance(lookup_results, list):
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
-                    asdf = [{'cid'     : each.cid               ,\
-                            #'cas'     : each.cas               ,\
-                            'smiles'  : each.isomeric_smiles    ,\
-                            'formula' : each.molecular_formula  ,\
-                            'name'    : each.iupac_name         }]
+                    asdf = [{'cid'      : each.cid                ,\
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                     return_relationships.append(asdf)
             ####################################################
             #Right here we need to find a way to store multiple records
@@ -640,11 +658,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
             #if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'     : lookup_results.cid                ,\
-                        #'cas'     : lookup_results.cas               ,\
-                        'smiles'  : lookup_results.isomeric_smiles    ,\
-                        'formula' : lookup_results.molecular_formula  ,\
-                        'name'    : lookup_results.iupac_name         }]
+                asdf = [{'cid'      : each.cid                ,\
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'      : each.cas                 ,\
+                            'smiles'    : each.isomeric_smiles     ,\
+                            'formula'   : each.molecular_formula   ,\
+                            'molweight' : each.molecular_weight    ,\
+                            'charge'    : each.charge              ,\
+                            'name'      : each.iupac_name          }]
                 return_relationships.append(asdf)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(return_relationships)
@@ -670,15 +691,19 @@ Example 3 : .pubchemlookup 113-00-8 cas
         print(inspect.stack()[1][3])
 
         lookup_cid                 = lookup_list[0].get('cid')
-        #lookup_cas                 = lookup_list[1].get('cas')
+        #lookup_cas                = lookup_list[1].get('cas')
         lookup_smiles              = lookup_list[0].get('smiles')
-        lookup_formula             = lookup_list[0].get('formula')
+        lookup_formula             = lookup_list[0].get('formula')        
+        lookup_molweight           = lookup_list[0].get('molweight')        
+        lookup_charge              = lookup_list[0].get('charge')
         lookup_name                = lookup_list[0].get('name')
         database_setup.Database_functions.add_to_db(Compound(cid     = lookup_cid,\
-                           #cas     = lookup_cas,                    \
-                           smiles  = lookup_smiles,                 \
-                           formula = lookup_formula,                \
-                           name    = lookup_name                   ))
+                           #cas     = lookup_cas,                   \
+                           smiles    = lookup_smiles,                 \
+                           formula   = lookup_formula,                \
+                           molweight = lookup_molweight,              \
+                           charge    = lookup_charge,                 \
+                           name      = lookup_name                    ))
 
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
@@ -734,10 +759,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 "PubChem_logo_splash.png")
         formatted_message.add_field(
             name="Molecular Formula",
-            value=lookup_results_object.molecular_formula)
+            value=lookup_results_object.formula)
         formatted_message.add_field(
             name="Molecular Weight",
-            value=lookup_results_object.molecular_weight)
+            value=lookup_results_object.molweight)
         formatted_message.add_field(
             name="Charge",
             value=lookup_results_object.charge)
