@@ -210,7 +210,7 @@ def size_check_256(thing_to_check):
     if len(thing_to_check) != None and 150 < len(thing_to_check) < 256:
         return (str(thing_to_check[:100]) + "... sliced ...")
     else:
-        function_message(thing_to_check, "red")
+        variables_for_reality.function_message(thing_to_check, "red")
 ##############################################################################
 class RestartBot():
 
@@ -279,7 +279,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         try:
             greenprint(chempy.Substance.from_formula(lookup_formula))
         except Exception:
-            function_message(asdf, "blue")
+            variables_for_reality.function_message(asdf, "blue")
 ###############################################################################
 
     def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = str):
@@ -336,10 +336,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
     Remove self and async from the code to transition to non-discord
         """
         import re
-        cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
+        #cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         temp_output_container = []
-        input_types_requestable = ["name", "cid", "cas"]
-        for each in input_types_requestable:
+        #input_types_requestable = ["name", "cid", "cas"]
+        for each in variables_for_reality.input_types_requestable:
             if type_of_input == each:
                 greenprint("user supplied a : " + type_of_input)
                 try:
@@ -350,13 +350,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
                                 greenprint("[+] Good CAS Number")
                                 await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
                             else:
-                                database_setup.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
+                                variables_for_reality.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
                         except Exception:
-                            database_setup.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
+                            variables_for_reality.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
                     else:
                         await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
                 except Exception:
-                    database_setup.function_message(Exception, " reached the exception", "red") 
+                    variables_for_reality.function_message(Exception, " reached the exception", "red") 
             else:
                 user_input_was_wrong("user_input_identification")
 
@@ -387,9 +387,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 #lookup_output_container = temp_output_container
                 database_setup.dump_db()
             else:
-                database_setup.function_message("[-] Something is wrong with the database", "red")
+                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
         except Exception:
-            database_setup.function_message(Exception, "blue")
+            variables_for_reality.function_message(Exception, "blue")
 
 ###############################################################################
     def validate_formula_input(equation_user_input : str):
@@ -413,34 +413,34 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 #validate reactants formatting
                 user_input_reactants = str.split(parsed_equation[0], sep =",")
             except Exception:
-                function_message("reactants formatting",Exception , "red")
+                variables_for_reality.function_message("reactants formatting",Exception , "red")
                 Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
             try:
                 #validate products formatting
                 user_input_products  = str.split(parsed_equation[1], sep =",")
             except Exception:
-                function_message("products formatting",Exception , "red")
+                variables_for_reality.function_message("products formatting",Exception , "red")
                 Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
-                    function_message("reactants contents",Exception , "red")
+                    variables_for_reality.function_message("reactants contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
                 #validate products contents
             for each in user_input_products:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
-                    function_message("products contents",Exception , "red")
+                    variables_for_reality.function_message("products contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_products", each)
         # if the inputs passed all the checks
         # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
         # [ [reactants] , [products] ]
             return [user_input_reactants, user_input_products]
         except Exception:
-            function_message("formula validation exception", Exception, "red")
+            variables_for_reality.function_message("formula validation exception", Exception, "red")
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
         
 ###############################################################################    
@@ -479,8 +479,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Performing Pubchem Query")
                 lookup_results = pubchem.get_compounds(compound_id,'name')
             except Exception :# pubchem.PubChemPyError:
-                function_message("lookup by NAME exception - name", Exception, "red")
-                user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                variables_for_reality.function_message("lookup by NAME exception - name", Exception, "red")
+                Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
             #if there were multiple results
             # TODO: we have to figure out a good way to store the extra results
                    #as possibly a side record
@@ -488,7 +488,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
-                    asdf = [{'cid'      : each.cid                ,\
+                    query_appendix = [{\
+                            'cid'       : each.cid                 ,\
                             #dis bitch dont have a CAS NUMBER!
                             #'cas'      : each.cas                 ,\
                             'smiles'    : each.isomeric_smiles     ,\
@@ -496,7 +497,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                             'molweight' : each.molecular_weight    ,\
                             'charge'    : each.charge              ,\
                             'name'      : each.iupac_name          }]
-                    return_relationships.append(asdf)
+                    return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
                     # and determine the best record to store as the main entry
@@ -511,22 +512,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'      : each.cid                ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
-                return_relationships.append(asdf)
+                query_appendix = [{\
+                            'cid'       : lookup_results.cid                 ,\
+                            #'cas'      : lookup_results.cas                 ,\
+                            'smiles'    : lookup_results.isomeric_smiles     ,\
+                            'formula'   : lookup_results.molecular_formula   ,\
+                            'molweight' : lookup_results.molecular_weight    ,\
+                            'charge'    : lookup_results.charge              ,\
+                            'name'      : lookup_results.iupac_name          }]
+                return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Pubchem_lookup.Database_functions.compound_to_database(return_relationships[return_index])
 
             else:
-                function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
+                variables_for_reality.function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
         #and then, once all that is done return the LOCAL database entry to
         # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
@@ -542,22 +543,21 @@ Example 3 : .pubchemlookup 113-00-8 cas
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name"]
         """
-        print(inspect.stack()[1][3])
-
         lookup_cid                 = lookup_list[0].get('cid')
-        #lookup_cas                = lookup_list[1].get('cas')
+        #lookup_cas                = lookup_list[0].get('cas')
         lookup_smiles              = lookup_list[0].get('smiles')
         lookup_formula             = lookup_list[0].get('formula')        
         lookup_molweight           = lookup_list[0].get('molweight')        
         lookup_charge              = lookup_list[0].get('charge')
         lookup_name                = lookup_list[0].get('name')
-        database_setup.Database_functions.add_to_db(Compound(cid     = lookup_cid,\
-                           #cas     = lookup_cas,                   \
-                           smiles    = lookup_smiles,                 \
-                           formula   = lookup_formula,                \
-                           molweight = lookup_molweight,              \
-                           charge    = lookup_charge,                 \
-                           name      = lookup_name                    ))
+        database_setup.Database_functions.add_to_db(Compound(\
+            cid       = lookup_cid                    ,\
+            #cas      = lookup_cas                    ,\
+            smiles    = lookup_smiles                 ,\
+            formula   = lookup_formula                ,\
+            molweight = lookup_molweight              ,\
+            charge    = lookup_charge                 ,\
+            name      = lookup_name                   ))
 
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
