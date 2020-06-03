@@ -472,7 +472,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
         ###################################
         #if the user supplied a name
         ###################################
-        if type_of_data == "name":
+        type_of_data = ["name","cid","cas"]
+        for each in type_of_data:
+            #if type_of_data == "name":
             try:
                 greenprint("[+] Performing Pubchem Query")
                 lookup_results = pubchem.get_compounds(compound_id,'name')
@@ -523,112 +525,6 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Pubchem_lookup.Database_functions.compound_to_database(return_relationships[return_index])
 
-        ###################################
-        #if the user supplied a CID
-        ###################################
-        elif type_of_data == "cid":
-        #elif isinstance(compound_id, int):
-            try:
-                greenprint("[+] Performing Pubchem Query")
-                lookup_results = pubchem.Compound.from_cid(compound_id)
-            except Exception :# pubchem.PubChemPyError:
-                function_message("lookup by cid exception - cid", Exception, "red")
-                #if there were multiple results
-                # TODO: we have to figure out a good way to store the extra results
-                   #as possibly a side record
-            if isinstance(lookup_results, list):
-                greenprint("[+] Multiple results returned ")
-                for each in lookup_results:
-                    redprint(each.molecular_formula)
-                    asdf = [{'cid'      : each.cid                ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
-                    return_relationships.append(asdf)
-            ####################################################
-            #Right here we need to find a way to store multiple records
-            # and determine the best record to store as the main entry
-            ####################################################
-                    #compound_to_database() TAKES A LIST
-                    # first element of first element
-                    #[ [this thing here] , [not this one] ]
-                redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(str(return_relationships[return_index]))
-                redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships[return_index])
-
-            #if there was only one result
-            elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'      : each.cid                ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
-                return_relationships.append(asdf)
-                redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(str(return_relationships[return_index]))
-                redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships[return_index])
-
-        ###################################
-        #if the user supplied a CAS
-        ###################################
-        elif type_of_data == "cas":
-        #elif isinstance(compound_id, int):
-            try:
-                greenprint("[+] Performing Pubchem Query")
-                lookup_results = pubchem.get_compounds(compound_id,'name',)
-            except Exception :# pubchem.PubChemPyError:
-                function_message("lookup by cid exception - CAS", Exception, "red")            
-            #if there were multiple results
-            # TODO: we have to figure out a good way to store the extra results
-            #as possibly a side record
-            if isinstance(lookup_results, list):
-                greenprint("[+] Multiple results returned ")
-                for each in lookup_results:
-                    asdf = [{'cid'      : each.cid                ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
-                    return_relationships.append(asdf)
-            ####################################################
-            #Right here we need to find a way to store multiple records
-            # and determine the best record to store as the main entry
-            ####################################################
-                    #compound_to_database() TAKES A LIST
-                    # first element of first element
-                    #[ [this thing here] , [not this one] ]
-                redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(str(return_relationships[return_index]))
-                redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships[return_index])
-
-            #if there was only one result
-            elif isinstance(lookup_results, pubchem.Compound):
-                asdf = [{'cid'      : each.cid                ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
-                return_relationships.append(asdf)
-                redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(return_relationships)
-                redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.compound_to_database(return_relationships)
             else:
                 function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
         #and then, once all that is done return the LOCAL database entry to
