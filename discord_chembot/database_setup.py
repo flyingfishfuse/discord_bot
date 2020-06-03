@@ -65,7 +65,8 @@ ADMIN_EMAIL        = "game_admin" + "@" + HTTP_HOST
 DANGER_STRING      = "TACOCAT"
 
 LOCAL_CACHE_FILE   = 'sqlite:///' + DATABASE + DATABASE_HOST + DATABASE_USER + ".db"
-easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS ", "CoCaINe"]
+easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS ", "CoCaINe",\
+                      "COWS"]
 ################################################################################
 ##############                      CONFIG                     #################
 ################################################################################

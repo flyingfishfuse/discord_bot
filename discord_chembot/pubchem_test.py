@@ -291,7 +291,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         greenprint(inspect.stack()[1][3])
 
         user_is_a_doofus_CID_message = \
-            "Stop being a doofus and feed me a good CID! "
+            'Stop being a doofus! Accepted types are "name","cas" or "cid" '
         user_is_a_doofus_formula_message = \
             "Stop being a doofus and feed me a good formula!"
         user_is_a_doofus_form_react_message = \
@@ -338,101 +338,59 @@ Example 3 : .pubchemlookup 113-00-8 cas
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         temp_output_container = []
-        ######################################################
-        # if CAS
-        if type_of_input == "cas":
-            greenprint("user supplied a CAS")
-            try:
-                greenprint("trying to match regular expression for CAS")
-                if re.match(cas_regex,user_input):
-                    greenprint("GOOD CAS NUMBER")
-                    #Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                    #returns an SQLAlchemy object or false
-                    internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                    # NOT IN THE LOCAL DB
-                    if internal_lookup == None:
-                        redprint("============Internal Lookup returned FALSE===========")
-                        blueprint("Performing a PubChem lookup")
-                        # every good lookup will add an entry to the db and return 
-                        # the local db entry... two queries... gotta fix that...
-                        #print(Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input))
-                        lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                        #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                        # output is now formatted Discord.Embed() object
-                        # in list in list
-                        # [ [lookup_object] ]
-                        temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
-                        #global lookup_output_container
-                        lookup_output_container = temp_output_container
-                    #IN THE LOCAL DB
-                    elif internal_lookup == True:
-                        greenprint("============Internal Lookup returned TRUE===========")
-                        formatted_message = Pubchem_lookup.format_message_discord(internal_lookup)
-                        temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
-                        ##global lookup_output_container
-                        lookup_output_container = temp_output_container
-                        database_setup.Database_functions.dump_db()
+        input_types_requestable = ["name", "cid", "cas"]
+        for each in input_types_requestable:
+            if type_of_input == each:
+                greenprint("user supplied a : " + type_of_input)
+                try:
+                    if type_of_input == "cas":
+                        try:
+                            greenprint("[+} trying to match regular expression for CAS")
+                            if re.match(cas_regex,user_input):
+                                greenprint("[+] Good CAS Number")
+                                await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
+                            else:
+                                database_setup.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
+                        except Exception:
+                            database_setup.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
                     else:
-                        function_message("reached an else", "validation CAS lookup checks", "red") 
-                else:
-                    function_message("reached second else ","validation CAS lookup checks", "red")                    
-            except Exception:
-                function_message(Exception, " reached the exception", "red") 
- ##############################################################################
-#if CID
-        if type_of_input == "cid":
-            greenprint("user supplied a CID")
-            try:
-                internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                if internal_lookup == None:
-                    redprint("============Internal Lookup returned FALSE===========")
-                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                    formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                    temp_output_container.append([formatted_message])
-                    ##global lookup_output_container
-                    lookup_output_container = temp_output_container
-                elif internal_lookup == True:
-                    greenprint("============Internal Lookup returned TRUE===========")
-                    formatted_message = Pubchem_lookup.format_message_discord(internal_lookup)
-                    temp_output_container.append([formatted_message])
-                    #global lookup_output_container
-                    lookup_output_container = temp_output_container
-                    database_setup.Database_functions.dump_db()
-                else:
-                    function_message("cid - main loop, else at end", "red")
-            except Exception:
-                function_message(Exception, "cid - main loop", "blue") 
-###############################################################################
-# if NAME
+                        await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
+                except Exception:
+                    database_setup.function_message(Exception, " reached the exception", "red") 
+            else:
+                user_input_was_wrong("user_input_identification")
 
-#the following is code to slim down the control flow to a single stack of conditionals
-    #input_types_requestable = ["name", "cid", "cas"]
-    #for each in input_types_requestable:
-    #    if type_of_input == each:
-        greenprint("user supplied a : " + type_of_input)
-        if type_of_input == "name":
-            try:
-                blueprint("[+] attempting internal lookup")
-                internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                if internal_lookup == None:
-                    redprint("============Internal Lookup returned false===========")
-                    lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                    formatted_message = await Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                    temp_output_container.append([formatted_message])
-                    #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
-                    #global lookup_output_container
-                    lookup_output_container = temp_output_container
-                elif internal_lookup == True:
-                    greenprint("============Internal Lookup returned TRUE===========")
-                    #formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
-                    await temp_output_container.append(Pubchem_lookup.format_message_discord(ctx, internal_lookup))
-                    #global lookup_output_container
-                    lookup_output_container = temp_output_container
-                    database_setup.dump_db()
-                else:
-                    database_setup.function_message("validation lookup checks", "red")
-            except Exception:
-                database_setup.function_message(Exception, "blue") 
+    async def lookup_from_inputs(ctx, user_input: str, type_of_input: str):
+        '''
+        function to lookup and send to output after validation is performed on inputs
+        '''
+        temp_output_container = []
+        blueprint("[+] attempting internal lookup")
+        try:
+            internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
+            if internal_lookup == None:
+                redprint("[-] Internal Lookup returned false")
+                blueprint("[+] Attempting pubchem search")
+                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                await Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                #temp_output_container.append([formatted_message])
+                #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
+                #global lookup_output_container
+                #lookup_output_container = temp_output_container
+            elif internal_lookup == True:
+                greenprint("============Internal Lookup returned TRUE===========")
+                await Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                #formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
+                #await temp_output_container.append(Pubchem_lookup.format_message_discord(ctx, internal_lookup))
+                #global lookup_output_container
+                #lookup_output_container = temp_output_container
+                database_setup.dump_db()
+            else:
+                database_setup.function_message("[-] Something is wrong with the database", "red")
+        except Exception:
+            database_setup.function_message(Exception, "blue")
+
 ###############################################################################
     def validate_formula_input(equation_user_input : str):
         """
@@ -739,6 +697,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
 ############################################################################### 
     async def format_message_discord(ctx, lookup_results_object):
+        temp_output_container = []
         formatted_message = discord.Embed( \
             title=lookup_results_object.name,
             #change color option
@@ -769,7 +728,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         formatted_message.set_footer(
             text="",
             icon_url="")
-        return formatted_message
+        temp_output_container.append([formatted_message])
+        #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ################################################################################
 

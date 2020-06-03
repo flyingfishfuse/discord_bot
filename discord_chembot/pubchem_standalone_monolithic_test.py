@@ -323,7 +323,7 @@ Also does chempy translation to feed data to the calculation engine
     '''
     def __init__(self):
         self.asdf                 = ["test_init : self.asdf"]
-        self,lookup_result        = ["test_init : self.lookup_result"]
+        self.lookup_result        = ["test_init : self.lookup_result"]
         self.name_lookup_result   = None
         name_lookup_results_list  = ["test_init : self.name_lookup_results_list"] 
         greenprint("loaded pubchem_commands")
