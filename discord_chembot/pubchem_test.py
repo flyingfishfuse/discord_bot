@@ -118,6 +118,12 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
 
+@lookup_bot.command()
+async def composition_lookup(ctx, arg1, arg2):
+    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    #string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(content="lol", embed=lookup_output_container[0])
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
 def size_check_256(thing_to_check):
@@ -353,14 +359,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
-                    query_appendix = [{'cid': each.cid                 ,\
+                    query_appendix = [{'cid' : each.cid                 ,\
                                 #dis bitch dont have a CAS NUMBER!
-                                #'cas'      : each.cas                 ,\
-                                'smiles'    : each.isomeric_smiles     ,\
-                                'formula'   : each.molecular_formula   ,\
-                                'molweight' : each.molecular_weight    ,\
-                                'charge'    : each.charge              ,\
-                                'name'      : each.iupac_name          }]
+                                #'cas'       : each.cas                 ,\
+                                'smiles'     : each.isomeric_smiles     ,\
+                                'formula'    : each.molecular_formula   ,\
+                                'molweight'  : each.molecular_weight    ,\
+                                'charge'     : each.charge              ,\
+                                'iupac_name' : each.iupac_name          }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -378,13 +384,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
             elif isinstance(lookup_results, pubchem.Compound) :#\
               #or (len(lookup_results) == 1 and isinstance(lookup_results, list)) :
                 greenprint("[+] One Result Returned!")
-                query_appendix = [{'cid': lookup_results.cid                 ,\
-                            #'cas'      : lookup_results.cas                 ,\
-                            'smiles'    : lookup_results.isomeric_smiles     ,\
-                            'formula'   : lookup_results.molecular_formula   ,\
-                            'molweight' : lookup_results.molecular_weight    ,\
-                            'charge'    : lookup_results.charge              ,\
-                            'name'      : lookup_results.iupac_name          }]
+                query_appendix = [{'cid' : lookup_results.cid                 ,\
+                            #'cas'       : lookup_results.cas                 ,\
+                            'smiles'     : lookup_results.isomeric_smiles     ,\
+                            'formula'    : lookup_results.molecular_formula   ,\
+                            'molweight'  : lookup_results.molecular_weight    ,\
+                            'charge'     : lookup_results.charge              ,\
+                            'iupac_name' : lookup_results.iupac_name          }]
                 return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
@@ -402,6 +408,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
+        print(Database_functions.Compound_by_id(return_query))
         return Database_functions.Compound_by_id(return_query)
 
         # OR return the remote lookup entry, either way, the information was stored.
@@ -427,26 +434,26 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 "/PNG?record_type=3d&image_size=small" +                      \
                 "".format(lookup_results_object.cid))
         formatted_message.set_author(
-            name="{} ({})".format(lookup_results_object.name,\
+            name="{} ({})".format(lookup_results_object.iupac_name,\
                                     lookup_results_object.cid),\
             url="https://pubchem.ncbi.nlm.nih.gov/compound/{}" + \
                 "".format(lookup_results_object.cid))
             #icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/" + \
             #    "PubChem_logo_splash.png")
-        formatted_message.add_field(
-            name="Molecular Formula",
+        formatted_message.add_field( \
+            name="Molecular Formula", \
             value=lookup_results_object.formula)
-        formatted_message.add_field(
-            name="Molecular Weight",
+        formatted_message.add_field( \
+            name="Molecular Weight", \
             value=lookup_results_object.molweight)
-        formatted_message.add_field(
-            name="Charge",
+        formatted_message.add_field( \
+            name="Charge", \
             value=lookup_results_object.charge)
-        formatted_message.add_field(
-            name="SMILES",
+        formatted_message.add_field( \
+            name="SMILES", \
             value=lookup_results_object.smiles)
         #await ctx.send(content="lol", embed=formatted_message)
-        temp_output_container.append([formatted_message])
+        temp_output_container.append(formatted_message)
         global lookup_output_container
         lookup_output_container = temp_output_container
 

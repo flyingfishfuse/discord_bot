@@ -114,7 +114,7 @@ class Compound(database.Model):
                             unique=True, \
                             autoincrement=True)
     cid                 = database.Column(database.Integer)
-    name                = database.Column(database.Text)
+    iupac_name          = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
     formula             = database.Column(database.String(120))
@@ -122,9 +122,14 @@ class Compound(database.Model):
     charge              = database.Column(database.String(32))
 
     def __repr__(self):
-        return 'Compound: {} \n \
-                CAS     : {} \n \
-                Formula : {} \n '.format(self.name , self.cas, self.formula)
+        return 'IUPAC name         : {} \n \
+CAS                : {} \n \
+Formula            : {} \n \
+Molecular Weight   : {} \n \
+Charge             : {} \n \
+CID                : {} \n '.format( \
+     self.cid, self.iupac_name , self.cas, self.formula, \
+    self.molweight, self.charge)
 
 class Composition(database.Model):
     __tablename__       = 'Composition'
