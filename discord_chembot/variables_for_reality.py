@@ -62,7 +62,7 @@ global lookup_input_container
 lookup_input_container = []
 
 
-def function_message(exception_message : str,  location="", color_to_print="red"):
+def function_message(exception_message : str,  location:str, color_to_print="red"):
     """
     A Robust exception message passing class? that uses colorama and inspect
     Takes red, green, blue as color arguments. WORK IN PROGERESS!

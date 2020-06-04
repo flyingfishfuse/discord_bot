@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#who dat
 ################################################################################
 ## Chemical element resource database from wikipedia/mendeleev python library ##
 ##                             for discord bot                                ##
@@ -52,7 +53,7 @@ from discord.ext import commands, tasks
 from chempy import balance_stoichiometry
 from discord_key import *
 import variables_for_reality
-from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import greenprint,redprint,blueprint,lookup_output_container
 import database_setup
 from database_setup import Database_functions
 from element_lookup_class import Element_lookup
@@ -152,7 +153,7 @@ Example 2 : .pubchemlookup 3520 cid
 Example 3 : .pubchemlookup 113-00-8 cas
 """
 ###############################################################################
-    def send_lookup_to_output(message):
+    def reply_to_query(message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
@@ -178,7 +179,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             variables_for_reality.function_message("asdf", "blue")
 ###############################################################################
 
-    async def user_input_was_wrong(ctx, type_of_pebkac_failure : str, bad_string = ""):
+    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = ""):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -197,20 +198,20 @@ Example 3 : .pubchemlookup 113-00-8 cas
         user_is_a_doofus_form_gen_message = \
             "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            await ctx.send(user_is_a_doofus_CID_message)
-            #Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
+            #await ctx.send(user_is_a_doofus_CID_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
-            await ctx.send(user_is_a_doofus_formula_message)
-            #Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
+            #await ctx.send(user_is_a_doofus_formula_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
         elif type_of_pebkac_failure == "formula_reactants":
-            await ctx.send(user_is_a_doofus_form_react_message)
-            #Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
+            #await ctx.send(user_is_a_doofus_form_react_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
         elif type_of_pebkac_failure == "formula_products":
-            await ctx.send(user_is_a_doofus_form_prod_message)
-            #Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
+            #await ctx.send(user_is_a_doofus_form_prod_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
         elif type_of_pebkac_failure == "user_input_identification":
-            await ctx.send(user_is_a_doofus_input_id_message)
-            #Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
+            #await ctx.send(user_is_a_doofus_input_id_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
         else:
             #change this to sonething reasonable
             Element_lookup.reply_to_query(type_of_pebkac_failure)
@@ -241,105 +242,80 @@ Example 3 : .pubchemlookup 113-00-8 cas
         temp_output_container = []
         input_types_requestable = ["name", "cid", "cas"]
         fuck_this = lambda fuck: fuck in input_types_requestable 
-        if fuck_this(user_input) :#in input_types_requestable:
-            #if type_of_input == each:
-                greenprint("user supplied a : " + type_of_input)
-                try:
-                    if type_of_input == "cas":
-                        try:
-                            greenprint("[+} trying to match regular expression for CAS")
-                            if re.match(cas_regex,user_input):
-                                greenprint("[+] Good CAS Number")
-                                await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
+        if fuck_this(type_of_input) :#in input_types_requestable:
+            greenprint("user supplied a : " + type_of_input)
+            try:
+                if type_of_input == "cas":
+                    try:
+                        greenprint("[+} trying to match regular expression for CAS")
+                        if re.match(cas_regex,user_input):
+                            greenprint("[+] Good CAS Number")
+                            #await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
+                            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
+                            if internal_lookup == None:
+                                redprint("[-] Internal Lookup returned false")
+                                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                                Pubchem_lookup.format_message_discord(lookup_object)
+                            elif internal_lookup == True:
+                                greenprint("============Internal Lookup returned TRUE===========")
+                                Pubchem_lookup.format_message_discord(lookup_object)
+                                database_setup.dump_db()
                             else:
-                                variables_for_reality.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
-                        except Exception:
-                            variables_for_reality.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
-                    else:
-                        await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
-                except Exception:
-                    variables_for_reality.function_message(Exception, " reached the exception", "red") 
-        else:
-                await Pubchem_lookup.user_input_was_wrong(ctx ,\
-                    "user_input_identification", \
-                    user_input + " : " + type_of_input)
+                                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
+                        else:
+                            variables_for_reality.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
+                    except Exception:
+                        variables_for_reality.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
+                else:
+                    #await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
+                    try:
+                        internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
+                        if internal_lookup == None:
+                            redprint("[-] Internal Lookup returned false")
+                            lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                            Pubchem_lookup.format_message_discord(lookup_object)
+                            return 
+                            #formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
+                            #temp_output_container.append([formatted_message])
+                            #lookup_output_container = temp_output_container
+                        elif internal_lookup == True:
+                            greenprint("============Internal Lookup returned TRUE===========")
+                            Pubchem_lookup.format_message_discord(lookup_object)
+                            database_setup.dump_db()
+                        else:
+                            variables_for_reality.function_message("", "[-] Something is wrong with the database", "red")
+                    except Exception:
+                        variables_for_reality.function_message("reached exception", "name, cid lookup - control flow", "red")
+            except Exception:
+                variables_for_reality.function_message("reached the exception","input_type was wrong somehow" , "red")
 
-    async def lookup_from_inputs(ctx, user_input: str, type_of_input: str):
-        '''
-        function to lookup and send to output after validation is performed on inputs
-        '''
-        temp_output_container = []
-        blueprint("[+] attempting internal lookup")
-        try:
-            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-            if internal_lookup == None:
-                redprint("[-] Internal Lookup returned false")
-                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                await Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
+        else:
+            await Pubchem_lookup.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)
+
+    #async def lookup_from_inputs(ctx, user_input: str, type_of_input: str):
+#        '''
+#        function to lookup and send to output after validation is performed on inputs
+#        '''
+#        temp_output_container = []
+#        blueprint("[+] attempting internal lookup")
+#        try:
+#            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
+#            if internal_lookup == None:
+#                redprint("[-] Internal Lookup returned false")
+#                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+#                Pubchem_lookup.format_message_discord(lookup_object)
+                #formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
                 #temp_output_container.append([formatted_message])
                 #lookup_output_container = temp_output_container
-            elif internal_lookup == True:
-                greenprint("============Internal Lookup returned TRUE===========")
-                await Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                database_setup.dump_db()
-            else:
-                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
-        except Exception:
-            variables_for_reality.function_message(Exception, "blue")
+#            elif internal_lookup == True:
+#                greenprint("============Internal Lookup returned TRUE===========")
+#                Pubchem_lookup.format_message_discord(lookup_object)
+#                database_setup.dump_db()
+#            else:
+#                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
+#        except Exception:
+#            variables_for_reality.function_message(Exception, "blue")
 
-###############################################################################
-    def validate_formula_input(equation_user_input : str):
-        """
-        :param formula_input: comma seperated values of element symbols
-        :type formula_input: str     
-    makes sure the formula supplied to the code is valid
-    user input will be valid only in the form of:
-    eq = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
-    note the two spaces
-        """
-        #user_input_reactants = "NH4ClO4,Al"
-        #user_input_products  = "Al2O3,HCl,H2O,N2"
-        #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
-
-        # if it doesn't work, lets see why!
-        try:
-            # validate equation formatting
-            parsed_equation = equation_user_input.split(" => ")
-            try:
-                #validate reactants formatting
-                user_input_reactants = str.split(parsed_equation[0], sep =",")
-            except Exception:
-                variables_for_reality.function_message("reactants formatting",Exception , "red")
-                Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
-            try:
-                #validate products formatting
-                user_input_products  = str.split(parsed_equation[1], sep =",")
-            except Exception:
-                variables_for_reality.function_message("products formatting",Exception , "red")
-                Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
-                #validate reactants contents
-            for each in user_input_reactants:
-                try:
-                    validation_check = chempy.Substance(each)
-                except Exception:
-                    variables_for_reality.function_message("reactants contents",Exception , "red")
-                    Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
-                #validate products contents
-            for each in user_input_products:
-                try:
-                    validation_check = chempy.Substance(each)
-                except Exception:
-                    variables_for_reality.function_message("products contents",Exception , "red")
-                    Pubchem_lookup.user_input_was_wrong("formula_products", each)
-        # if the inputs passed all the checks
-        # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
-        # [ [reactants] , [products] ]
-            return [user_input_reactants, user_input_products]
-        except Exception:
-            variables_for_reality.function_message("formula validation exception", Exception, "red")
-            Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
-        
 ###############################################################################    
     def pubchem_lookup_by_name_or_CID(compound_id, type_of_data:str):
         '''
@@ -373,19 +349,18 @@ Example 3 : .pubchemlookup 113-00-8 cas
             #if there were multiple results
             # TODO: we have to figure out a good way to store the extra results
                    #as possibly a side record
-            if isinstance(lookup_results, list):
+            if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
-                    query_appendix = [{\
-                            'cid'       : each.cid                 ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'      : each.cas                 ,\
-                            'smiles'    : each.isomeric_smiles     ,\
-                            'formula'   : each.molecular_formula   ,\
-                            'molweight' : each.molecular_weight    ,\
-                            'charge'    : each.charge              ,\
-                            'name'      : each.iupac_name          }]
+                    query_appendix = [{'cid': each.cid                 ,\
+                                #dis bitch dont have a CAS NUMBER!
+                                #'cas'      : each.cas                 ,\
+                                'smiles'    : each.isomeric_smiles     ,\
+                                'formula'   : each.molecular_formula   ,\
+                                'molweight' : each.molecular_weight    ,\
+                                'charge'    : each.charge              ,\
+                                'name'      : each.iupac_name          }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -394,15 +369,16 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
-                    redprint("=========RETURN RELATIONSHIPS=======")
+                    redprint("=========RETURN RELATIONSHIPS=======multiple")
                     blueprint(str(return_relationships[return_index]))
-                    redprint("=========RETURN RELATIONSHIPS=======")
+                    redprint("=========RETURN RELATIONSHIPS=======multiple")
                     Database_functions.compound_to_database(return_relationships[return_index])
             
-            # if there was only one result
-            elif isinstance(lookup_results, pubchem.Compound):
-                query_appendix = [{\
-                            'cid'       : lookup_results.cid                 ,\
+            # if there was only one result or the user supplied a CID for a single chemical
+            elif isinstance(lookup_results, pubchem.Compound) :#\
+              #or (len(lookup_results) == 1 and isinstance(lookup_results, list)) :
+                greenprint("[+] One Result Returned!")
+                query_appendix = [{'cid': lookup_results.cid                 ,\
                             #'cas'      : lookup_results.cas                 ,\
                             'smiles'    : lookup_results.isomeric_smiles     ,\
                             'formula'   : lookup_results.molecular_formula   ,\
@@ -438,7 +414,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         pass
 
 ############################################################################### 
-    async def format_message_discord(ctx, lookup_results_object):
+    def format_message_discord(lookup_results_object):
         '''
     Lookup_results_object can be either a database.Compound() entry or pubchempy.Compound()
 
@@ -469,13 +445,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         formatted_message.add_field(
             name="SMILES",
             value=lookup_results_object.smiles)
-        formatted_message.set_footer(
-            text="",
-            icon_url="")
-        await ctx.send(content="lol", embed=formatted_message)
-        #temp_output_container.append([formatted_message])
-        #global lookup_output_container
-        #lookup_output_container = temp_output_container
+        #await ctx.send(content="lol", embed=formatted_message)
+        temp_output_container.append([formatted_message])
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
 ################################################################################
 

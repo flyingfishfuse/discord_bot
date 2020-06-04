@@ -193,16 +193,20 @@ class Database_functions():
         """
         Returns a compound from the local DB
         Returns FALSE if entry does not exist
+        Expects the whole lookup object cause I am gonna expand this function
 
         """
         cid_passed = str(cid_of_compound[0].get("cid"))
         redprint("start of Compound_by_id()")
         blueprint("CID passed to function: " + cid_passed)
-        print(inspect.stack()[1][3])
+        #print(inspect.stack()[1][3])
+        #print(Compound.query.filter_by(cid = cid_passed).first().__repr__)
         try:
-            print(Compound.query.filter_by(cid = cid_passed))
-            return Compound.query.filter_by(cid = cid_passed)
+            #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)    
+            #print(Compound.query.filter_by(cid = cid_passed)).first()
+            return Compound.query.filter_by(cid = cid_passed).first()
         except Exception:
+            redprint("the bad thing in Compound_by_id")
             print(str(Exception.__cause__))
             return False
 
@@ -292,20 +296,23 @@ class Database_functions():
         for each in records:
             print (each)
         redprint("-------------END DATABASE DUMP------------")
+    ###############################################################################
 
-    def compound_to_database(self, lookup_list: list):
+    def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name"]
         """
-        lookup_cid                 = lookup_list[0].get('cid')
-        #lookup_cas                = lookup_list[0].get('cas')
-        lookup_smiles              = lookup_list[0].get('smiles')
-        lookup_formula             = lookup_list[0].get('formula')        
-        lookup_molweight           = lookup_list[0].get('molweight')        
-        lookup_charge              = lookup_list[0].get('charge')
-        lookup_name                = lookup_list[0].get('name')
-        self.add_to_db(Compound(                       \
+        temp_list = []
+        temp_list = lookup_list
+        lookup_cid                 = temp_list[0].get('cid')
+        #lookup_cas                = temp_list[0].get('cas')
+        lookup_smiles              = temp_list[0].get('smiles')
+        lookup_formula             = temp_list[0].get('formula')        
+        lookup_molweight           = temp_list[0].get('molweight')        
+        lookup_charge              = temp_list[0].get('charge')
+        lookup_name                = temp_list[0].get('name')
+        Database_functions.add_to_db(Compound(                       \
             cid       = lookup_cid                    ,\
             #cas      = lookup_cas                    ,\
             smiles    = lookup_smiles                 ,\
@@ -337,9 +344,10 @@ class Database_functions():
 #            input = Pubchem_lookup.formula_input_validation(each)
 
         # extend this but dont forget to add more fields in the database model!
-        add_to_db(Composition(name       = comp_name,               \
-                              units      = units_used,              \
-                              compounds  = formula_list,            \
-                              notes      = info                     ))
+        Database_functions.add_to_db(Composition(\
+                name       = comp_name,               \
+                units      = units_used,              \
+                compounds  = formula_list,            \
+                notes      = info                     ))
 
  ###############################################################################   

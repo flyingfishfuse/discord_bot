@@ -39,7 +39,67 @@ import discord
 import math, cmath
 from discord.ext import commands
 from chempy import balance_stoichiometry, mass_fractions
+import variables_for_reality
+import database_setup
+import pubchem_test
+from pubchem_test import Pubchem_lookup
+from database_setup import Database_functions
 
+class EquationBalancer():
+    def _init_(self):
+        print("asdf wat")
+
+    def validate_formula_input(equation_user_input : str):
+        """
+        :param formula_input: comma seperated values of element symbols
+        :type formula_input: str     
+    makes sure the formula supplied to the code is valid
+    user input will be valid only in the form of:
+    eq = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
+    note the two spaces
+        """
+        #user_input_reactants = "NH4ClO4,Al"
+        #user_input_products  = "Al2O3,HCl,H2O,N2"
+        #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
+
+        # if it doesn't work, lets see why!
+        try:
+            # validate equation formatting
+            parsed_equation = equation_user_input.split(" => ")
+            try:
+                #validate reactants formatting
+                user_input_reactants = str.split(parsed_equation[0], sep =",")
+            except Exception:
+                variables_for_reality.function_message("reactants formatting",Exception , "red")
+                Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
+            try:
+                #validate products formatting
+                user_input_products  = str.split(parsed_equation[1], sep =",")
+            except Exception:
+                variables_for_reality.function_message("products formatting",Exception , "red")
+                Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
+                #validate reactants contents
+            for each in user_input_reactants:
+                try:
+                    validation_check = chempy.Substance(each)
+                except Exception:
+                    variables_for_reality.function_message("reactants contents",Exception , "red")
+                    Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
+                #validate products contents
+            for each in user_input_products:
+                try:
+                    validation_check = chempy.Substance(each)
+                except Exception:
+                    variables_for_reality.function_message("products contents",Exception , "red")
+                    Pubchem_lookup.user_input_was_wrong("formula_products", each)
+        # if the inputs passed all the checks
+        # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
+        # [ [reactants] , [products] ]
+            return [user_input_reactants, user_input_products]
+        except Exception:
+            variables_for_reality.function_message("formula validation exception", Exception, "red")
+            Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
+        
 
 class LC_circuit():
     def __init__(self, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
@@ -62,7 +122,7 @@ class LC_circuit():
             print("AGGGGHHHHH MY LC_circuit IS BURNING AGHHHHHHH!!!")
 
 class Transistor_NPN():
-    def __init__ (gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+    def __init__ (self, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
         '''
         Transistor_NPN(gain,current_in, voltage_in, frequency, res1, res2, res3))
         The resistors are as follows, r1 is collector, r2 is base, r3 is emitter
@@ -104,7 +164,7 @@ class RLC_circuit:
             elif self.damping_factor > 1:
                 self.overdamped = 1
             else:
-                print "you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!"
+                print("you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!")
         elif parallel:
             self.attenuation = 1 / (2 * self.resistance * self.capacitance)
             self.damping_factor = (1/(2 * self.resistance))* math.sqrt(self.inductance / self.capacitance)
@@ -116,7 +176,7 @@ class RLC_circuit:
             elif self.damping_factor > 1:
                 self.overdamped = 1
             else:
-                print "you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!"
+                print("you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!")
 
 class Resistor:
     def __init__ (self, resistance, current, voltage):
@@ -182,4 +242,4 @@ class RL_Circuit:
 #        elif self.unit == "nano":
 #            return self.number*self.nano
 #        else:
-#            print "converter function is not designed for bananas or units measuring bananas or bacon"
+#            print("converter function is not designed for bananas or units measuring bananas or bacon"
