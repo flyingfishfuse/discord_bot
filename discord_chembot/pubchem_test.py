@@ -49,13 +49,13 @@ import math, cmath
 import pubchempy as pubchem
 from chempy import mass_fractions
 from discord.ext import commands, tasks
-from element_lookup_class import Element_lookup
-import database_setup
 from chempy import balance_stoichiometry
 from discord_key import *
 import variables_for_reality
 from variables_for_reality import greenprint,redprint,blueprint
+import database_setup
 from database_setup import Database_functions
+from element_lookup_class import Element_lookup
 
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 #blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -78,7 +78,7 @@ def dev_check(ctx):
 async def on_ready():
     print("Element_properties_lookup_tool")
     await lookup_bot.change_presence(activity=discord.Game(name="Chembot - type .help"))
-    await lookup_bot.connect()
+    #await lookup_bot.connect()
 
 #HELP COMMAND
 @lookup_bot.command()
@@ -178,16 +178,16 @@ Example 3 : .pubchemlookup 113-00-8 cas
             variables_for_reality.function_message("asdf", "blue")
 ###############################################################################
 
-    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = str):
+    async def user_input_was_wrong(ctx, type_of_pebkac_failure : str, bad_string = ""):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        greenprint(inspect.stack()[1][3])
-
         user_is_a_doofus_CID_message = \
             'Stop being a doofus! Accepted types are "name","cas" or "cid" '
+        user_is_a_doofus_input_id_message = \
+            'bloop '
         user_is_a_doofus_formula_message = \
             "Stop being a doofus and feed me a good formula!"
         user_is_a_doofus_form_react_message = \
@@ -197,13 +197,20 @@ Example 3 : .pubchemlookup 113-00-8 cas
         user_is_a_doofus_form_gen_message = \
             "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
+            await ctx.send(user_is_a_doofus_CID_message)
+            #Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
+            await ctx.send(user_is_a_doofus_formula_message)
+            #Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
         elif type_of_pebkac_failure == "formula_reactants":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
+            await ctx.send(user_is_a_doofus_form_react_message)
+            #Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
         elif type_of_pebkac_failure == "formula_products":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
+            await ctx.send(user_is_a_doofus_form_prod_message)
+            #Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
+        elif type_of_pebkac_failure == "user_input_identification":
+            await ctx.send(user_is_a_doofus_input_id_message)
+            #Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
         else:
             #change this to sonething reasonable
             Element_lookup.reply_to_query(type_of_pebkac_failure)
@@ -212,8 +219,6 @@ Example 3 : .pubchemlookup 113-00-8 cas
         """
         does what it says on the label, called when a lookup is failed
         """
-        greenprint(inspect.stack()[1][3])
-
         #TODO: find sqlalchemy exception object
         # why cant I find the type of object I need fuck me
         if type_of_failure == "SQL":
@@ -234,9 +239,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         import re
         #cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         temp_output_container = []
-        #input_types_requestable = ["name", "cid", "cas"]
-        for each in variables_for_reality.input_types_requestable:
-            if type_of_input == each:
+        input_types_requestable = ["name", "cid", "cas"]
+        fuck_this = lambda fuck: fuck in input_types_requestable 
+        if fuck_this(user_input) :#in input_types_requestable:
+            #if type_of_input == each:
                 greenprint("user supplied a : " + type_of_input)
                 try:
                     if type_of_input == "cas":
@@ -253,8 +259,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
                 except Exception:
                     variables_for_reality.function_message(Exception, " reached the exception", "red") 
-            else:
-                user_input_was_wrong("user_input_identification")
+        else:
+                await Pubchem_lookup.user_input_was_wrong(ctx ,\
+                    "user_input_identification", \
+                    user_input + " : " + type_of_input)
 
     async def lookup_from_inputs(ctx, user_input: str, type_of_input: str):
         '''
@@ -416,7 +424,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
         blueprint(str(return_query[0]))
         redprint("=====END=====return query for pubchem/local lookup===========")
 
+        #after storing the lookup to the local database, retrive the local entry
+        #This returns an SQLALchemy object
         return Database_functions.Compound_by_id(return_query)
+
+        # OR return the remote lookup entry, either way, the information was stored.
+        #this returns a pubchempy.Compound() Object type
+        #return lookup_results
 
 ###############################################################################
 
@@ -425,25 +439,24 @@ Example 3 : .pubchemlookup 113-00-8 cas
 
 ############################################################################### 
     async def format_message_discord(ctx, lookup_results_object):
+        '''
+    Lookup_results_object can be either a database.Compound() entry or pubchempy.Compound()
+
+        '''
         temp_output_container = []
-        formatted_message = discord.Embed( \
-            title=lookup_results_object.name,
-            #change color option
-            colour=discord.Colour(0x3b12ef),  \
-            url="",
-            description=size_check_256(lookup_results_object.formula),
-            timestamp=datetime.datetime.utcfromtimestamp(1580842764))
-        formatted_message.set_thumbnail(    \
+        formatted_message = discord.Embed(title=lookup_results_object.name   ,\
+                                          colour=discord.Colour(0x3b12ef))
+        formatted_message.set_thumbnail(                                      \
             url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{}" + \
-                "/PNG?record_type=3d&image_size=small" + \
+                "/PNG?record_type=3d&image_size=small" +                      \
                 "".format(lookup_results_object.cid))
         formatted_message.set_author(
             name="{} ({})".format(lookup_results_object.name,\
                                     lookup_results_object.cid),\
             url="https://pubchem.ncbi.nlm.nih.gov/compound/{}" + \
-                "".format(lookup_results_object.cid), 
-            icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/" + \
-                "PubChem_logo_splash.png")
+                "".format(lookup_results_object.cid))
+            #icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/" + \
+            #    "PubChem_logo_splash.png")
         formatted_message.add_field(
             name="Molecular Formula",
             value=lookup_results_object.formula)
@@ -453,10 +466,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
         formatted_message.add_field(
             name="Charge",
             value=lookup_results_object.charge)
+        formatted_message.add_field(
+            name="SMILES",
+            value=lookup_results_object.smiles)
         formatted_message.set_footer(
             text="",
             icon_url="")
-        await ctx.send(content="lol", embed=lookup_output_container[0])
+        await ctx.send(content="lol", embed=formatted_message)
         #temp_output_container.append([formatted_message])
         #global lookup_output_container
         #lookup_output_container = temp_output_container

@@ -195,12 +195,13 @@ class Database_functions():
         Returns FALSE if entry does not exist
 
         """
+        cid_passed = str(cid_of_compound[0].get("cid"))
         redprint("start of Compound_by_id()")
-        blueprint("CID passed to function: " + str(cid_of_compound[0].get("cid")))
+        blueprint("CID passed to function: " + cid_passed)
         print(inspect.stack()[1][3])
         try:
-            print(Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first())
-            return Compound.query.filter_by(cid = cid_of_compound[0].get("cid")).first()
+            print(Compound.query.filter_by(cid = cid_passed))
+            return Compound.query.filter_by(cid = cid_passed)
         except Exception:
             print(str(Exception.__cause__))
             return False
@@ -304,7 +305,7 @@ class Database_functions():
         lookup_molweight           = lookup_list[0].get('molweight')        
         lookup_charge              = lookup_list[0].get('charge')
         lookup_name                = lookup_list[0].get('name')
-        self.add_to_db(Compound(\
+        self.add_to_db(Compound(                       \
             cid       = lookup_cid                    ,\
             #cas      = lookup_cas                    ,\
             smiles    = lookup_smiles                 ,\
