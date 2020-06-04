@@ -24,6 +24,7 @@ Functional:
  
 Working on: 
 
+ * RLC, LC, NPN transistor, capacitor, resistor, inductor Objects with input/output for calculations
  * mendeleeve formatting
  * pubchem formatting
  * pubchem translation to chempy and ionize
