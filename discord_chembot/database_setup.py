@@ -179,7 +179,7 @@ Remember, the finer the Aluminum, the faster the flash.
 """
 
 redprint("made it this far")
-test_entry1 = Compound(name ='test', formula="HeNTaI" )
+test_entry1 = Compound(iupac_name ='tentacles', formula="HeNTaI" )
 test_entry2 = Composition(name = "flash", units="%wt", compounds="Al,27.7,NH4ClO4,72.3", notes=test_comp_notes )
 database.create_all()
 database.session.add(test_entry1)

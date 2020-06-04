@@ -56,8 +56,8 @@ import variables_for_reality
 from variables_for_reality import greenprint,redprint,blueprint,lookup_output_container
 import database_setup
 from database_setup import Database_functions
-from element_lookup_class import Element_lookup
-
+#from element_lookup_class import Element_lookup
+import element_lookup_class
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 #blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 #greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -106,7 +106,7 @@ async def restart_bot(secret_code):
 
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
-    await Element_lookup.validate_user_input(ctx, arg1, arg2)
+    await element_lookup_class.Element_lookup.validate_user_input(ctx, arg1, arg2)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     await ctx.send(string_to_send)

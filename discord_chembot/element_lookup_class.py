@@ -1,4 +1,6 @@
 from variables_for_reality import lookup_output_container
+import mendeleev
+
 
 #@lookup_bot.command()
 #async def lookup(ctx, arg1, arg2):
@@ -8,7 +10,7 @@ from variables_for_reality import lookup_output_container
 #    await ctx.send(string_to_send)
 
 class Element_lookup():
-    def __init__(self): #, input_container : list):
+    def __init__(self, ctx): #, input_container : list):
         #generate_element_name_list()
         #self.input_container  = input_container
         #self.output_container = []
@@ -52,7 +54,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         else:
             Element_lookup.reply_to_query(type_of_pebkac_failure)
 
-    def validate_user_input(element_id_user_input: str or int, specifics_requested : str):
+    def validate_user_input(ctx, element_id_user_input: str or int, specifics_requested : str):
         """
         checks if the user is requesting an actual element and set of data.
         This is the main function that "does the thing", you add new
@@ -68,7 +70,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             elif isinstance(thing , int):                              
                 return int(thing)              
 
-        from discord_chembot.variables_for_reality import element_list , symbol_list , specifics_list
+        from variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
         element_valid   = bool
         specifics_valid = bool
@@ -137,6 +139,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
                 print("wtf")
         else:
             print("wtf")
+        return True
 
 ################################################################################
 ##############          COMMANDS AND USER FUNCTIONS            #################
