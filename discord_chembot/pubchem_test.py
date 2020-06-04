@@ -54,11 +54,13 @@ import database_setup
 from chempy import balance_stoichiometry
 from discord_key import *
 import variables_for_reality
+from variables_for_reality import greenprint,redprint,blueprint
+from database_setup import Database_functions
 
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
-blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
+#blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
+#greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
+#redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
 
 # setup the discord variables that need to be global
@@ -76,6 +78,7 @@ def dev_check(ctx):
 async def on_ready():
     print("Element_properties_lookup_tool")
     await lookup_bot.change_presence(activity=discord.Game(name="Chembot - type .help"))
+    await lookup_bot.connect()
 
 #HELP COMMAND
 @lookup_bot.command()
@@ -260,7 +263,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         temp_output_container = []
         blueprint("[+] attempting internal lookup")
         try:
-            internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
+            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
             if internal_lookup == None:
                 redprint("[-] Internal Lookup returned false")
                 lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
@@ -386,7 +389,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     redprint("=========RETURN RELATIONSHIPS=======")
                     blueprint(str(return_relationships[return_index]))
                     redprint("=========RETURN RELATIONSHIPS=======")
-                    Pubchem_lookup.compound_to_database(return_relationships[return_index])
+                    Database_functions.compound_to_database(return_relationships[return_index])
             
             # if there was only one result
             elif isinstance(lookup_results, pubchem.Compound):
@@ -402,7 +405,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                Pubchem_lookup.Database_functions.compound_to_database(return_relationships[return_index])
+                Database_functions.compound_to_database(return_relationships[return_index])
 
             else:
                 variables_for_reality.function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
@@ -413,7 +416,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         blueprint(str(return_query[0]))
         redprint("=====END=====return query for pubchem/local lookup===========")
 
-        return database_setup.Database_functions.Compound_by_id(return_query)
+        return Database_functions.Compound_by_id(return_query)
 
 ###############################################################################
 
