@@ -20,14 +20,14 @@ Functional:
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
  * pubchem lookups
  * user input validation for pubchem lookup
- * some database functions
+ * database functions for inserting and recalling compounds
  
 Working on: 
 
  * mendeleeve formatting
  * pubchem formatting
  * pubchem translation to chempy and ionize
- * database functions for inputing compositions and retrieving them
+ * user commands for inserting and recalling compositions
 
 Planned:
  * Arbitrary communication platform IO
