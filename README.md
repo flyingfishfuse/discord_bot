@@ -1,5 +1,5 @@
 # discord_bot
- Chemical element resource database python library for discord/social_media/IRC bot
+ pubchem and mendeleeve caching lookup functions for discord/social_media/IRC bot
  
  This "bot" is really a collection of classes that will be able to perform many 
  useful chemistry and electronics engineering calculations. Caching lookup functions
@@ -9,7 +9,7 @@
  
  The goal is to eventually have something that can communicate across arbitrary
  platforms and provide REAL value to people who cannot afford, or do not have time,
- to acquire pay-for-knowledge applications, by utilizing with open-source technologies and 
+ to acquire pay-for-knowledge applications, by utilizing open-source technologies and 
  providing the means to extend functionality by simple modifications to the code.
 
  Licenced under GPLv3                                                        
