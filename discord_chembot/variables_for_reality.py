@@ -53,6 +53,7 @@ from colorama import Fore, Back, Style
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
+COMMAND_PREFIX = "."
 # GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
 global lookup_output_container 
 lookup_output_container = []
@@ -130,6 +131,11 @@ yocto = 0.000000000000000000000001
 pi = 3.14159
 Vbe= 0.7 # volts
 
+pubchem_search_types = ["cas", "cid" , "name" ] #, "formula"]
+
+specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
+        "isotopes", "oxistates"]
+
 # I am stupid and did dumb dumb things but this seems useful so I keep
 element_list_uncapitalized = ['hydrogen', 'helium', 'lithium', 'beryllium', 'boron', \
         'carbon', 'nitrogen', 'oxygen', 'fluorine', 'neon', 'sodium', \
@@ -191,7 +197,3 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
         'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', \
         'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts']
 
-specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
-        "isotopes", "oxistates"]
-
-pubchem_search_types = ["cas", "cid" , "name" ] #, "formula"]

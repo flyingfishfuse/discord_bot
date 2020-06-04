@@ -41,15 +41,15 @@ from discord.ext import commands
 from chempy import balance_stoichiometry, mass_fractions
 import variables_for_reality
 import database_setup
-import pubchem_test
+#import pubchem_test
 from pubchem_test import Pubchem_lookup
 from database_setup import Database_functions
 
-class EquationBalancer():
-    def _init_(self):
+class EquationBalancer(commands.Cog):
+    def _init_(self,ctx):
         print("asdf wat")
 
-    def validate_formula_input(equation_user_input : str):
+    def validate_formula_input(ctx, equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -101,12 +101,13 @@ class EquationBalancer():
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
         
 
-class LC_circuit():
-    def __init__(self, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
+class LC_circuit(commands.Cog):
+    def __init__(self, ctx, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
         '''
         LC circuit calculator.
             LC_circuit(inductance , capactitance, voltage, current = 0, series = 1, parallel = 0)
         REQUIRED parameters are inductance, capacitance, and voltage.
+        Booleans required for the others, don't XOR yourself
         '''
         self.inductance               = inductance
         self.capacitance              = capacitance
@@ -121,8 +122,8 @@ class LC_circuit():
         else:
             print("AGGGGHHHHH MY LC_circuit IS BURNING AGHHHHHHH!!!")
 
-class Transistor_NPN():
-    def __init__ (self, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+class Transistor_NPN(commands.Cog):
+    def __init__ (self, ctx, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
         '''
         Transistor_NPN(gain,current_in, voltage_in, frequency, res1, res2, res3))
         The resistors are as follows, r1 is collector, r2 is base, r3 is emitter

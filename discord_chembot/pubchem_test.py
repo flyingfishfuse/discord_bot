@@ -39,33 +39,29 @@
 import os
 import re
 import chempy
-import ionize
 import asyncio
 import discord
 import datetime
-import itertools
 import mendeleev
 #import threading
 import math, cmath
+import database_setup
+from discord_key import *
+import element_lookup_class
 import pubchempy as pubchem
+import variables_for_reality
+from calc import EquationBalancer
 from chempy import mass_fractions
 from discord.ext import commands, tasks
 from chempy import balance_stoichiometry
-from discord_key import *
-import variables_for_reality
-from variables_for_reality import greenprint,redprint,blueprint,lookup_output_container
-import database_setup
 from database_setup import Database_functions
-#from element_lookup_class import Element_lookup
-import element_lookup_class
-show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
-#blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-#greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-#redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
-
+from element_lookup_class import Element_lookup
+from variables_for_reality import greenprint,redprint, \
+    blueprint,lookup_output_container,devs
 
 # setup the discord variables that need to be global
 from discord.ext import commands
+from variables_for_reality import COMMAND_PREFIX
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
@@ -101,6 +97,7 @@ async def bot_usage(ctx):
 #even though you a dev, why should I trust you?
 # give a password!
 @lookup_bot.command()
+@commands.check(dev_check)
 async def restart_bot(secret_code):
     Restart_bot(secret_code)
 
@@ -124,6 +121,30 @@ async def composition_lookup(ctx, arg1, arg2):
     #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
+
+@lookup_bot.command()
+@commands.check(dev_check)
+async def composition_to_db(ctx, arg1, arg2):
+    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    #string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(content="lol", embed=lookup_output_container[0])
+
+@lookup_bot.command()
+async def balance_equation(ctx, arg1):
+    await EquationBalancer.validate_formula_input(ctx, arg1)
+    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    #string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(content="lol", embed=lookup_output_container[0])
+
+
+@lookup_bot.command()
+async def LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool):
+    await LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool)
+    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    #string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(content="lol", embed=lookup_output_container[0])
+
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
 def size_check_256(thing_to_check):
@@ -340,7 +361,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         '''
         #make a thing
         return_relationships = []
-        # you get multiple records retirned from a pubchem search VERY often
+        # you get multiple records returned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
         # presented as an option to the user,and not programmatically 
         return_index = 0
@@ -403,7 +424,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
         redprint("==BEGINNING==return query for pubchem/local lookup===========")
-        blueprint(str(return_query[0]))
+        for each in return_query[0]:
+            blueprint(str(each) + "\n")
         redprint("=====END=====return query for pubchem/local lookup===========")
 
         #after storing the lookup to the local database, retrive the local entry
