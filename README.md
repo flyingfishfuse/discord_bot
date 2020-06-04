@@ -18,16 +18,16 @@
 Functional:
 
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
- * pubchem lookups and chempy.Substance(formula) translation 
+ * pubchem lookups
+ * user input validation for pubchem lookup
  * some database functions
  
 Working on: 
 
- * user input validation for pubchem lookup
- * mendeleeve lookup and formatting
- * pubchem lookup and formatting
+ * mendeleeve formatting
+ * pubchem formatting
  * pubchem translation to chempy and ionize
- * database functions
+ * database functions for inputing compositions and retrieving them
 
 Planned:
  * Arbitrary communication platform IO
