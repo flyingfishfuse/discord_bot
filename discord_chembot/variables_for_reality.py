@@ -43,6 +43,7 @@
 # THIS IS A TOP LEVEL FILE
 # DO NOT CREATE CYCLIC DEPENDENCIES!
 import os
+import re
 # Establish an error reporting function
 import colorama
 from colorama import init
@@ -51,6 +52,15 @@ from colorama import Fore, Back, Style
 #Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
+
+# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
+global lookup_output_container 
+lookup_output_container = []
+
+# GLOBAL INPUT CONTAINER FOR USER INPUT VALIDATION
+global lookup_input_container
+lookup_input_container = []
+
 
 def function_message(exception_message : str,  location="", color_to_print="red"):
     """
@@ -78,6 +88,8 @@ def function_message(exception_message : str,  location="", color_to_print="red"
         blueprint("\n" + exception_message)
     blueprint("\n" + exception_message)
 
+input_types_requestable = ["name", "cid", "cas"]
+cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
 
 #make them global scope for testing purposes
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)

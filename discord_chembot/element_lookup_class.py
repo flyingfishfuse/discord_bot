@@ -1,4 +1,4 @@
-from discord_chembot.variables_for_reality import lookup_output_container
+from variables_for_reality import lookup_output_container
 
 #@lookup_bot.command()
 #async def lookup(ctx, arg1, arg2):
@@ -7,14 +7,14 @@ from discord_chembot.variables_for_reality import lookup_output_container
 #    string_to_send = list_to_string(lookup_output_container)
 #    await ctx.send(string_to_send)
 
-class Element_lookup(commands.Cog):
-    def __init__(self, ctx): #, input_container : list):
+class Element_lookup():
+    def __init__(self): #, input_container : list):
         #generate_element_name_list()
         #self.input_container  = input_container
         #self.output_container = []
         print("wat") 
 
-    async def help_message():
+    def help_message():
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
 isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
@@ -52,7 +52,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         else:
             Element_lookup.reply_to_query(type_of_pebkac_failure)
 
-    async def validate_user_input(ctx, element_id_user_input: str or int, specifics_requested : str):
+    def validate_user_input(element_id_user_input: str or int, specifics_requested : str):
         """
         checks if the user is requesting an actual element and set of data.
         This is the main function that "does the thing", you add new

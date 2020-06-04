@@ -242,6 +242,7 @@ class Database_functions():
             database.session.add(thingie)
             database.session.commit
         except Exception:
+            redprint("add_to_db() failed")
             print(Exception.__cause__)
     ################################################################################
 
@@ -290,3 +291,54 @@ class Database_functions():
         for each in records:
             print (each)
         redprint("-------------END DATABASE DUMP------------")
+
+    def compound_to_database(self, lookup_list: list):
+        """
+        Puts a pubchem lookup to the database
+        ["CID", "cas" , "smiles" , "Formula", "Name"]
+        """
+        lookup_cid                 = lookup_list[0].get('cid')
+        #lookup_cas                = lookup_list[0].get('cas')
+        lookup_smiles              = lookup_list[0].get('smiles')
+        lookup_formula             = lookup_list[0].get('formula')        
+        lookup_molweight           = lookup_list[0].get('molweight')        
+        lookup_charge              = lookup_list[0].get('charge')
+        lookup_name                = lookup_list[0].get('name')
+        self.add_to_db(Compound(\
+            cid       = lookup_cid                    ,\
+            #cas      = lookup_cas                    ,\
+            smiles    = lookup_smiles                 ,\
+            formula   = lookup_formula                ,\
+            molweight = lookup_molweight              ,\
+            charge    = lookup_charge                 ,\
+            name      = lookup_name                   ))
+
+###############################################################################
+    def composition_to_database(comp_name: str, units_used :str, \
+                                formula_list : list , info : str):
+        """
+        The composition is a relation between multiple Compounds
+        Each Composition entry will have required a pubchem_lookup on each
+        Compound in the Formula field. 
+        the formula_list is a CSV STRING WHERE: 
+        ...str_compound,int_amount,.. REPEATING (floats allowed)
+        EXAMPLE : Al,27.7,NH4ClO4,72.3
+
+        BIG TODO: be able to input list of cas/cid/whatever for formula_list
+        """
+        print(inspect.stack()[1][3])
+
+        # query local database for records before performing pubchem
+        # lookups
+        # expected to return FALSE if no record found
+        # if something is there, it will evaluate to true
+#        for each in formula_list:
+#            input = Pubchem_lookup.formula_input_validation(each)
+
+        # extend this but dont forget to add more fields in the database model!
+        add_to_db(Composition(name       = comp_name,               \
+                              units      = units_used,              \
+                              compounds  = formula_list,            \
+                              notes      = info                     ))
+
+ ###############################################################################   

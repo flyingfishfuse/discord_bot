@@ -45,32 +45,16 @@ import datetime
 import itertools
 import mendeleev
 #import threading
-#import wikipedia
 import math, cmath
-from pprint import pprint
 import pubchempy as pubchem
-#from bs4 import BeautifulSoup
 from chempy import mass_fractions
-#import discord_chembot.database_setup
 from discord.ext import commands, tasks
-#from chempy import balance_stoichiometry
-#from discord_chembot.discord_key import *
-#from discord_chembot.database_setup import *
-#from discord_chembot.discord_commands import *
-#from discord_chembot.element_lookup_class import Element_lookup
-#from discord_chembot.variables_for_reality import greenprint,redprint,blueprint
-#from discord_chembot.variables_for_reality import show_line_number,cas_regex
-#pretend main file, move contents to properties_lookup.py
+from element_lookup_class import Element_lookup
 import database_setup
 from chempy import balance_stoichiometry
 from discord_key import *
-from database_setup import *
-from variables_for_reality import *
-#from discord_chembot.discord_commands import *
-#from element_lookup_class import Element_lookup
-#from variables_for_reality import greenprint,redprint,blueprint
-#from variables_for_reality import show_line_number,cas_regex
-#make them global scope for testing purposes
+import variables_for_reality
+
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -83,67 +67,9 @@ lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
 
-# GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
-global lookup_output_container 
-lookup_output_container = []
-
-# GLOBAL INPUT CONTAINER FOR USER INPUT VALIDATION
-global lookup_input_container
-lookup_input_container = []
-
-#load the cogs into the bot
-cog_directory_files = os.listdir("./")
-if load_cogs == True:
-    for filename in cog_directory_files:
-        if filename.endswith(".py"):
-            lookup_bot.load_extension("cogs.{}".format(filename[:-3]))
 # check if the person sending the command is a developer
 def dev_check(ctx):
     return str(ctx.author.id) in str(devs)
-
-#LOAD EXTENSION
-@lookup_bot.command()
-#@commands.check(dev_check)
-#async def load(ctx, extension):
-#    lookup_bot.load_extension("cogs.{}".format(extension))
-#    await ctx.send(f"'{}'".format(extension) + " Loaded !")
-
-#UNLOAD EXTENSION
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def unload(ctx, extension):
-#    lookup_bot.unload_extension(f"cogs.{extension}")
-#    await ctx.send(f"`{extension}`" + " Unloaded !")
-
-#RELOAD EXTENSION
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def reload(ctx, extension):
-#    lookup_bot.unload_extension(f"cogs.{extension}")
-#    lookup_bot.load_extension(f"cogs.{extension}")
-#    await ctx.send(f"`{extension}`" + " Reloaded !")
-    #LOAD EXTENSION
-
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def load(ctx, extension):
-#    lookup_bot.load_extension("cogs.{}".format(extension))
-#    await ctx.send("'{}'".format(extension) + " Loaded !")
-
-#UNLOAD EXTENSION
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def unload(ctx, extension):
-#    lookup_bot.unload_extension(f"cogs.{extension}")
-#    await ctx.send(f"`{extension}`" + " Unloaded !")
-
-#RELOAD EXTENSION
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def reload(ctx, extension):
-#    lookup_bot.unload_extension(f"cogs.{extension}")
-#    lookup_bot.load_extension(f"cogs.{extension}")
-#    await ctx.send(f"`{extension}`" + " Reloaded !")
 
 # WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
 @lookup_bot.event
@@ -177,8 +103,6 @@ async def restart_bot(secret_code):
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
     await Element_lookup.validate_user_input(ctx, arg1, arg2)
-    #await Element_lookup.format_and_print_output(lookup_output_container)
-    #await ctx.send(lookup_output_container)
     list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     await ctx.send(string_to_send)
@@ -188,22 +112,8 @@ async def pubchem_lookup(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
-    #await ctx.send(string_to_send)
-    
-    # The lookup_output_container can be used to store objects!    
-    #await ctx.send(content="lol", embed=formatted_reply_object)
-    #redprint(lookup_output_container[0])
     await ctx.send(content="lol", embed=lookup_output_container[0])
 
-#@lookup_bot.command()
-#async def pubsearch(ctx, arg1, arg2, arg3):
-#    user_input = Pubchem_lookup.validate_user_input( arg1, arg2, arg3 )
-#    lookup = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input)
-
-# now we can just start copying code and changing it slightly to implement
-# new functionality
-
-##############################################################################
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
 def size_check_256(thing_to_check):
@@ -222,10 +132,6 @@ Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
     '''
     def __init__(self):
-        self.asdf                 = ["test_init : self.asdf"]
-        self.lookup_result        = ["test_init : self.lookup_result"]
-        self.name_lookup_result   = None
-        name_lookup_results_list  = ["test_init : self.name_lookup_results_list"] 
         greenprint("loaded pubchem_commands")
     
     def balancer_help_message():
@@ -248,24 +154,11 @@ Example 3 : .pubchemlookup 113-00-8 cas
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
         ''' 
-        # yeah yeah yeah, we are swapping between array and string like a fool
-        # but it serves a purpose. Need to keep the output as an iterable
-        # until the very last second when we send it to the user.
-        #We want to be able to allow the developer to just send a list
-        # or string to the output when adding new functions instead of
-        # having to pay attention to too much stuff!
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        #global lookup_output_container
         lookup_output_container = temp_array 
-
-    #remove async and ctx to make non-discord
-    #async def send_reply(self, formatted_reply_object):
-    #    reply = format_message_discord(self, formatted_reply)
-    #    await ctx.send(content="lol", embed=formatted_reply_object)
-    #    await ctx.send(content="lol", embed=reply)
 
 ###############################################################################
     def parse_lookup_to_chempy(pubchem_lookup : list):
@@ -279,7 +172,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         try:
             greenprint(chempy.Substance.from_formula(lookup_formula))
         except Exception:
-            variables_for_reality.function_message(asdf, "blue")
+            variables_for_reality.function_message("asdf", "blue")
 ###############################################################################
 
     def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = str):
@@ -370,21 +263,14 @@ Example 3 : .pubchemlookup 113-00-8 cas
             internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
             if internal_lookup == None:
                 redprint("[-] Internal Lookup returned false")
-                blueprint("[+] Attempting pubchem search")
                 lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                 await Pubchem_lookup.format_message_discord(ctx, lookup_object)
+                #formatted_message = Pubchem_lookup.format_message_discord(ctx, lookup_object)
                 #temp_output_container.append([formatted_message])
-                #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
-                #global lookup_output_container
                 #lookup_output_container = temp_output_container
             elif internal_lookup == True:
                 greenprint("============Internal Lookup returned TRUE===========")
                 await Pubchem_lookup.format_message_discord(ctx, lookup_object)
-                #formatted_message = Pubchem_lookup.format_message_discord(ctx, internal_lookup)
-                #await temp_output_container.append(Pubchem_lookup.format_message_discord(ctx, internal_lookup))
-                #global lookup_output_container
-                #lookup_output_container = temp_output_container
                 database_setup.dump_db()
             else:
                 variables_for_reality.function_message("[-] Something is wrong with the database", "red")
@@ -461,20 +347,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
         '''
         #make a thing
         return_relationships = []
-        #TODO : this is so hackish , fix this shit
         # you get multiple records retirned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
         # presented as an option to the user,and not programmatically 
-        # applied as the limiting factor in accuracy here is pubchem's
-        # humans performing the input. To overcome we must use our human's
-        # ability to THINK... DEAR LORD WE ARE ALL DOOMED!
         return_index = 0
-        ###################################
-        #if the user supplied a name
-        ###################################
         type_of_data = ["name","cid","cas"]
         for each in type_of_data:
-            #if type_of_data == "name":
             try:
                 greenprint("[+] Performing Pubchem Query")
                 lookup_results = pubchem.get_compounds(compound_id,'name')
@@ -538,56 +416,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         return database_setup.Database_functions.Compound_by_id(return_query)
 
 ###############################################################################
-    def compound_to_database(lookup_list: list):
-        """
-        Puts a pubchem lookup to the database
-        ["CID", "cas" , "smiles" , "Formula", "Name"]
-        """
-        lookup_cid                 = lookup_list[0].get('cid')
-        #lookup_cas                = lookup_list[0].get('cas')
-        lookup_smiles              = lookup_list[0].get('smiles')
-        lookup_formula             = lookup_list[0].get('formula')        
-        lookup_molweight           = lookup_list[0].get('molweight')        
-        lookup_charge              = lookup_list[0].get('charge')
-        lookup_name                = lookup_list[0].get('name')
-        database_setup.Database_functions.add_to_db(Compound(\
-            cid       = lookup_cid                    ,\
-            #cas      = lookup_cas                    ,\
-            smiles    = lookup_smiles                 ,\
-            formula   = lookup_formula                ,\
-            molweight = lookup_molweight              ,\
-            charge    = lookup_charge                 ,\
-            name      = lookup_name                   ))
 
-###############################################################################
-    def composition_to_database(comp_name: str, units_used :str, \
-                                formula_list : list , info : str):
-        """
-        The composition is a relation between multiple Compounds
-        Each Composition entry will have required a pubchem_lookup on each
-        Compound in the Formula field. 
-        the formula_list is a CSV STRING WHERE: 
-        ...str_compound,int_amount,.. REPEATING (floats allowed)
-        EXAMPLE : Al,27.7,NH4ClO4,72.3
-
-        BIG TODO: be able to input list of cas/cid/whatever for formula_list
-        """
-        print(inspect.stack()[1][3])
-
-        # query local database for records before performing pubchem
-        # lookups
-        # expected to return FALSE if no record found
-        # if something is there, it will evaluate to true
-        for each in formula_list:
-            input = Pubchem_lookup.formula_input_validation(each)
-
-        # extend this but dont forget to add more fields in the database model!
-        add_to_db(Composition(name       = comp_name,               \
-                              units      = units_used,              \
-                              compounds  = formula_list,            \
-                              notes      = info                     ))
-
- ###############################################################################   
     async def format_mesage_arbitrary(self, arg1, arg2, arg3):
         pass
 
@@ -624,10 +453,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         formatted_message.set_footer(
             text="",
             icon_url="")
-        temp_output_container.append([formatted_message])
-        #temp_output_container.append([Pubchem_lookup.format_message_discord(ctx, lookup_object)])
+        await ctx.send(content="lol", embed=lookup_output_container[0])
+        #temp_output_container.append([formatted_message])
         #global lookup_output_container
-        lookup_output_container = temp_output_container
+        #lookup_output_container = temp_output_container
 
 ################################################################################
 
