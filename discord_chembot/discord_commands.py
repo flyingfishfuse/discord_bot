@@ -2,6 +2,7 @@ from variables_for_reality import greenprint,redprint, \
     blueprint,lookup_output_container,devs,list_to_string
 from calc import EquationBalancer
 from pubchem_test import Pubchem_lookup
+import element_lookup_class
 from element_lookup_class import Element_lookup
 
 # setup the discord variables that need to be global
@@ -15,24 +16,24 @@ bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
 
 def dev_check(ctx):
-    return str(ctx.author.id) in str(devs)
+    return str(ctx.author.id) in devs
 
 #LOAD EXTENSION
-@lookup_bot.command()
+#@lookup_bot.command()
 #@commands.check(dev_check)
 #async def load(ctx, extension):
 #    lookup_bot.load_extension("cogs.{}".format(extension))
 #    await ctx.send(f"'{}'".format(extension) + " Loaded !")
 
 #UNLOAD EXTENSION
-@lookup_bot.command()
+#@lookup_bot.command()
 @commands.check(dev_check)
 async def unload(ctx, extension):
     lookup_bot.unload_extension(f"cogs.{extension}")
     await ctx.send(f"`{extension}`" + " Unloaded !")
 
 #RELOAD EXTENSION
-@lookup_bot.command()
+#@lookup_bot.command()
 @commands.check(dev_check)
 async def reload(ctx, extension):
     lookup_bot.unload_extension(f"cogs.{extension}")
@@ -49,7 +50,7 @@ def dev_check(ctx):
 # WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
 @lookup_bot.event
 async def on_ready():
-    print("Element_properties_lookup_tool")
+    print("Science_bot ALPHA")
     await lookup_bot.change_presence(activity=discord.Game(name="Chembot - type .help"))
     #await lookup_bot.connect()
 
@@ -80,21 +81,19 @@ async def bot_usage(ctx):
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
     await element_lookup_class.Element_lookup.validate_user_input(ctx, arg1, arg2)
-    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(string_to_send)
+    #print( list_to_string(lookup_output_container))
+    #string_to_send = list_to_string(lookup_output_container)
+    await ctx.send(lookup_output_container)
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
 
 @lookup_bot.command()
 async def composition_lookup(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
 
@@ -102,14 +101,12 @@ async def composition_lookup(ctx, arg1, arg2):
 @commands.check(dev_check)
 async def composition_to_db(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
     await EquationBalancer.validate_formula_input(ctx, arg1)
-    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     string_to_send = list_to_string(lookup_output_container)
     #await ctx.send(content="lol", embed=lookup_output_container[0])
     await ctx.send(string_to_send)
@@ -117,7 +114,6 @@ async def balance_equation(ctx, arg1):
 @lookup_bot.command()
 async def LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool):
     await LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
 ################################################################################

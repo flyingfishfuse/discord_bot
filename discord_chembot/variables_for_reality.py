@@ -54,6 +54,9 @@ from colorama import Fore, Back, Style
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
 COMMAND_PREFIX = "."
+devs = ['581952454124372068']
+list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+
 # GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
 global lookup_output_container 
 lookup_output_container = []

@@ -56,11 +56,12 @@ import element_lookup_class
 import pubchempy as pubchem
 import variables_for_reality
 from chempy import mass_fractions
-from discord.ext import commands, tasks
+#from discord.ext import commands, tasks
 from database_setup import Database_functions
 from variables_for_reality import greenprint,redprint, \
     blueprint,lookup_output_container
 
+from discord.ext import commands, tasks
 
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
@@ -74,12 +75,12 @@ class RestartBot():
 
     pass
 
-class Pubchem_lookup():
+class Pubchem_lookup(commands.Cog):
     '''
 Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
     '''
-    def __init__(self):
+    def __init__(self,ctx):
         greenprint("loaded pubchem_commands")
     
     def balancer_help_message():
@@ -225,7 +226,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         elif internal_lookup == True:
                             greenprint("============Internal Lookup returned TRUE===========")
                             Pubchem_lookup.format_message_discord(lookup_object)
-                            database_setup.dump_db()
+                            Database_functions.dump_db()
                         else:
                             variables_for_reality.function_message("", "[-] Something is wrong with the database", "red")
                     except Exception:
