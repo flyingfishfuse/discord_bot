@@ -22,9 +22,11 @@ Functional:
  * pubchem lookups
  * user input validation for pubchem lookup
  * database functions for inserting and recalling compounds
+ * simple chemical equation balancer
  
 Working on: 
 
+ * equation balancer output formatting
  * Flask Routes and templates for the arbitrary I/O
  * RLC, LC, NPN transistor, capacitor, resistor, inductor Objects with input/output for calculations
  * mendeleeve formatting
