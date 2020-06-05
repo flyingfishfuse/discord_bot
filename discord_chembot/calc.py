@@ -38,12 +38,15 @@ import asyncio
 import discord
 import math, cmath
 from discord.ext import commands
+import chempy
 from chempy import balance_stoichiometry, mass_fractions
 import variables_for_reality
 import database_setup
 #import pubchem_test
 from pubchem_test import Pubchem_lookup
 from database_setup import Database_functions
+
+import pyEQL
 
 class EquationBalancer(commands.Cog):
     def _init_(self,ctx):
@@ -60,7 +63,7 @@ class EquationBalancer(commands.Cog):
         """
         #user_input_reactants = "NH4ClO4,Al"
         #user_input_products  = "Al2O3,HCl,H2O,N2"
-        #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
+        #equation_user_input  = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
 
         # if it doesn't work, lets see why!
         try:
@@ -95,11 +98,31 @@ class EquationBalancer(commands.Cog):
         # if the inputs passed all the checks
         # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
         # [ [reactants] , [products] ]
-            return [user_input_reactants, user_input_products]
+            #return [user_input_reactants, user_input_products]
+            EquationBalancer.balance_simple_equation(user_input_reactants, user_input_products)
         except Exception:
             variables_for_reality.function_message("formula validation exception", Exception, "red")
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
-        
+
+
+    def balance_simple_equation(reactants, products):
+        #react = chempy.Substance.from_formula(reactants)
+        #prod  = chempy.Substance.from_formula(products)
+        balanced_reaction = chempy.balance_stoichiometry(reactants,products)
+        print(balanced_reaction)
+        EquationBalancer.reply_to_query(balanced_reaction)
+
+    def reply_to_query(message):
+        '''
+    Takes a list or string, if list, joins the list to a string and assigns to 
+    lookup_output_container.
+        ''' 
+        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        if isinstance(message,list):
+            message = list_to_string(message) 
+        temp_array = [message]
+        variables_for_reality.lookup_output_container = temp_array
+
 
 class LC_circuit(commands.Cog):
     def __init__(self, ctx, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
@@ -123,29 +146,38 @@ class LC_circuit(commands.Cog):
             print("AGGGGHHHHH MY LC_circuit IS BURNING AGHHHHHHH!!!")
 
 class Transistor_NPN(commands.Cog):
-    def __init__ (self, ctx, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
-        '''
+    def __init__ (self, ctx):# gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+        """
         Transistor_NPN(gain,current_in, voltage_in, frequency, res1, res2, res3))
         The resistors are as follows, r1 is collector, r2 is base, r3 is emitter
         REQUIRED parameters are current, voltage, resistors 1-3
-        '''
+        """
 
-        self.gain           = gain
-        self.current_in     = current_in
-        self.voltage_in     = voltage_in
-        self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
-        self.emitteralpha   = self.collectorcurrent / self.emittercurrent
-        self.resistor1      = Resistor(resistor1) # collector
-        self.resistor2      = Resistor(resistor2) # base
-        self.resistor3      = Resistor(resistor3) # emitter
-        self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
-        self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+        #self.gain           = gain
+        #self.current_in     = current_in
+        #self.voltage_in     = voltage_in
+        #self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
+        #self.emitteralpha   = self.collectorcurrent / self.emittercurrent
+        #self.resistor1      = Resistor(resistor1) # collector
+        #self.resistor2      = Resistor(resistor2) # base
+        #self.resistor3      = Resistor(resistor3) # emitter
+        #self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
+        #self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+    
+    def Validate_user_input(gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+        #gain           = gain
+        #current_in     = current_in
+        #voltage_in     = voltage_in
+        DCcurrentGain  = self.collectorcurrent / self.basecurrent
+        emitteralpha   = self.collectorcurrent / self.emittercurrent
+        resistor1      = Resistor(resistor1) # collector
+        resistor2      = Resistor(resistor2) # base
+        resistor3      = Resistor(resistor3) # emitter
+        basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
+        emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
 
 
-
-
-
-class RLC_circuit:
+class RLC_circuit():
     def _init_(self, resistance, inductance, capacitance, voltage, current, frequency ):
 
         self.resistance               = resistance
@@ -179,7 +211,7 @@ class RLC_circuit:
             else:
                 print("you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!")
 
-class Resistor:
+class Resistor():
     def __init__ (self, resistance, current, voltage):
         self.resistance   = resistance
         self.voltage      = voltage
@@ -189,7 +221,7 @@ class Resistor:
         self.loss         = self.voltage^2 / self.resistance
 
 
-class Inductor:
+class Inductor():
     def __init__ (self, inductance, current, voltage, frequency = 0):
         self.inductance   = inductance
         self.current      = current
@@ -199,7 +231,7 @@ class Inductor:
         self.qfactor      = (2 * pi * self.frequency * self.inductance) / self.resistance
 
 
-class Capacitor:
+class Capacitor():
     def __init__(self, capacitance, voltage, frequency):
         self.capacitance    = capacitance
         self.voltage        = voltage
@@ -211,7 +243,7 @@ class Capacitor:
 
 
 
-class RL_Circuit:
+class RL_Circuit():
     def __init__(self, resistance , inductance , frequency, voltage_in, series = 1, parallel = 0 ):
         self.resistance        = resistance
         self.inductance        = inductance

@@ -186,6 +186,15 @@ database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
 #database_server = threading.Thread.start(chembot_server.run() )
+################################################################################
+##############                       Routes                    #################
+################################################################################
+
+@chembot_server.route('/pubchem_route')
+def pubchem_route():
+    
+    pass
+
 
 ################################################################################
 ##############                     FUNCTIONS                   #################

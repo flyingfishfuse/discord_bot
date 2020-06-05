@@ -36,6 +36,13 @@
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
 # https://chemspipy.readthedocs.io/en/latest/
+
+
+
+# TODO: ADD PYEQL STUFF
+
+
+
 import os
 import re
 import chempy
@@ -43,107 +50,17 @@ import asyncio
 import discord
 import datetime
 import mendeleev
-#import threading
 import math, cmath
 import database_setup
-from discord_key import *
 import element_lookup_class
 import pubchempy as pubchem
 import variables_for_reality
-from calc import EquationBalancer
 from chempy import mass_fractions
 from discord.ext import commands, tasks
-from chempy import balance_stoichiometry
 from database_setup import Database_functions
-from element_lookup_class import Element_lookup
 from variables_for_reality import greenprint,redprint, \
-    blueprint,lookup_output_container,devs
+    blueprint,lookup_output_container
 
-# setup the discord variables that need to be global
-from discord.ext import commands
-from variables_for_reality import COMMAND_PREFIX
-lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
-bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
-    \"element\" \"type_of_data\"."
-
-# check if the person sending the command is a developer
-def dev_check(ctx):
-    return str(ctx.author.id) in str(devs)
-
-# WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
-@lookup_bot.event
-async def on_ready():
-    print("Element_properties_lookup_tool")
-    await lookup_bot.change_presence(activity=discord.Game(name="Chembot - type .help"))
-    #await lookup_bot.connect()
-
-#HELP COMMAND
-@lookup_bot.command()
-async def element_lookup_usage(ctx):
-    await ctx.send(Element_lookup.help_message())
-
-@lookup_bot.command()
-async def pubchem_lookup_usage(ctx):
-    await ctx.send(Pubchem_lookup.help_message())
-
-@lookup_bot.command()
-async def balancer_usage(ctx):
-    await ctx.send(Pubchem_lookup.balancer_help_message())
-
-@lookup_bot.command()
-async def bot_usage(ctx):
-    await ctx.send(bot_help_message)
-
-#even though you a dev, why should I trust you?
-# give a password!
-@lookup_bot.command()
-@commands.check(dev_check)
-async def restart_bot(secret_code):
-    Restart_bot(secret_code)
-
-@lookup_bot.command()
-async def element_lookup(ctx, arg1, arg2):
-    await element_lookup_class.Element_lookup.validate_user_input(ctx, arg1, arg2)
-    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(string_to_send)
-
-@lookup_bot.command()
-async def pubchem_lookup(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
-
-@lookup_bot.command()
-async def composition_lookup(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
-
-@lookup_bot.command()
-@commands.check(dev_check)
-async def composition_to_db(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
-
-@lookup_bot.command()
-async def balance_equation(ctx, arg1):
-    await EquationBalancer.validate_formula_input(ctx, arg1)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
-
-
-@lookup_bot.command()
-async def LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool):
-    await LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool)
-    #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
 
 ##############################################################################
 #figure out WHY this is doing and make it less ugly
@@ -478,8 +395,3 @@ Example 3 : .pubchemlookup 113-00-8 cas
         temp_output_container.append(formatted_message)
         global lookup_output_container
         lookup_output_container = temp_output_container
-
-################################################################################
-
-######## AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
-lookup_bot.run(discord_bot_token, bot=True)
