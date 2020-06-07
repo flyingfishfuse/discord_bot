@@ -60,7 +60,7 @@ from chempy import mass_fractions
 from database_setup import Database_functions
 from variables_for_reality import greenprint,redprint, \
     blueprint,lookup_output_container
-
+# DO NOT IMPORT DISCORD_COMMANDS, THAT IS A TOP LEVEL FILE
 from discord.ext import commands, tasks
 
 ##############################################################################
@@ -214,7 +214,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 else:
                     #await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
                     try:
-                        internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
+                        internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
                         if internal_lookup == None:
                             redprint("[-] Internal Lookup returned false")
                             lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
@@ -230,7 +230,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         else:
                             variables_for_reality.function_message("", "[-] Something is wrong with the database", "red")
                     except Exception:
-                        variables_for_reality.function_message("reached exception", "name, cid lookup - control flow", "red")
+                        variables_for_reality.function_message("reached exception", "name/cid lookup - control flow", "red")
             except Exception:
                 variables_for_reality.function_message("reached the exception","input_type was wrong somehow" , "red")
 
@@ -283,17 +283,22 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # so you have to choose the best one to store, This needs to be 
         # presented as an option to the user,and not programmatically 
         return_index = 0
-        type_of_data = ["name","cid","cas"]
-        for each in type_of_data:
-            try:
-                greenprint("[+] Performing Pubchem Query")
-                lookup_results = pubchem.get_compounds(compound_id,'name')
-            except Exception :# pubchem.PubChemPyError:
-                variables_for_reality.function_message("lookup by NAME exception - name", Exception, "red")
-                Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
-            #if there were multiple results
-            # TODO: we have to figure out a good way to store the extra results
-                   #as possibly a side record
+        data = ["name","cid","cas"]
+        for each in data:
+            if type_of_data == ("name" or "cas"):                     
+                try:
+                    greenprint("[+] Performing Pubchem Query")
+                    lookup_results = pubchem.get_compounds(compound_id,'name')
+                except Exception :# pubchem.PubChemPyError:
+                    variables_for_reality.function_message("lookup by NAME/CAS exception - name", Exception, "red")
+                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+            elif type_of_data == "cid":
+                try:
+                    greenprint("[+] Performing Pubchem Query")
+                    lookup_results = pubchem.Compound.from_cid(compound_id)
+                except Exception :# pubchem.PubChemPyError:
+                    variables_for_reality.function_message("lookup by NAME/CAS exception - name", Exception, "red")
+                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
@@ -366,7 +371,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
     Lookup_results_object can be either a database.Compound() entry or pubchempy.Compound()
 
         '''
-        temp_output_container = []
+        #temp_output_container = []
         formatted_message = discord.Embed(title=lookup_results_object.name   ,\
                                           colour=discord.Colour(0x3b12ef))
         formatted_message.set_thumbnail(                                      \
@@ -393,6 +398,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
             name="SMILES", \
             value=lookup_results_object.smiles)
         #await ctx.send(content="lol", embed=formatted_message)
-        temp_output_container.append(formatted_message)
-        global lookup_output_container
-        lookup_output_container = temp_output_container
+        #temp_output_container= formatted_message
+        #global lookup_output_container
+        variables_for_reality.lookup_output_container.append(formatted_message)
+
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("420","cid")
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("methanol","name")
+Pubchem_lookup.pubchem_lookup_by_name_or_CID("phenol","name")

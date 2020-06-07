@@ -10,7 +10,7 @@ import discord
 import discord_key
 from discord_key import *
 from discord.ext import commands, tasks
-from variables_for_reality import COMMAND_PREFIX
+from variables_for_reality import COMMAND_PREFIX,lookup_input_container
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
@@ -89,20 +89,20 @@ async def element_lookup(ctx, arg1, arg2):
 async def pubchem_lookup(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
+    await ctx.send(content="lol", embed=lookup_output_container)
 
 @lookup_bot.command()
 async def composition_lookup(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
+    await ctx.send(content="lol", embed=lookup_output_container)
 
 @lookup_bot.command()
 @commands.check(dev_check)
 async def composition_to_db(ctx, arg1, arg2):
     await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
+    await ctx.send(content="lol", embed=lookup_output_container)
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):

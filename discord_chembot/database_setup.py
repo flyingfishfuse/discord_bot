@@ -50,7 +50,7 @@ TESTING = True
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
-
+import threading
 ###############################################################################
 
 DATABASE_HOST      = "localhost"
@@ -185,7 +185,9 @@ database.create_all()
 database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
-#database_server = threading.Thread.start(chembot_server.run() )
+
+#while True:
+    #database_server = threading.Thread.start(chembot_server.run() )
 ################################################################################
 ##############                       Routes                    #################
 ################################################################################
@@ -208,7 +210,7 @@ class Database_functions():
         Returns a compound from the local DB
         Returns FALSE if entry does not exist
         Expects the whole lookup object cause I am gonna expand this function
-
+        :param: cid_of_compound
         """
         cid_passed = str(cid_of_compound[0].get("cid"))
         redprint("start of Compound_by_id()")
@@ -235,12 +237,15 @@ class Database_functions():
         try:
             if id_of_record    == "cid":
                 lookup_result  = Compound.query.filter_by(cid=entity).first()
+                print(Compound.query.filter_by(name=entity).first())
                 return lookup_result
             elif id_of_record  == "name":
                 lookup_result  = Compound.query.filter_by(name=entity).first()
+                print(Compound.query.filter_by(name=entity).first())
                 return lookup_result
             elif id_of_record  == "cas":
                 lookup_result  = Compound.query.filter_by(cas=entity).first()
+                print(Compound.query.filter_by(name=entity).first())
                 return lookup_result
         except Exception:
             function_message("internal lookup" , Exception, "red")
@@ -325,15 +330,15 @@ class Database_functions():
         lookup_formula             = temp_list[0].get('formula')        
         lookup_molweight           = temp_list[0].get('molweight')        
         lookup_charge              = temp_list[0].get('charge')
-        lookup_name                = temp_list[0].get('name')
+        lookup_name                = temp_list[0].get('iupac_name')
         Database_functions.add_to_db(Compound(                       \
-            cid       = lookup_cid                    ,\
-            #cas      = lookup_cas                    ,\
-            smiles    = lookup_smiles                 ,\
-            formula   = lookup_formula                ,\
-            molweight = lookup_molweight              ,\
-            charge    = lookup_charge                 ,\
-            name      = lookup_name                   ))
+            cid              = lookup_cid                    ,\
+            #cas             = lookup_cas                    ,\
+            smiles           = lookup_smiles                 ,\
+            formula          = lookup_formula                ,\
+            molweight        = lookup_molweight              ,\
+            charge           = lookup_charge                 ,\
+            iupac_name       = lookup_name                   ))
 
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \

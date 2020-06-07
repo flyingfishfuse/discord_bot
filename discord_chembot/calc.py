@@ -46,6 +46,7 @@ import database_setup
 from pubchem_test import Pubchem_lookup
 from database_setup import Database_functions
 
+#do thnigs with this , this seems nice
 import pyEQL
 
 class EquationBalancer(commands.Cog):
@@ -111,6 +112,7 @@ class EquationBalancer(commands.Cog):
         balanced_reaction = chempy.balance_stoichiometry(reactants,products)
         print(balanced_reaction)
         EquationBalancer.reply_to_query(balanced_reaction)
+
 
     def reply_to_query(message):
         '''
