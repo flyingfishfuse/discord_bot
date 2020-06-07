@@ -49,6 +49,36 @@ from database_setup import Database_functions
 #do thnigs with this , this seems nice
 import pyEQL
 
+# FORMULA RULES
+
+Formula_entry_rules = '''
+
+How to Enter Valid Chemical Formulas
+
+Generally speaking, type the chemical formula of your solute the “normal” way and pyEQL should be able to inerpret it. Here are some examples:
+
+    Sodium Chloride    - NaCl
+    Sodium Sulfate     - Na(SO4)2
+    Methanol           - CH4OH or CH5O
+    Magnesium Ion      - Mg+2
+    Chloride Ion       - Cl-
+
+Formula Rules:
+
+    *  Are composed of valid atomic symbols that start with capital letters
+    
+    *  Contain no non-alphanumeric characters other than ‘(‘, ‘)’, ‘+’, or ‘-‘
+    
+    *  If a ‘+’ or ‘-‘ is present, the formula must contain ONLY ‘+’ or ‘-‘ (e.g. ‘Na+-‘ is invalid) and the formula must end with either a series of charges (e.g. ‘Fe+++’) or a numeric charge (e.g. ‘Fe+3’)
+    
+    *  Formula must contain matching numbers of ‘(‘ and ‘)’
+    
+    *  Open parentheses must precede closed parentheses
+
+'''
+
+
+
 class EquationBalancer(commands.Cog):
     def _init_(self,ctx):
         print("asdf wat")
