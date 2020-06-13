@@ -144,6 +144,7 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
 ###############################################################################
 ## TESTING VARS
 TESTING = True
+TESTING = False
 #The sqlite :memory: identifier is the default if no filepath is present. 
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
@@ -209,7 +210,7 @@ class Compound(database.Model):
                             primary_key = True, \
                             unique=True, \
                             autoincrement=True)
-    cid                 = database.Column(database.Integer)
+    cid                 = database.Column(database.String(16))
     iupac_name          = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
@@ -281,6 +282,7 @@ database.create_all()
 database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
+print(Compound.query.filter_by(iupac_name = "tentacles").first())
 #while True:
     #database_server = threading.Thread.start(chembot_server.run() )
 ################################################################################
@@ -309,7 +311,7 @@ class Database_functions():
 
         try:
             #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)    
-            return Compound.query.filter_by(cid = cid_passed).first()
+            return Compound.query.filter_by(cid = cid_passed)
         except Exception:
             redprint("the bad thing in Compound_by_id")
             return False
@@ -323,20 +325,15 @@ class Database_functions():
         Don't forget this is for compounds only!
         """
         try:
-            if id_of_record    == "cid":
-                lookup_result  = Compound.query.filter_by(cid=entity).first()
-                print(Compound.query.filter_by(cid=entity).first())
-                return lookup_result
-            elif id_of_record  == "name":
-                lookup_result  = Compound.query.filter_by(iupac_name=entity).first()
-                print(Compound.query.filter_by(iupac_name=entity).first())
-                return lookup_result
-            elif id_of_record  == "cas":
-                lookup_result  = Compound.query.filter_by(cas=entity).first()
-                print(Compound.query.filter_by(cas=entity).first())
+            list_thing = ["cid","name","cas"]
+            if id_of_record in list_thing:
+                #WHY!>!>!>
+                lookup_result  = database.session.query(Compound).all().filter_by(id_of_record = entity).first()
+                #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
+                #print(Compound.query.filter_by(id_of_record=entity).first())
                 return lookup_result
         except Exception:
-            function_message("internal lookup", "red")
+            function_message("not in local database", "red")
             return False
 
 
@@ -860,15 +857,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         if re.match(cas_regex,user_input):
                             greenprint("[+] Good CAS Number")
                             internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                            if internal_lookup == None:
+                            if internal_lookup == None or False:
                                 redprint("[-] Internal Lookup returned false")
                                 lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                                 self.reply_to_query(lookup_object)
                             elif internal_lookup == True:
                                 greenprint("============Internal Lookup returned TRUE===========")
                                 self.reply_to_query(lookup_object)
-                            else:
-                                function_message("[-] Something is wrong with the database", "red")
                         else:
                             function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
                     except Exception:
@@ -876,8 +871,9 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 else:
                     try:
                         internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                        if internal_lookup == None:
+                        if internal_lookup == None or False:
                             redprint("[-] Internal Lookup returned false")
+                            #its breaking here
                             lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                             self.reply_to_query(lookup_object)
                         elif internal_lookup == True:
@@ -982,7 +978,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         return_query = return_relationships[return_index]
         redprint("==BEGINNING==return query for pubchem/local lookup===========")
         query_cid    = return_query[0].get('cid')
-        local_query  = Compound.query.filter_by(cid = query_cid).first()
+        local_query  = database.Compound.query.filter_by(cid = query_cid).first()
         # you can itterate over the database query
         for each in local_query:
             blueprint(str(each) + "\n")
