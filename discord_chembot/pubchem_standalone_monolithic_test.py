@@ -329,7 +329,7 @@ class Database_functions():
             if id_of_record in list_thing:
                 #WHY!>!>!>
                 lookup_result  = database.session.query(Compound).all().filter_by(id_of_record = entity).first()
-                #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
+                #lookup_result  = Compound.query.filter_by(id_of_record = entity).first()
                 #print(Compound.query.filter_by(id_of_record=entity).first())
                 return lookup_result
         except Exception:
