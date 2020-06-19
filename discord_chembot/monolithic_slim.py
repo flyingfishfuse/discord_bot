@@ -1,21 +1,16 @@
-import os
-from flask import Flask, render_template, Response, Request ,Config
-from flask_sqlalchemy import SQLAlchemy
+
 import re
+import os
 import chempy
 import datetime
 import math, cmath
 import pubchempy as pubchem
-#from db import greenprint,blueprint,redprint,function_message
-
-
-import os
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 ###############################################################################
 ## TESTING VARS
-#TESTING = True
-TESTING = False
+TESTING = True
+#TESTING = False
 #The sqlite :memory: identifier is the default if no filepath is present. 
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
@@ -96,8 +91,10 @@ try:
     chembot_server.config.from_object(Config)
     database = SQLAlchemy(chembot_server)
     database.init_app(chembot_server)
+    if TESTING == True:
+        database.metadata.clear()
 except Exception:
-    function_message(Exception,"red")
+    function_message("[-] Database Init failed!","red")
 
 ###############################################################################
 # from stack overflow
@@ -140,8 +137,8 @@ Formula            : {} \n \
 Molecular Weight   : {} \n \
 Charge             : {} \n \
 CID                : {} \n '.format( \
-     self.cid, self.iupac_name , self.cas, self.formula, \
-    self.molweight, self.charge)
+    self.iupac_name, self.cas , self.formula ,\
+    self.molweight, self.charge, self.cid)
 
 class Composition(database.Model):
     __tablename__       = 'Composition'
@@ -157,12 +154,9 @@ class Composition(database.Model):
     notes               = database.Column(database.String(256))
 
 #{
-#  "composition": "flash",
-#  "units": "%wt",
-#  "formula": {
-#    "Al": 27.7,
-#    "NH4ClO4": 72.3
-#  }
+#  "composition" : "flash",
+#  "units"       : "%wt",
+#  "formula"     : { "Al": 27.7 , "NH4ClO4": 72.3 }
 #}
     def __repr__(self):
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
@@ -197,6 +191,7 @@ database.create_all()
 database.session.add(test_entry1)
 database.session.add(test_entry2)
 database.session.commit()
+blueprint("this works here")
 print(Compound.query.filter_by(iupac_name = "tentacles").first())
 #while True:
     #database_server = threading.Thread.start(chembot_server.run() )
@@ -221,7 +216,10 @@ def Compound_by_id(cid_of_compound):
 def internal_local_database_lookup(entity : str, id_of_record:str ):
     #pubchem_search_types = ["cid","name","cas"]
     if id_of_record in pubchem_search_types:
+        blueprint("this DOESNT WORK here")
         lookup_result  = Compound.query.filter_by(id_of_record = entity).first()
+        redprint(dir())
+        greenprint(type(lookup_result))
         return lookup_result
     #except Exception:
     #    function_message("not in local database", "red")
@@ -296,42 +294,43 @@ class Pubchem_lookup():
         if fuck_this(type_of_input) :#in input_types_requestable:
             greenprint("user supplied a : " + type_of_input)
             try:
-#                if type_of_input == "cas":
-                    #try:
-#                        greenprint("[+} trying to match regular expression for CAS")
-#                        if re.match(cas_regex,user_input):
-#                            greenprint("[+] Good CAS Number")
-#                            internal_lookup = internal_local_database_lookup(user_input, type_of_input)
-#                            if internal_lookup == None or False:
-#                                redprint("[-] Internal Lookup returned false")
-#                                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-#                            elif internal_lookup == True:
-#                                greenprint("============Internal Lookup returned TRUE===========")
-#                        else:
-#                            function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
-                    #except Exception:
-#                        function_message('[-] Something happened in the try/except block for cas numbers', 'red')
-#                else:
-                    #try:
+                if type_of_input == "cas":
+                    try:
+                        greenprint("[+} trying to match regular expression for CAS")
+                        if re.match(cas_regex,user_input):
+                            greenprint("[+] Good CAS Number")
+                            internal_lookup = internal_local_database_lookup(user_input, type_of_input)
+                            if internal_lookup == None or False:
+                                redprint("[-] Internal Lookup returned false")
+                                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                            elif internal_lookup == True:
+                                greenprint("============Internal Lookup returned TRUE===========")
+                        else:
+                            function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
+                    except Exception:
+                        function_message('[-] Something happened in the try/except block for cas numbers', 'red')
+                else:
+                    try:
                         internal_lookup = internal_local_database_lookup(user_input, type_of_input)
+                        asdf_test = redprint(dir())
+                        qwer_test = greenprint(type(internal_lookup))
                         if internal_lookup == None:
-                            redprint("[-] Internal Lookup returned false")
+                            redprint("[-] Internal Lookup returned None")
                             lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                         elif internal_lookup == NoneType:
-                            redprint("[-] Internal Lookup returned false")
+                            redprint("[-] Internal Lookup returned NoneType")
                             lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                         elif internal_lookup == False:
-                            redprint("[-] Internal Lookup returned false")
+                            redprint("[-] Internal Lookup returned False")
                             lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                         elif internal_lookup == True:
                             greenprint("============Internal Lookup returned TRUE===========")
                         else:
                             function_message("[-] Something is wrong with the database", "red")
-                    #except Exception:
-                    #    function_message("reached exception : name/cid lookup - control flow", "red")
+                    except Exception:
+                        function_message("reached exception : name/cid lookup - control flow", "red")
             except Exception:
                 function_message("reached the exception : input_type was wrong somehow" , "red")
-
         else:
             print("end of control loop")
     def pubchem_lookup_by_name_or_CID(self, compound_id, type_of_data:str):
