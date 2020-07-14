@@ -1,6 +1,3 @@
-import os
-from flask import Flask, render_template, Response, Request ,Config
-from flask_sqlalchemy import SQLAlchemy
 import re
 import chempy
 import datetime
@@ -138,8 +135,8 @@ Formula            : {} \n \
 Molecular Weight   : {} \n \
 Charge             : {} \n \
 CID                : {} \n '.format( \
-     self.cid, self.iupac_name , self.cas, self.formula, \
-    self.molweight, self.charge)
+     self.iupac_name, self.cas , self.formula, self.molweight, \
+    self.charge, self.cid)
 
 class Composition(database.Model):
     __tablename__       = 'Composition'
@@ -230,10 +227,11 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
     Returns an SQLAlchemy database object if record exists
     Don't forget this is for compounds only!
     """
+    greenprint("[+] performing internal lookup")
     pubchem_search_types = {"cid","iupac_name","cas"}
     if id_of_record in pubchem_search_types:
         kwargs  = { id_of_record : entity}
-        lookup_result  = Compound.query.filter_by(**kwargs).first()
+        lookup_result  = Compound.query.filter_by(**kwargs ).first()
         #lookup_result = database.Query()
         #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
         return lookup_result
@@ -450,13 +448,17 @@ class Pubchem_lookup():
                         if re.match(cas_regex,user_input):
                             greenprint("[+] Good CAS Number")
                             internal_lookup = internal_local_database_lookup(user_input, type_of_input)
+                            # if internal lookup is false, we do a remote lookup and then store the result
                             if internal_lookup == None or False:
                                 redprint("[-] Internal Lookup returned false")
                                 lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                                 self.reply_to_query(lookup_object)
-                            elif internal_lookup == True:
-                                greenprint("============Internal Lookup returned TRUE===========")
-                                self.reply_to_query(lookup_object)
+                            # we return the internal lookup if the entry is already in the DB
+                            # for some reason, asking if it's true doesn't work here
+                            # so we use a NOT instead of an Equals.
+                            elif internal_lookup != None or False:
+                                greenprint("[+] Internal Lookup returned TRUE")
+                                self.reply_to_query(internal_lookup)
                         else:
                             function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
                     except Exception:
@@ -464,13 +466,13 @@ class Pubchem_lookup():
                 else:
                     try:
                         internal_lookup = internal_local_database_lookup(user_input, type_of_input)
-                        if internal_lookup == NoneType or False:
+                        if internal_lookup == None or False:
                             redprint("[-] Internal Lookup returned false")
                             lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                             self.reply_to_query(lookup_object)
-                        elif internal_lookup == True:
-                            greenprint("============Internal Lookup returned TRUE===========")
-                            self.reply_to_query(lookup_object)
+                        elif internal_lookup != None or False:
+                            greenprint("[+] Internal Lookup returned TRUE")
+                            self.reply_to_query(internal_lookup)
                         else:
                             function_message("[-] Something is wrong with the database", "red")
                     except Exception:
@@ -568,7 +570,7 @@ class Pubchem_lookup():
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
         # you can itterate over the database query
-        print(local_query:)
+        print(local_query)
         redprint("=====END=====return query for pubchem/local lookup===========")
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
@@ -577,6 +579,15 @@ class Pubchem_lookup():
         #this returns a pubchempy.Compound() Object type
         #return lookup_results
 
+###################################################################
+# First we do some lookups to pull data and populate the database
+###################################################################
 Pubchem_lookup("420","cid")
-Pubchem_lookup("methanol","name")
-Pubchem_lookup("phenol","name")
+Pubchem_lookup("methanol","iupac_name")
+Pubchem_lookup("phenol","iupac_name")
+###################################################################
+# then we test the "is it stored locally?" function
+###################################################################
+Pubchem_lookup("420","cid")
+Pubchem_lookup("methanol","iupac_name")
+Pubchem_lookup("phenol","iupac_name")
