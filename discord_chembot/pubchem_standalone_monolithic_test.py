@@ -230,10 +230,12 @@ def internal_local_database_lookup(entity : str, id_of_record:str ):
     Returns an SQLAlchemy database object if record exists
     Don't forget this is for compounds only!
     """
-    #try:
-    #pubchem_search_types = ["cid","name","cas"]
+    pubchem_search_types = {"cid","iupac_name","cas"}
     if id_of_record in pubchem_search_types:
-        lookup_result  = Compound.query.filter_by(id_of_record = entity).first()
+        kwargs  = { id_of_record : entity}
+        lookup_result  = Compound.query.filter_by(**kwargs).first()
+        #lookup_result = database.Query()
+        #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
         return lookup_result
     #except Exception:
     #    function_message("not in local database", "red")
@@ -412,6 +414,7 @@ class Pubchem_lookup():
         else:
             #change this to sonething reasonable
             self.reply_to_query(type_of_pebkac_failure)
+
     def lookup_failure(self, type_of_failure: str):
         """
         does what it says on the label, called when a lookup is failed
@@ -425,10 +428,7 @@ class Pubchem_lookup():
             ##global lookup_output_container
             lookup_output_container = ["chempy failure"]
         pass
-    def internal_local_database_lookup(self, entity : str, id_of_record:str ):
-        if id_of_record in pubchem_search_types:
-            lookup_result  = Compound.query.all().filter_by(id_of_record = entity).first()
-            return lookup_result
+
     def validate_user_input(self, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
@@ -439,7 +439,7 @@ class Pubchem_lookup():
         import re
         #cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         temp_output_container = []
-        input_types_requestable = ["name", "cid", "cas"]
+        input_types_requestable = ["iupac_name", "cid", "cas"]
         fuck_this = lambda fuck: fuck in input_types_requestable 
         if fuck_this(type_of_input) :#in input_types_requestable:
             greenprint("user supplied a : " + type_of_input)
@@ -501,9 +501,9 @@ class Pubchem_lookup():
         # so you have to choose the best one to store, This needs to be 
         # presented as an option to the user,and not programmatically 
         return_index = 0
-        data = ["name","cid","cas"]
+        data = ["iupac_name","cid","cas"]
         if type_of_data in data:
-            if type_of_data == ("name" or "cas"):                     
+            if type_of_data == ("iupac_name" or "cas"):                     
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
@@ -568,13 +568,11 @@ class Pubchem_lookup():
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
         # you can itterate over the database query
-        for each in local_query:
-            blueprint(str(each) + "\n")
+        print(local_query:)
         redprint("=====END=====return query for pubchem/local lookup===========")
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
-        print(Compound_by_id(query_cid))
-        return Compound_by_id(query_cid)
+        return local_query
         # OR return the remote lookup entry, either way, the information was stored.
         #this returns a pubchempy.Compound() Object type
         #return lookup_results
