@@ -92,8 +92,13 @@ def function_message(exception_message : str,  location:str, color_to_print="red
         blueprint("\n" + exception_message)
     blueprint("\n" + exception_message)
 
-input_types_requestable = ["name", "cid", "cas"]
+# find these and change names to be same
+pubchem_search_types = {"cid","iupac_name","cas"}
+input_types_requestable = ["iupac_name", "cid", "cas"]
 cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
+COMMAND_PREFIX = "."
+devs = ['581952454124372068']
+list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 
 #make them global scope for testing purposes
 show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
@@ -101,8 +106,10 @@ blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
+#move to your whatever.py discord module
 discord_color = 0x3b12ef
 #deprecated but VERY useful
+#iutterates over Mendeleev library's elements and returns various datas
 #     def generate_element_validation_name_list(self):
 #        from variables_for_reality import element_list , symbol_list , specifics_list
 #        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
@@ -200,3 +207,15 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
         'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', \
         'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts']
 
+def function_message(exception_message : str, color_to_print="red"):
+    """
+    A Robust exception message passing class? that uses colorama and inspect
+    Takes red, green, blue as color arguments. WORK IN PROGERESS!
+    """
+    import inspect
+    if color_to_print == "red":
+        redprint("something wierd happened in: "  + exception_message)
+    elif color_to_print == "green":
+        greenprint("something wierd happened in: " + exception_message)
+    elif color_to_print == "blue":
+        blueprint("something wierd happened in: " + exception_message)

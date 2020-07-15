@@ -1,46 +1,30 @@
-import variables_for_reality
+from variables_for_reality import *
 import mendeleev
-from discord.ext import commands,tasks
-import asyncio
 
-#@lookup_bot.command()
-#async def lookup(ctx, arg1, arg2):
-#    await Element_lookup.validate_user_input(ctx, arg1, arg2)
-#    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-#    string_to_send = list_to_string(lookup_output_container)
-#    await ctx.send(string_to_send)
+class Element_lookup():
+    def __init__(self, element_id_user_input: str or int, specifics_requested : str):
+        self.element_id_user_input = element_id_user_input
+        self.specifics_requested   = specifics_requested
+        self.validate_user_input(self.element_id_user_input, self.specifics_requested)
 
-class Element_lookup(commands.Cog):
-    def __init__(self, ctx): #, input_container : list):
-        #generate_element_name_list()
-        #self.input_container  = input_container
-        #self.output_container = []
-        print("wat") 
-
-    def help_message():
+    def help_message(self):
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
 isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         
-    def reply_to_query(message):
+    def reply_to_query(self,message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
-    lookup_output_container. Sends the global output container with ctx.send()
+    lookup_output_container. Sends the global output container 
         '''
-        # yeah yeah yeah, we are swapping between array and string like a fool
-        # but it serves a purpose. Need to keep the output as an iterable
-        # until the very last second when we send it to the user.
-        #We want to be able to allow the developer to just send a list
-        # or string to the output when adding new functions instead of
-        # having to pay attention to too much stuff!
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_array        
+        global lookup_output_container
+        lookup_output_container = temp_array        
         
-    def user_input_was_wrong(type_of_pebkac_failure : str):
+    def user_input_was_wrong(self, type_of_pebkac_failure : str):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -49,13 +33,13 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
         user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
         if type_of_pebkac_failure   == "element":
-            Element_lookup.reply_to_query(user_is_a_doofus_element_message)
+            self.reply_to_query(user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            Element_lookup.reply_to_query(user_is_a_doofus_specific_message)
+            self.reply_to_query(user_is_a_doofus_specific_message)
         else:
-            Element_lookup.reply_to_query(type_of_pebkac_failure)
+            self.reply_to_query(type_of_pebkac_failure)
 
-    async def validate_user_input(ctx, element_id_user_input: str or int, specifics_requested : str):
+    def validate_user_input(self, element_id_user_input: str or int, specifics_requested : str):
         """
         checks if the user is requesting an actual element and set of data.
         This is the main function that "does the thing", you add new
@@ -71,7 +55,8 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             elif isinstance(thing , int):                              
                 return int(thing)              
 
-        from variables_for_reality import element_list , symbol_list , specifics_list
+            #Right here is where you uncomment when you plit variables off to different files
+        #from variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
         element_valid   = bool
         specifics_valid = bool
@@ -88,7 +73,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             if any(user_input == element_id_user_input.capitalize() for user_input in element_list):
                 element_valid = True
         else:
-            Element_lookup.user_input_was_wrong("element")
+            self.user_input_was_wrong("element")
 
         if isinstance(specifics_requested, str):
             specifics_requested = specifics_requested.lower()
@@ -96,45 +81,41 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             if any(user_input == specifics_requested for user_input in specifics_list):
                 specifics_valid = True
             else:
-                Element_lookup.user_input_was_wrong("specifics")
+                self.user_input_was_wrong("specifics")
 
         else:
-            Element_lookup.user_input_was_wrong("specifics")
-
+            self.user_input_was_wrong("specifics")
+        # you extend this when you add more functions
+        # this is the function list
+        #it should be refactored... I know... yes its badcode
+        ## i plan on it
         if element_valid and specifics_valid == True:      
             #global lookup_output_container
             if specifics_requested    == "basic":
-                Element_lookup.get_basic_element_properties(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
+                self.get_basic_element_properties(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
-                Element_lookup.get_history(element_id_user_input)
-                print(variables_for_reality.lookup_output_container)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
+                self.get_history(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
-                Element_lookup.get_physical_properties(element_id_user_input)
-                print(variables_for_reality.lookup_output_container)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
+                self.get_physical_properties(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "chemical":
-                Element_lookup.get_chemical_properties(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
-                print(variables_for_reality.lookup_output_container)
+                self.get_chemical_properties(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "nuclear":
-                Element_lookup.get_nuclear_properties(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
-                print(variables_for_reality.lookup_output_container)
+                self.get_nuclear_properties(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "ionization":
-                Element_lookup.get_ionization_energy(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
-                print(variables_for_reality.lookup_output_container)
+                self.get_ionization_energy(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "isotopes":
-                Element_lookup.get_isotopes(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
-                print(variables_for_reality.lookup_output_container)
+                self.get_isotopes(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             elif specifics_requested  == "oxistates":
-                Element_lookup.get_oxistates(element_id_user_input)
-                Element_lookup.reply_to_query(variables_for_reality.lookup_output_container)
-                print(variables_for_reality.lookup_output_container)
+                self.get_oxistates(element_id_user_input)
+                self.reply_to_query(lookup_output_container)
             # input given by user was NOT found in the validation data
             else:
                 print("wtf")
@@ -178,24 +159,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
                         element_data_list.append(element_object.electronegativity)
 
 ###############################################################################
-
-    name_lookup_results_list = []
-    name_lookup_result = None
-    def pubchem_lookup_by_name_or_CID(compound_id:str or int):
-        if isinstance(compound_id, str):
-            name_lookup_results_list = pubchem.get_compounds(compound_id,\
-                                        'name' , \
-                                        list_return='flat')
-            #name = name_lookup_results_list[0]
-            #result_2 = name_lookup_results_list[1]
-            #result_3 = name_lookup_results_list[2]
-
-        elif isinstance(compound_id, int):
-            self.name_lookup_result = pubchem.Compound.from_cid(compound_id)
-            # so now we have stuff.
-
-###############################################################################
-    def get_history(element_id_user_input):
+    def get_history(self, element_id_user_input):
         """
         Returns some historical information about the element requested
         takes either a name,atomic number, or symbol
@@ -209,10 +173,10 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Discoveries: " + element_object.discoveries  + "\n")
         temp_output_container.append("Discovery Location: " + element_object.discovery_location  + "\n")
         temp_output_container.append("Discovery Year: " + str(element_object.discovery_year)        + "\n")
-        #await Element_lookup.format_and_print_output(output_container)
-        variables_for_reality.lookup_output_container = temp_output_container
+        global lookup_output_container
+        lookup_output_container = temp_output_container
 
-    def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
+    def calculate_hardness_softness(self, element_id_user_input, hard_or_soft, ion_charge):
         """
         calculates hardness/softness of an ion
         """
@@ -241,8 +205,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 #        return output_container
 
 ###############################################################################
-
-    def get_basic_element_properties(element_id_user_input):
+    def get_basic_element_properties(self, element_id_user_input):
         """
         takes either a name,atomic number, or symbol
         """
@@ -254,13 +217,12 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Mass: "           + str(element_object.mass)          + "\n")
         temp_output_container.append("Description: " + element_object.description  + "\n")
         temp_output_container.append("Sources: " + element_object.sources  + "\n")
-        #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        global lookup_output_container
+        lookup_output_container = temp_output_container
         print(temp_output_container)
 
 ###############################################################################
-
-    def get_physical_properties(element_id_user_input):
+    def get_physical_properties(self, element_id_user_input):
         """
         Returns physical properties of the element requested
         """
@@ -273,11 +235,11 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Specific Heat:"  + str(element_object.specific_heat) + "\n")
         temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "\n")
         #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
-    def get_chemical_properties(element_id_user_input):
+    def get_chemical_properties(self, element_id_user_input):
         """
         Returns Chemical properties of the element requested
         """
@@ -290,11 +252,11 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         #temp_output_container.append("Covalent Radius: "      + str(element_object.covalent_radius)    + "\n")
         #temp_output_container.append("Polarizability: "       + str(element_object.dipole_polarizability)  + "\n")
         global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
-    def get_nuclear_properties(element_id_user_input):
+    def get_nuclear_properties(self, element_id_user_input):
         """
         Returns Nuclear properties of the element requested
         """
@@ -306,11 +268,11 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Atomic Weight: "  + str(element_object.atomic_weight)  + "\n")
         temp_output_container.append("Radioactivity: "  + str(element_object.is_radioactive)  + "\n")
         #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
     
-    def get_isotopes(element_id_user_input):
+    def get_isotopes(self, element_id_user_input):
         """
         Returns Isotopes of the element requested
         """
@@ -319,11 +281,11 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Isotopes: " + str(element_object.isotopes) + "\n")
         #await Element_lookup.format_and_print_output(output_container)
         #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        lookup_output_container = temp_output_container
 
 ###############################################################################
 
-    def get_ionization_energy(element_id_user_input):
+    def get_ionization_energy(self, element_id_user_input):
         """
         Returns Ionization energies of the element requested
         """
@@ -331,4 +293,4 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Ionization Energies: " + str(element_object.ionenergies)  + "\n")
         #global lookup_output_container
-        variables_for_reality.lookup_output_container = temp_output_container
+        lookup_output_container = temp_output_container

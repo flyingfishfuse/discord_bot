@@ -44,13 +44,14 @@ from flask_sqlalchemy import SQLAlchemy
 from variables_for_reality import greenprint,redprint,blueprint,function_message
 import inspect
 ###############################################################################
+###############################################################################
 ## TESTING VARS
 TESTING = True
+#TESTING = False
 #The sqlite :memory: identifier is the default if no filepath is present. 
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
-import threading
 ###############################################################################
 
 DATABASE_HOST      = "localhost"
@@ -75,7 +76,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 class Config(object):
     if TESTING == True:
         SQLALCHEMY_DATABASE_URI = TEST_DB
-        #SQLALCHEMY_TRACK_MODIFICATIONS = True
+        SQLALCHEMY_TRACK_MODIFICATIONS = True
     elif TESTING == False:
         SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
 
@@ -113,7 +114,7 @@ class Compound(database.Model):
                             primary_key = True, \
                             unique=True, \
                             autoincrement=True)
-    cid                 = database.Column(database.Integer)
+    cid                 = database.Column(database.String(16))
     iupac_name          = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
@@ -128,8 +129,9 @@ Formula            : {} \n \
 Molecular Weight   : {} \n \
 Charge             : {} \n \
 CID                : {} \n '.format( \
-     self.cid, self.iupac_name , self.cas, self.formula, \
-    self.molweight, self.charge)
+     self.iupac_name, self.cas , self.formula, self.molweight, \
+    self.charge, self.cid)
+
 
 class Composition(database.Model):
     __tablename__       = 'Composition'
@@ -194,35 +196,28 @@ database.session.commit()
 
 @chembot_server.route('/pubchem_route')
 def pubchem_route():
-    
+    # you make the template here
     pass
-
 
 ################################################################################
 ##############                     FUNCTIONS                   #################
 ################################################################################
 class Database_functions():
     def _init_(self):
-        print("whyyyyy!")
+        self.TESTING = False
      
-    def Compound_by_id(cid_of_compound):
+    def Compound_by_id(cid_of_compound : str):
         """
         Returns a compound from the local DB
         Returns FALSE if entry does not exist
-        Expects the whole lookup object cause I am gonna expand this function
         :param: cid_of_compound
         """
-        cid_passed = str(cid_of_compound[0].get("cid"))
-        redprint("start of Compound_by_id()")
-        blueprint("CID passed to function: " + cid_passed)
-        #print(inspect.stack()[1][3])
-        #print(Compound.query.filter_by(cid = cid_passed).first().__repr__)
+        cid_passed = cid_of_compound
         try:
             #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)    
-            #print(Compound.query.filter_by(cid = cid_passed)).first()
             return Compound.query.filter_by(cid = cid_passed).first()
         except Exception:
-            redprint("the bad thing in Compound_by_id")
+            redprint("[-] Failure in Compound_by_id")
             print(str(Exception.__cause__))
             return False
 
@@ -235,21 +230,17 @@ class Database_functions():
         Don't forget this is for compounds only!
         """
         try:
-            if id_of_record    == "cid":
-                lookup_result  = Compound.query.filter_by(cid=entity).first()
-                print(Compound.query.filter_by(name=entity).first())
-                return lookup_result
-            elif id_of_record  == "name":
-                lookup_result  = Compound.query.filter_by(name=entity).first()
-                print(Compound.query.filter_by(name=entity).first())
-                return lookup_result
-            elif id_of_record  == "cas":
-                lookup_result  = Compound.query.filter_by(cas=entity).first()
-                print(Compound.query.filter_by(name=entity).first())
-                return lookup_result
+            greenprint("[+] performing internal lookup")
+            pubchem_search_types = {"cid","iupac_name","cas"}
+            if id_of_record in pubchem_search_types:
+                kwargs  = { id_of_record : entity}
+                lookup_result  = Compound.query.filter_by(**kwargs ).first()
+                #lookup_result = database.Query()
+                #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
+            return lookup_result
         except Exception:
-            function_message("internal lookup" , Exception, "red")
-            return False
+            redprint("[-] Not in local database")
+            return lookup_result
 
 
     def add_to_db(thingie):
@@ -266,7 +257,7 @@ class Database_functions():
             database.session.add(thingie)
             database.session.commit
         except Exception:
-            redprint("add_to_db() failed")
+            redprint("[-] add_to_db() FAILED")
             print(Exception.__cause__)
     ################################################################################
 
@@ -277,7 +268,7 @@ class Database_functions():
         try:
             database.session.commit()
         except Exception:
-            function_message(Exception, "red")
+            redprint("[-] Update_db FAILED")
 
     ###############################################################################
 
@@ -317,7 +308,7 @@ class Database_functions():
         redprint("-------------END DATABASE DUMP------------")
     ###############################################################################
 
-    def compound_to_database(lookup_list: list):
+    def compound_to_database(self, lookup_list: list):
         """
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name"]
@@ -331,7 +322,7 @@ class Database_functions():
         lookup_molweight           = temp_list[0].get('molweight')        
         lookup_charge              = temp_list[0].get('charge')
         lookup_name                = temp_list[0].get('iupac_name')
-        Database_functions.add_to_db(Compound(                       \
+        self.add_to_db(Compound(                       \
             cid              = lookup_cid                    ,\
             #cas             = lookup_cas                    ,\
             smiles           = lookup_smiles                 ,\
@@ -341,7 +332,7 @@ class Database_functions():
             iupac_name       = lookup_name                   ))
 
 ###############################################################################
-    def composition_to_database(comp_name: str, units_used :str, \
+    def composition_to_database(self, comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
         """
         The composition is a relation between multiple Compounds
@@ -353,8 +344,6 @@ class Database_functions():
 
         BIG TODO: be able to input list of cas/cid/whatever for formula_list
         """
-        print(inspect.stack()[1][3])
-
         # query local database for records before performing pubchem
         # lookups
         # expected to return FALSE if no record found
@@ -363,7 +352,7 @@ class Database_functions():
 #            input = Pubchem_lookup.formula_input_validation(each)
 
         # extend this but dont forget to add more fields in the database model!
-        Database_functions.add_to_db(Composition(\
+        self.add_to_db(Composition(\
                 name       = comp_name,               \
                 units      = units_used,              \
                 compounds  = formula_list,            \

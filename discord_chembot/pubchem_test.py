@@ -1,95 +1,214 @@
-#!/usr/bin/python3
-#who dat
-################################################################################
-## Chemical element resource database from wikipedia/mendeleev python library ##
-##                             for discord bot                                ##
-################################################################################
-# Copyright (c) 2020 Adam Galindo                                             ##
-#                                                                             ##
-# Permission is hereby granted, free of charge, to any person obtaining a copy##
-# of this software and associated documentation files (the "Software"),to deal##
-# in the Software without restriction, including without limitation the rights##
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   ##
-# copies of the Software, and to permit persons to whom the Software is       ##
-# furnished to do so, subject to the following conditions:                    ##
-#                                                                             ##
-# Licenced under GPLv3                                                        ##
-# https://www.gnu.org/licenses/gpl-3.0.en.html                                ##
-#                                                                             ##
-# The above copyright notice and this permission notice shall be included in  ##
-# all copies or substantial portions of the Software.                         ##
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-####
-################################################################################
-##    Search by element number, symbol,
-##    list resources available
-##    TODO: show basic info if no specificity in query
-# created by : mr_hai on discord / flyingfishfuse on github
-## Test/Personal Server : https://discord.gg/95V7Mn
-#list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
-#data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
-# https://chemspipy.readthedocs.io/en/latest/
-
-
-
-# TODO: ADD PYEQL STUFF
-
-
-
+import mendeleev
+import asyncio
 import os
+from flask import Flask, render_template, Response, Request ,Config
+from flask_sqlalchemy import SQLAlchemy
+from variables_for_reality import *
 import re
 import chempy
-import asyncio
-import discord
 import datetime
-import mendeleev
 import math, cmath
-import database_setup
-import element_lookup_class
 import pubchempy as pubchem
-import variables_for_reality
-from chempy import mass_fractions
-#from discord.ext import commands, tasks
-from database_setup import Database_functions
-from variables_for_reality import greenprint,redprint, \
-    blueprint,lookup_output_container
-# DO NOT IMPORT DISCORD_COMMANDS, THAT IS A TOP LEVEL FILE
-from discord.ext import commands, tasks
 
-##############################################################################
-#figure out WHY this is doing and make it less ugly
-def size_check_256(thing_to_check):
-    if len(thing_to_check) != None and 150 < len(thing_to_check) < 256:
-        return (str(thing_to_check[:100]) + "... sliced ...")
-    else:
-        variables_for_reality.function_message(thing_to_check, "red")
-##############################################################################
-class RestartBot():
 
-    pass
 
-class Pubchem_lookup(commands.Cog):
+
+
+
+################################################################################
+##############          COMMANDS AND USER FUNCTIONS            #################
+################################################################################
+# command is {prefix}{compare_element_list}{"affinity" OR "electronegativity"}{"less" OR "greater"}
+############################
+# alpha FUNCTIONS
+###########################
+# these needs to be integrated to the main script
+# This function compares ALL the elements to the one you provide
+# you can extend the functionality by copying the relevant code
+###############################################################################
+    def compare_element_list(self, element_id_user_input, data_type : str, less_greater: str):
+        element_data_list = []
+        return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
+        element_to_compare   = return_element_by_id(element_id_user_input)
+        for each in range(1,118):
+            element_object = return_element_by_id(each)
+            # CHANGE ELEMENT_OBJECT.NAME to ELEMENT_OBJECT.SOMETHING_ELSE
+            # That is all you need to do, then add the new functionality to the
+            # help and list
+            if data_type == "affinity":
+                if less_greater == "less":
+                    if element_object.electron_affinity < element_to_compare.electron_affinity:
+                        element_data_list.append(element_object.electron_affinity)
+                elif less_greater == "greater":
+                    if element_object.electron_affinity > element_to_compare.electron_affinity:
+                        element_data_list.append(element_object.electron_affinity)
+            elif data_type == "electronegativity":
+                if less_greater == "less":
+                    if element_object.electronegativity < element_to_compare.electronegativity:
+                        element_data_list.append(element_object.electronegativity)
+                elif less_greater == "greater":
+                    if element_object.electronegativity > element_to_compare.electronegativity:
+                        element_data_list.append(element_object.electronegativity)
+
+###############################################################################
+    def get_history(element_id_user_input):
+        """
+        Returns some historical information about the element requested
+        takes either a name,atomic number, or symbol
+        """
+        #global lookup_output_container
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Uses: " + element_object.uses        + "\n")
+        temp_output_container.append("Abundance in Crust" + str(element_object.abundance_crust) + "\n")
+        temp_output_container.append("Abundance in Sea: " + str(element_object.abundance_sea) + "\n")
+        temp_output_container.append("Discoveries: " + element_object.discoveries  + "\n")
+        temp_output_container.append("Discovery Location: " + element_object.discovery_location  + "\n")
+        temp_output_container.append("Discovery Year: " + str(element_object.discovery_year)        + "\n")
+        #await Element_lookup.format_and_print_output(output_container)
+        lookup_output_container = temp_output_container
+
+    def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
+        """
+        calculates hardness/softness of an ion
+        """
+        output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        if hard_or_soft == "hardness":
+            #electron_affinity = element_object.hardness(charge = charge)[0]
+            #ionization_energy = element_object.hardness(charge = charge)[1]
+            output_container.append("Hardness: "      + element_object.hardness(charge = ion_charge)      + "\n")
+        elif hard_or_soft == "soft":
+            output_container.append("Softness: "      + element_object.softness(charge = ion_charge)      + "\n")
+
+############################
+# beta FUNCTIONS
+###########################
+#these are already integrated into the core code of the script
+
+#    async def get_information(element_id_user_input):
+#        """
+#        Returns information about the element requested
+#        takes either a name,atomic number, or symbol
+#        """
+#        output_container = []
+#        element_object = mendeleev.element(element_id_user_input)
+#        output_container.append(" yatta yatta yata " + element_object.description  + "\n")
+#        return output_container
+
+###############################################################################
+
+    def get_basic_element_properties(element_id_user_input):
+        """
+        takes either a name,atomic number, or symbol
+        """
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Element: "       + element_object.name          + "\n")
+        temp_output_container.append("Atomic Weight: " + str(element_object.atomic_weight) + "\n")
+        temp_output_container.append("CAS Number: "    + str(element_object.cas)           + "\n")
+        temp_output_container.append("Mass: "           + str(element_object.mass)          + "\n")
+        temp_output_container.append("Description: " + element_object.description  + "\n")
+        temp_output_container.append("Sources: " + element_object.sources  + "\n")
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
+        print(temp_output_container)
+
+###############################################################################
+
+    def get_physical_properties(element_id_user_input):
+        """
+        Returns physical properties of the element requested
+        """
+        #sends to global as a list of multiple strings
+        # those strings are then 
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Boiling Point:"  + str(element_object.boiling_point) + "\n")
+        temp_output_container.append("Melting Point:"  + str(element_object.melting_point) + "\n")
+        temp_output_container.append("Specific Heat:"  + str(element_object.specific_heat) + "\n")
+        temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "\n")
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
+
+###############################################################################
+
+    def get_chemical_properties(element_id_user_input):
+        """
+        Returns Chemical properties of the element requested
+        """
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Electron Affinity: "    + str(element_object.electron_affinity)  + "\n")
+        temp_output_container.append("Heat Of Formation: "    + str(element_object.heat_of_formation)  + "\n")
+        temp_output_container.append("Heat Of Evaportation: " + str(element_object.evaporation_heat)   + "\n")
+        #temp_output_container.append("Electronegativity: "    + str(element_object.electronegativity)  + "\n")
+        #temp_output_container.append("Covalent Radius: "      + str(element_object.covalent_radius)    + "\n")
+        #temp_output_container.append("Polarizability: "       + str(element_object.dipole_polarizability)  + "\n")
+        global lookup_output_container
+        lookup_output_container = temp_output_container
+
+###############################################################################
+
+    def get_nuclear_properties(element_id_user_input):
+        """
+        Returns Nuclear properties of the element requested
+        """
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Neutrons: " + str(element_object.neutrons)  + "\n")
+        temp_output_container.append("Protons: "  + str(element_object.protons)   + "\n")
+        temp_output_container.append("Atomic Radius: "  + str(element_object.atomic_radius)  + "\n")
+        temp_output_container.append("Atomic Weight: "  + str(element_object.atomic_weight)  + "\n")
+        temp_output_container.append("Radioactivity: "  + str(element_object.is_radioactive)  + "\n")
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
+
+###############################################################################
+    
+    def get_isotopes(element_id_user_input):
+        """
+        Returns Isotopes of the element requested
+        """
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Isotopes: " + str(element_object.isotopes) + "\n")
+        #await Element_lookup.format_and_print_output(output_container)
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
+
+###############################################################################
+
+    def get_ionization_energy(element_id_user_input):
+        """
+        Returns Ionization energies of the element requested
+        """
+        temp_output_container = []
+        element_object = mendeleev.element(element_id_user_input)
+        temp_output_container.append("Ionization Energies: " + str(element_object.ionenergies)  + "\n")
+        #global lookup_output_container
+        lookup_output_container = temp_output_container
+        
+        
+        
+
+class Pubchem_lookup():
     '''
 Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
     '''
-    def __init__(self,ctx):
-        greenprint("loaded pubchem_commands")
-    
-    def balancer_help_message():
+    def __init__(self, user_input, type_of_input):
+        self.user_input     = user_input
+        self.type_of_input  = type_of_input
+        self.validate_user_input(self.user_input , self.type_of_input)
+
+    def balancer_help_message(self):
         return " Reactants and Products are Comma Seperated Values using"+\
         "symbolic names for elements e.g. \n "        +\
         "user input for reactants => NH4ClO4,Al \n"   +\
         "user input for products  => Al2O3,HCl,H2O,N2 \n"
 
-    def help_message():
+    def help_message(self):
         return """
 input CID/CAS or IUPAC name or synonym
 Provide a search term and "term type", term types are "cas" , "name" , "cid"
@@ -98,70 +217,59 @@ Example 2 : .pubchemlookup 3520 cid
 Example 3 : .pubchemlookup 113-00-8 cas
 """
 ###############################################################################
-    def reply_to_query(message):
-        '''
-    Takes a list or string, if list, joins the list to a string and assigns to 
+    def reply_to_query(self, message):
+        '''    Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
         ''' 
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        lookup_output_container = temp_array 
+        lookup_output_container = temp_array
+        print(lookup_output_container) 
 
 ###############################################################################
-    def parse_lookup_to_chempy(pubchem_lookup : list):
+    def parse_lookup_to_chempy(self, pubchem_lookup : list):
         '''
         creates a chempy something or other based on what you feed it
         like cookie monster
         '''
         #lookup_cid       = pubchem_lookup[0].get('cid')
-        lookup_formula   = pubchem_lookup[1].get('formula')
+        lookup_formula    = pubchem_lookup[1].get('formula')
         #lookup_name      = pubchem_lookup[2].get('name')
         try:
             greenprint(chempy.Substance.from_formula(lookup_formula))
         except Exception:
-            variables_for_reality.function_message("asdf", "blue")
+            function_message("asdf", "blue")
 ###############################################################################
 
-    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = ""):
+    def user_input_was_wrong(self, type_of_pebkac_failure : str, bad_string = ""):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        user_is_a_doofus_CID_message = \
-            'Stop being a doofus! Accepted types are "name","cas" or "cid" '
-        user_is_a_doofus_input_id_message = \
-            'bloop '
-        user_is_a_doofus_formula_message = \
-            "Stop being a doofus and feed me a good formula!"
-        user_is_a_doofus_form_react_message = \
-            "the following input was invalid: " + bad_string 
-        user_is_a_doofus_form_prod_message = \
-            "the following input was invalid: " + bad_string
-        user_is_a_doofus_form_gen_message = \
-            "the following input was invalid: " + bad_string
+        user_is_a_doofus_CID_message        = 'Stop being a doofus! Accepted types are "name","cas" or "cid" '
+        user_is_a_doofus_input_id_message   = 'bloop '
+        user_is_a_doofus_formula_message    = "Stop being a doofus and feed me a good formula!"
+        user_is_a_doofus_form_react_message = "the following input was invalid: " + bad_string 
+        user_is_a_doofus_form_prod_message  = "the following input was invalid: " + bad_string
+        #user_is_a_doofus_form_gen_message  = "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            #await ctx.send(user_is_a_doofus_CID_message)
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
+            self.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
-            #await ctx.send(user_is_a_doofus_formula_message)
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
+            self.reply_to_query(user_is_a_doofus_formula_message)
         elif type_of_pebkac_failure == "formula_reactants":
-            #await ctx.send(user_is_a_doofus_form_react_message)
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
+            self.reply_to_query(user_is_a_doofus_form_react_message)
         elif type_of_pebkac_failure == "formula_products":
-            #await ctx.send(user_is_a_doofus_form_prod_message)
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
+            self.reply_to_query(user_is_a_doofus_form_prod_message)
         elif type_of_pebkac_failure == "user_input_identification":
-            #await ctx.send(user_is_a_doofus_input_id_message)
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
+            self.reply_to_query(user_is_a_doofus_input_id_message)
         else:
             #change this to sonething reasonable
-            Element_lookup.reply_to_query(type_of_pebkac_failure)
+            self.reply_to_query(type_of_pebkac_failure)
 
-    def lookup_failure(type_of_failure: str):
+    def lookup_failure(self, type_of_failure: str):
         """
         does what it says on the label, called when a lookup is failed
         """
@@ -175,7 +283,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
             lookup_output_container = ["chempy failure"]
         pass
     
-    async def validate_user_input(ctx, user_input: str, type_of_input:str):
+    def internal_local_database_lookup(self, entity : str, id_of_record:str ):
+        if id_of_record in pubchem_search_types:
+            lookup_result  = Compound.query.all().filter_by(id_of_record = entity).first()
+            return lookup_result
+
+    def validate_user_input(self, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         only one input, we are retrieving one record for one entity
@@ -195,74 +308,41 @@ Example 3 : .pubchemlookup 113-00-8 cas
                         greenprint("[+} trying to match regular expression for CAS")
                         if re.match(cas_regex,user_input):
                             greenprint("[+] Good CAS Number")
-                            #await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
-                            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                            if internal_lookup == None:
+                            internal_lookup = internal_local_database_lookup(user_input, type_of_input)
+                            if internal_lookup == None or False:
                                 redprint("[-] Internal Lookup returned false")
-                                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                                Pubchem_lookup.format_message_discord(lookup_object)
+                                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                                self.reply_to_query(lookup_object)
                             elif internal_lookup == True:
                                 greenprint("============Internal Lookup returned TRUE===========")
-                                Pubchem_lookup.format_message_discord(lookup_object)
-                                database_setup.dump_db()
-                            else:
-                                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
+                                self.reply_to_query(lookup_object)
                         else:
-                            variables_for_reality.function_message("[-] Bad CAS Number ","validation CAS lookup checks", "red")                    
+                            function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
                     except Exception:
-                        variables_for_reality.function_message('[-] Something happened in the try/except block for cas numbers','', 'red')
+                        function_message('[-] Something happened in the try/except block for cas numbers', 'red')
                 else:
-                    #await Pubchem_lookup.lookup_from_inputs(ctx, user_input, type_of_input)
                     try:
-                        internal_lookup = database_setup.Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                        if internal_lookup == None:
+                        internal_lookup = self.internal_local_database_lookup(user_input, type_of_input)
+                        if internal_lookup == NoneType or False:
                             redprint("[-] Internal Lookup returned false")
-                            lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                            Pubchem_lookup.format_message_discord(lookup_object)
-                            return 
-                            #formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
-                            #temp_output_container.append([formatted_message])
-                            #lookup_output_container = temp_output_container
+                            lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                            self.reply_to_query(lookup_object)
                         elif internal_lookup == True:
                             greenprint("============Internal Lookup returned TRUE===========")
-                            Pubchem_lookup.format_message_discord(lookup_object)
-                            Database_functions.dump_db()
+                            self.reply_to_query(lookup_object)
                         else:
-                            variables_for_reality.function_message("", "[-] Something is wrong with the database", "red")
+                            function_message("[-] Something is wrong with the database", "red")
                     except Exception:
-                        variables_for_reality.function_message("reached exception", "name/cid lookup - control flow", "red")
+                        function_message("reached exception : name/cid lookup - control flow", "red")
             except Exception:
-                variables_for_reality.function_message("reached the exception","input_type was wrong somehow" , "red")
+                function_message("reached the exception : input_type was wrong somehow" , "red")
 
         else:
-            await Pubchem_lookup.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)
+            self.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)
 
-    #async def lookup_from_inputs(ctx, user_input: str, type_of_input: str):
-#        '''
-#        function to lookup and send to output after validation is performed on inputs
-#        '''
-#        temp_output_container = []
-#        blueprint("[+] attempting internal lookup")
-#        try:
-#            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-#            if internal_lookup == None:
-#                redprint("[-] Internal Lookup returned false")
-#                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-#                Pubchem_lookup.format_message_discord(lookup_object)
-                #formatted_message = Pubchem_lookup.format_message_discord(lookup_object)
-                #temp_output_container.append([formatted_message])
-                #lookup_output_container = temp_output_container
-#            elif internal_lookup == True:
-#                greenprint("============Internal Lookup returned TRUE===========")
-#                Pubchem_lookup.format_message_discord(lookup_object)
-#                database_setup.dump_db()
-#            else:
-#                variables_for_reality.function_message("[-] Something is wrong with the database", "red")
-#        except Exception:
-#            variables_for_reality.function_message(Exception, "blue")
+  
 
-###############################################################################    
-    def pubchem_lookup_by_name_or_CID(compound_id, type_of_data:str):
+    def pubchem_lookup_by_name_or_CID(self, compound_id, type_of_data:str):
         '''
         Provide a search term and record type
         requests can be CAS,CID,IUPAC NAME/SYNONYM
@@ -284,33 +364,34 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # presented as an option to the user,and not programmatically 
         return_index = 0
         data = ["name","cid","cas"]
-        for each in data:
+        if type_of_data in data:
             if type_of_data == ("name" or "cas"):                     
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
                 except Exception :# pubchem.PubChemPyError:
-                    variables_for_reality.function_message("lookup by NAME/CAS exception - name", Exception, "red")
-                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                    function_message("lookup by NAME/CAS exception - name", "red")
+                    self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
             elif type_of_data == "cid":
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.Compound.from_cid(compound_id)
                 except Exception :# pubchem.PubChemPyError:
-                    variables_for_reality.function_message("lookup by NAME/CAS exception - name", Exception, "red")
-                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                    function_message("lookup by NAME/CAS exception - name", "red")
+                    self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                #once we have the lookup results, do something
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
                     redprint(each.molecular_formula)
                     query_appendix = [{'cid' : each.cid                 ,\
-                                #dis bitch dont have a CAS NUMBER!
-                                #'cas'       : each.cas                 ,\
-                                'smiles'     : each.isomeric_smiles     ,\
-                                'formula'    : each.molecular_formula   ,\
-                                'molweight'  : each.molecular_weight    ,\
-                                'charge'     : each.charge              ,\
-                                'iupac_name' : each.iupac_name          }]
+                            #dis bitch dont have a CAS NUMBER!
+                            #'cas'       : each.cas                 ,\
+                            'smiles'     : each.isomeric_smiles     ,\
+                            'formula'    : each.molecular_formula   ,\
+                            'molweight'  : each.molecular_weight    ,\
+                            'charge'     : each.charge              ,\
+                            'iupac_name' : each.iupac_name          }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -322,7 +403,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     redprint("=========RETURN RELATIONSHIPS=======multiple")
                     blueprint(str(return_relationships[return_index]))
                     redprint("=========RETURN RELATIONSHIPS=======multiple")
-                    Database_functions.compound_to_database(return_relationships[return_index])
+                    compound_to_database(return_relationships[return_index])
             
             # if there was only one result or the user supplied a CID for a single chemical
             elif isinstance(lookup_results, pubchem.Compound) :#\
@@ -339,69 +420,30 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                Database_functions.compound_to_database(return_relationships[return_index])
+                compound_to_database(return_relationships[return_index])
 
             else:
-                variables_for_reality.function_message("PUBCHEM LOOKUP BY CID","ELSE AT THE END", "red")
+                function_message("PUBCHEM LOOKUP BY CID : ELSE AT THE END", "red")
         #and then, once all that is done return the LOCAL database entry to
         # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
         redprint("==BEGINNING==return query for pubchem/local lookup===========")
-        for each in return_query[0]:
+        query_cid    = return_query[0].get('cid')
+        local_query  = Compound.query.filter_by(cid = query_cid).first()
+        # you can itterate over the database query
+        for each in local_query:
             blueprint(str(each) + "\n")
         redprint("=====END=====return query for pubchem/local lookup===========")
 
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
-        print(Database_functions.Compound_by_id(return_query))
-        return Database_functions.Compound_by_id(return_query)
+        print(Compound_by_id(query_cid))
+        return Compound_by_id(query_cid)
 
         # OR return the remote lookup entry, either way, the information was stored.
         #this returns a pubchempy.Compound() Object type
         #return lookup_results
 
-###############################################################################
-
-    async def format_mesage_arbitrary(self, arg1, arg2, arg3):
-        pass
-
-############################################################################### 
-    def format_message_discord(lookup_results_object):
-        '''
-    Lookup_results_object can be either a database.Compound() entry or pubchempy.Compound()
-
-        '''
-        #temp_output_container = []
-        formatted_message = discord.Embed(title=lookup_results_object.name   ,\
-                                          colour=discord.Colour(0x3b12ef))
-        formatted_message.set_thumbnail(                                      \
-            url="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{}" + \
-                "/PNG?record_type=3d&image_size=small" +                      \
-                "".format(lookup_results_object.cid))
-        formatted_message.set_author(
-            name="{} ({})".format(lookup_results_object.iupac_name,\
-                                    lookup_results_object.cid),\
-            url="https://pubchem.ncbi.nlm.nih.gov/compound/{}" + \
-                "".format(lookup_results_object.cid))
-            #icon_url="https://pubchem.ncbi.nlm.nih.gov/pcfe/logo/" + \
-            #    "PubChem_logo_splash.png")
-        formatted_message.add_field( \
-            name="Molecular Formula", \
-            value=lookup_results_object.formula)
-        formatted_message.add_field( \
-            name="Molecular Weight", \
-            value=lookup_results_object.molweight)
-        formatted_message.add_field( \
-            name="Charge", \
-            value=lookup_results_object.charge)
-        formatted_message.add_field( \
-            name="SMILES", \
-            value=lookup_results_object.smiles)
-        #await ctx.send(content="lol", embed=formatted_message)
-        #temp_output_container= formatted_message
-        #global lookup_output_container
-        variables_for_reality.lookup_output_container.append(formatted_message)
-
-Pubchem_lookup.pubchem_lookup_by_name_or_CID("420","cid")
-Pubchem_lookup.pubchem_lookup_by_name_or_CID("methanol","name")
-Pubchem_lookup.pubchem_lookup_by_name_or_CID("phenol","name")
+Pubchem_lookup("420","cid")
+Pubchem_lookup("methanol","name")
+Pubchem_lookup("phenol","name")
