@@ -158,6 +158,46 @@ class EquationBalancer():
         temp_array = [message]
         lookup_output_container = temp_array
 
+class Resistor():
+    def __init__ (self, resistance, current, voltage):
+        self.resistance   = resistance
+        self.voltage      = voltage
+        self.current      = self.voltage / self.resistance
+        self.resistance   = self.voltage / self.current
+        self.voltage      = self.resistance * self.current
+        self.loss         = self.voltage^2 / self.resistance
+
+
+class Inductor():
+    def __init__ (self, inductance, current, voltage, frequency = 0):
+        self.inductance   = inductance
+        self.current      = current
+        self.voltage      = voltage
+        self.frequency    = frequency
+        self.stored_e     = 1/2 * (inductance * current^2)
+        self.qfactor      = (2 * pi * self.frequency * self.inductance) / self.resistance
+
+
+class Capacitor():
+    def __init__(self, capacitance, voltage, frequency):
+        self.capacitance    = capacitance
+        self.voltage        = voltage
+        self.frequency      = frequency
+        self.charge_ratio   = self.capacitance * self.voltage
+        self.efield_energy  = 1/2 * voltage * self.charge_ratio
+        self.reactance      = -(1/(2 * pi * self.frequency * self.capacitance))
+        self.impedance      = -(1j/(2 * pi * self.frequency * self.capacitance))
+
+
+
+class RL_Circuit():
+    def __init__(self, resistance , inductance , frequency, voltage_in, series = 1, parallel = 0 ):
+        self.resistance        = resistance
+        self.inductance        = inductance
+        self.frequency         = frequency
+        self.voltage_in        = voltage_in
+        self.complex_frequency = 1j * (2 * pi * self.frequency)
+        self.complex_impedance = self.inductance * self.complex_frequency
 
 class LC_circuit():
     def __init__(self, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
@@ -188,16 +228,18 @@ class Transistor_NPN():
         REQUIRED parameters are current, voltage, resistors 1-3
         """
 
-        self.gain           = gain
-        self.current_in     = current_in
-        self.voltage_in     = voltage_in
-        self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
-        self.emitteralpha   = self.collectorcurrent / self.emittercurrent
-        self.resistor1      = Resistor(resistor1) # collector
-        self.resistor2      = Resistor(resistor2) # base
-        self.resistor3      = Resistor(resistor3) # emitter
-        self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
-        self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+        self.gain             = gain
+        self.current_in       = current_in
+        self.voltage_in       = voltage_in
+        self.basecurrent      = (voltage_in - Vbe) / self.resistor2.resistance
+        self.emittercurrent   = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+        self.collectorcurrent = self.basecurrent - self.emittercurrent
+        self.DCcurrentGain    = self.collectorcurrent / self.basecurrent
+        self.emitteralpha     = self.collectorcurrent / self.emittercurrent
+        self.resistor1        = Resistor(resistor1) # collector
+        self.resistor2        = Resistor(resistor2) # base
+        self.resistor3        = Resistor(resistor3) # emitter
+
     
     #def Validate_user_input(self, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
     #    self.gain           = gain
@@ -245,47 +287,5 @@ class RLC_circuit():
                 self.overdamped = 1
             else:
                 print("you managed to make a number that is neither greater than or less than or even equal to 1 ... GOOD JOB!")
-
-class Resistor():
-    def __init__ (self, resistance, current, voltage):
-        self.resistance   = resistance
-        self.voltage      = voltage
-        self.current      = self.voltage / self.resistance
-        self.resistance   = self.voltage / self.current
-        self.voltage      = self.resistance * self.current
-        self.loss         = self.voltage^2 / self.resistance
-
-
-class Inductor():
-    def __init__ (self, inductance, current, voltage, frequency = 0):
-        self.inductance   = inductance
-        self.current      = current
-        self.voltage      = voltage
-        self.frequency    = frequency
-        self.stored_e     = 1/2 * (inductance * current^2)
-        self.qfactor      = (2 * pi * self.frequency * self.inductance) / self.resistance
-
-
-class Capacitor():
-    def __init__(self, capacitance, voltage, frequency):
-        self.capacitance    = capacitance
-        self.voltage        = voltage
-        self.frequency      = frequency
-        self.charge_ratio   = self.capacitance * self.voltage
-        self.efield_energy  = 1/2 * voltage * self.charge_ratio
-        self.reactance      = -(1/(2 * pi * self.frequency * self.capacitance))
-        self.impedance      = -(1j/(2 * pi * self.frequency * self.capacitance))
-
-
-
-class RL_Circuit():
-    def __init__(self, resistance , inductance , frequency, voltage_in, series = 1, parallel = 0 ):
-        self.resistance        = resistance
-        self.inductance        = inductance
-        self.frequency         = frequency
-        self.voltage_in        = voltage_in
-        self.complex_frequency = 1j * (2 * pi * self.frequency)
-        self.complex_impedance = self.inductance * self.complex_frequency
-
 
 
