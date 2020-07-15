@@ -108,10 +108,11 @@ discord_color = 0x3b12ef
 #            element_list.append(element_object.name)
 #            symbol_list.append(element_object.symbol)
 
-yotta = 1000000000000000000000000#
-zetta = 1000000000000000000000  #
-exa =  1000000000000000000      #
-peta = 1000000000000000        #
+
+yotta = 1000000000000000000000000
+zetta = 1000000000000000000000
+exa =  1000000000000000000
+peta = 1000000000000000
 tera = 1000000000000         #
 giga = 1000000000          #
 mega = 1000000          #
@@ -128,8 +129,25 @@ femto = 0.000000000000001    #
 atto = 0.000000000000000001    #
 zepto = 0.000000000000000000001 #
 yocto = 0.000000000000000000000001
+
 pi = 3.14159
 Vbe= 0.7 # volts
+
+scale_converter_unit_list = {"mega"  : mega  , "kilo" : kilo , "hecto" : hecto , \
+                             "deca"  : deca  , "deci" : deci , "milli" : milli ,\
+                             "micro" : micro , "pico" : pico , "nano"  : nano }
+
+
+def scale_converter(number, unit):
+    """
+    This function is used to convert numbers input by the user to something the
+    Program can understand. It allows the user to say, for example :
+
+    jazzy_prompt #> 150 milli volts * 200 milli amps
+
+    """
+    if unit in scale_converter_unit_list:
+        return number* scale_converter_unit_list.get(unit)
 
 specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
         "isotopes", "oxistates"]

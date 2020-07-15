@@ -245,13 +245,12 @@ Example 3 : .pubchemlookup 113-00-8 cas
         #This returns an SQLALchemy object
         return local_query
         # OR return the remote lookup entry, either way, the information was stored.
-        #this returns a pubchempy.Compound() Object type
-        #return lookup_results
 
 #testing stuff
 if TESTING == True:
     ###################################################################
-    # First we do some lookups to pull data and populate the database
+    # First we do some lookups to pull data and populate the database]
+    #add more tests
     ###################################################################
     Pubchem_lookup("420","cid")
     Pubchem_lookup("methanol","iupac_name")

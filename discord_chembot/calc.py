@@ -33,19 +33,22 @@
 ##    TODO: show basic info if no specificity in query
 # created by : mr_hai on discord / flyingfishfuse on github
 ## Test/Personal Server : https://discord.gg/95V7Mn
+
+# basic imports for a module, color print not required
+from variables_for_reality import function_message
+from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import lookup_input_container, lookup_output_container
+from database_setup import Database_functions,Compound,Composition,TESTING
+
+####################################################################################
+# module imports
+###################################################################################
 import sys
-import asyncio
-import discord
 import math, cmath
-from discord.ext import commands
 import chempy
 from chempy import balance_stoichiometry, mass_fractions
-import variables_for_reality
-import database_setup
-#import pubchem_test
 from pubchem_test import Pubchem_lookup
-from database_setup import Database_functions
-
+from variables_for_reality import pi,Vbe
 #do thnigs with this , this seems nice
 import pyEQL
 
@@ -79,11 +82,11 @@ Formula Rules:
 
 
 
-class EquationBalancer(commands.Cog):
-    def _init_(self,ctx):
+class EquationBalancer():
+    def _init_(self):
         print("asdf wat")
 
-    def validate_formula_input(ctx, equation_user_input : str):
+    def validate_formula_input(self, equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -104,27 +107,27 @@ class EquationBalancer(commands.Cog):
                 #validate reactants formatting
                 user_input_reactants = str.split(parsed_equation[0], sep =",")
             except Exception:
-                variables_for_reality.function_message("reactants formatting",Exception , "red")
+                function_message("reactants formatting",Exception , "red")
                 Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
             try:
                 #validate products formatting
                 user_input_products  = str.split(parsed_equation[1], sep =",")
             except Exception:
-                variables_for_reality.function_message("products formatting",Exception , "red")
+                function_message("products formatting",Exception , "red")
                 Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
-                    variables_for_reality.function_message("reactants contents",Exception , "red")
+                    function_message("reactants contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
                 #validate products contents
             for each in user_input_products:
                 try:
                     validation_check = chempy.Substance(each)
                 except Exception:
-                    variables_for_reality.function_message("products contents",Exception , "red")
+                    function_message("products contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_products", each)
         # if the inputs passed all the checks
         # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
@@ -132,11 +135,11 @@ class EquationBalancer(commands.Cog):
             #return [user_input_reactants, user_input_products]
             EquationBalancer.balance_simple_equation(user_input_reactants, user_input_products)
         except Exception:
-            variables_for_reality.function_message("formula validation exception", Exception, "red")
+            function_message("formula validation exception", Exception, "red")
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
 
 
-    def balance_simple_equation(reactants, products):
+    def balance_simple_equation(self, reactants, products):
         #react = chempy.Substance.from_formula(reactants)
         #prod  = chempy.Substance.from_formula(products)
         balanced_reaction = chempy.balance_stoichiometry(reactants,products)
@@ -144,7 +147,7 @@ class EquationBalancer(commands.Cog):
         EquationBalancer.reply_to_query(balanced_reaction)
 
 
-    def reply_to_query(message):
+    def reply_to_query(self, message):
         '''
     Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
@@ -153,11 +156,11 @@ class EquationBalancer(commands.Cog):
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
-        variables_for_reality.lookup_output_container = temp_array
+        lookup_output_container = temp_array
 
 
-class LC_circuit(commands.Cog):
-    def __init__(self, ctx, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
+class LC_circuit():
+    def __init__(self, inductance, capacitance, voltage, current = 0,  series = 1, parallel = 0):
         '''
         LC circuit calculator.
             LC_circuit(inductance , capactitance, voltage, current = 0, series = 1, parallel = 0)
@@ -177,36 +180,36 @@ class LC_circuit(commands.Cog):
         else:
             print("AGGGGHHHHH MY LC_circuit IS BURNING AGHHHHHHH!!!")
 
-class Transistor_NPN(commands.Cog):
-    def __init__ (self, ctx):# gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+class Transistor_NPN():
+    def __init__ (self, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
         """
         Transistor_NPN(gain,current_in, voltage_in, frequency, res1, res2, res3))
         The resistors are as follows, r1 is collector, r2 is base, r3 is emitter
         REQUIRED parameters are current, voltage, resistors 1-3
         """
 
-        #self.gain           = gain
-        #self.current_in     = current_in
-        #self.voltage_in     = voltage_in
-        #self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
-        #self.emitteralpha   = self.collectorcurrent / self.emittercurrent
-        #self.resistor1      = Resistor(resistor1) # collector
-        #self.resistor2      = Resistor(resistor2) # base
-        #self.resistor3      = Resistor(resistor3) # emitter
-        #self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
-        #self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+        self.gain           = gain
+        self.current_in     = current_in
+        self.voltage_in     = voltage_in
+        self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
+        self.emitteralpha   = self.collectorcurrent / self.emittercurrent
+        self.resistor1      = Resistor(resistor1) # collector
+        self.resistor2      = Resistor(resistor2) # base
+        self.resistor3      = Resistor(resistor3) # emitter
+        self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
+        self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
     
-    def Validate_user_input(gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
-        #gain           = gain
-        #current_in     = current_in
-        #voltage_in     = voltage_in
-        DCcurrentGain  = self.collectorcurrent / self.basecurrent
-        emitteralpha   = self.collectorcurrent / self.emittercurrent
-        resistor1      = Resistor(resistor1) # collector
-        resistor2      = Resistor(resistor2) # base
-        resistor3      = Resistor(resistor3) # emitter
-        basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
-        emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
+    #def Validate_user_input(self, gain , current_in, voltage_in,frequency, resistor1, resistor2, resistor3):
+    #    self.gain           = gain
+    #    self.current_in     = current_in
+    #    self.voltage_in     = voltage_in
+    #    self.DCcurrentGain  = self.collectorcurrent / self.basecurrent
+    #    self.emitteralpha   = self.collectorcurrent / self.emittercurrent
+    #    self.resistor1      = Resistor(resistor1) # collector
+    #    self.resistor2      = Resistor(resistor2) # base
+    #    self.resistor3      = Resistor(resistor3) # emitter
+    #    self.basecurrent    = (voltage_in - Vbe) / self.resistor2.resistance
+    #    self.emittercurrent = (voltage_in - Vbe) / (self.resistor2.resistance/gain)
 
 
 class RLC_circuit():
@@ -285,50 +288,4 @@ class RL_Circuit():
         self.complex_impedance = self.inductance * self.complex_frequency
 
 
-#    def _init_(self, number, unit):
-#        self.unit = unit
-#        self.number = number
-#        if unit == "mega":
-#            return self.number*self.mega
-#        elif self.unit == "kilo":
-#            return self.number*self.kilo
-#        elif self.unit == "hecto":
-#            return self.number*self.hecto
-#        elif self.unit == "deca":
-#            return self.number*self.deca
-#        elif self.unit == "deci":
-#            return self.number*self.deci
-#        elif self.unit == "milli":
-#            return self.number*self.milli
-#        elif self.unit == "micro":
-#            return self.number*self.micro
-#        elif self.unit == "pico":
-#            return self.number*self.pico
-#        elif self.unit == "nano":
-#            return self.number*self.nano
-#        else:
-#            print("converter function is not designed for bananas or units measuring bananas or bacon"
 
-
-yotta = 1000000000000000000000000#
-zetta = 1000000000000000000000  #
-exa =  1000000000000000000      #
-peta = 1000000000000000        #
-tera = 1000000000000         #
-giga = 1000000000          #
-mega = 1000000          #
-kilo = 1000          #
-hecto = 100       #
-deca = 10       #
-deci = 0.1     #
-centi = 0.01      #
-milli = 0.001       #
-micro = 0.00001       #
-nano = 0.00000001        #
-pico = 0.000000000001      #
-femto = 0.000000000000001    #
-atto = 0.000000000000000001    #
-zepto = 0.000000000000000000001 #
-yocto = 0.000000000000000000000001
-pi = 3.14159
-Vbe= 0.7 # volts
