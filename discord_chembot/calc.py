@@ -308,3 +308,27 @@ class RL_Circuit():
 #            return self.number*self.nano
 #        else:
 #            print("converter function is not designed for bananas or units measuring bananas or bacon"
+
+
+yotta = 1000000000000000000000000#
+zetta = 1000000000000000000000  #
+exa =  1000000000000000000      #
+peta = 1000000000000000        #
+tera = 1000000000000         #
+giga = 1000000000          #
+mega = 1000000          #
+kilo = 1000          #
+hecto = 100       #
+deca = 10       #
+deci = 0.1     #
+centi = 0.01      #
+milli = 0.001       #
+micro = 0.00001       #
+nano = 0.00000001        #
+pico = 0.000000000001      #
+femto = 0.000000000000001    #
+atto = 0.000000000000000001    #
+zepto = 0.000000000000000000001 #
+yocto = 0.000000000000000000000001
+pi = 3.14159
+Vbe= 0.7 # volts

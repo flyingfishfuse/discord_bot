@@ -1,7 +1,7 @@
 from variables_for_reality import function_message
 from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import lookup_input_container, lookup_output_container
-from database_setup import Database_functions
+from database_setup import Database_functions,Compound,Composition,TESTING
 import pubchempy as pubchem
 import re
 
@@ -151,6 +151,21 @@ Example 3 : .pubchemlookup 113-00-8 cas
         else:
             self.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)  
 
+    def pubchem_lookup_by_name_or_CID(self, compound_id, type_of_data:str):
+        '''
+        Provide a search term and record type
+        requests can be CAS,CID,IUPAC NAME/SYNONYM
+
+        outputs in the following order:
+        CID, CAS, SMILES, Formula, Name
+
+        Stores lookup in database if lookup is valid
+        I know it looks like it can be refactored into a smaller block 
+        but they actually require slightly different code for each lookup
+        and making a special function to do that would be just as long probably
+        I'll look at it
+        TODO: SEARCH LOCAL BY CAS!!!!
+        '''
         #make a thing
         return_relationships = []
         # you get multiple records returned from a pubchem search VERY often
@@ -191,13 +206,13 @@ Example 3 : .pubchemlookup 113-00-8 cas
                     #Right here we need to find a way to store multiple records
                     # and determine the best record to store as the main entry
                     ####################################################
-                    #compound_to_database() TAKES A LIST
+                    #Database_functions.compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
                     redprint("=========RETURN RELATIONSHIPS=======multiple")
                     blueprint(str(return_relationships[return_index]))
                     redprint("=========RETURN RELATIONSHIPS=======multiple")
-                    compound_to_database(return_relationships[return_index])
+                    Database_functions.compound_to_database(return_relationships[return_index])
             
             # if there was only one result or the user supplied a CID for a single chemical
             elif isinstance(lookup_results, pubchem.Compound) :#\
@@ -214,7 +229,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))
                 redprint("=========RETURN RELATIONSHIPS=======")
-                compound_to_database(return_relationships[return_index])
+                Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 function_message("PUBCHEM LOOKUP BY CID : ELSE AT THE END", "red")
         #and then, once all that is done return the LOCAL database entry to

@@ -313,15 +313,13 @@ class Database_functions():
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name"]
         """
-        temp_list = []
-        temp_list = lookup_list
-        lookup_cid                 = temp_list[0].get('cid')
-        #lookup_cas                = temp_list[0].get('cas')
-        lookup_smiles              = temp_list[0].get('smiles')
-        lookup_formula             = temp_list[0].get('formula')        
-        lookup_molweight           = temp_list[0].get('molweight')        
-        lookup_charge              = temp_list[0].get('charge')
-        lookup_name                = temp_list[0].get('iupac_name')
+        lookup_cid                 = lookup_list[0].get('cid')
+        #lookup_cas                = lookup_list[0].get('cas')
+        lookup_smiles              = lookup_list[0].get('smiles')
+        lookup_formula             = lookup_list[0].get('formula')        
+        lookup_molweight           = lookup_list[0].get('molweight')        
+        lookup_charge              = lookup_list[0].get('charge')
+        lookup_name                = lookup_list[0].get('iupac_name')
         self.add_to_db(Compound(                       \
             cid              = lookup_cid                    ,\
             #cas             = lookup_cas                    ,\
