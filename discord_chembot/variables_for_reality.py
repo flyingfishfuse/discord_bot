@@ -42,8 +42,6 @@
 # can there be absolutes.
 # THIS IS A TOP LEVEL FILE
 # DO NOT CREATE CYCLIC DEPENDENCIES!
-import os
-import re
 # Establish an error reporting function
 import colorama
 from colorama import init
@@ -71,10 +69,6 @@ def function_message(exception_message : str,  location:str, color_to_print="red
     A Robust exception message passing class? that uses colorama and inspect
     Takes red, green, blue as color arguments. WORK IN PROGERESS!
     """
-    blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-    greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-    redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
-    import inspect
     if color_to_print == "red":
         # gets name of object calling this function, the previous frame calling this object
         #f_back next outer frame object (this frame’s caller)
@@ -93,15 +87,11 @@ def function_message(exception_message : str,  location:str, color_to_print="red
     blueprint("\n" + exception_message)
 
 # find these and change names to be same
-pubchem_search_types = {"cid","iupac_name","cas"}
-input_types_requestable = ["iupac_name", "cid", "cas"]
-cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
 COMMAND_PREFIX = "."
 devs = ['581952454124372068']
 list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 
 #make them global scope for testing purposes
-show_line_number = lambda line: blueprint('line:' + inspect.getframeinfo(inspect.currentframe()).lineno)
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
@@ -140,8 +130,6 @@ zepto = 0.000000000000000000001 #
 yocto = 0.000000000000000000000001
 pi = 3.14159
 Vbe= 0.7 # volts
-
-pubchem_search_types = ["cas", "cid" , "name" ] #, "formula"]
 
 specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
         "isotopes", "oxistates"]
@@ -206,16 +194,3 @@ symbol_list = ['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne', 'Na', \
         'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', \
         'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', \
         'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts']
-
-def function_message(exception_message : str, color_to_print="red"):
-    """
-    A Robust exception message passing class? that uses colorama and inspect
-    Takes red, green, blue as color arguments. WORK IN PROGERESS!
-    """
-    import inspect
-    if color_to_print == "red":
-        redprint("something wierd happened in: "  + exception_message)
-    elif color_to_print == "green":
-        greenprint("something wierd happened in: " + exception_message)
-    elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + exception_message)
