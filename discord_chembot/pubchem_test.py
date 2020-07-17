@@ -33,7 +33,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
 """
 ###############################################################################
     def reply_to_query(self, message):
-        '''    Takes a list or string, if list, joins the list to a string and assigns to 
+        '''    
+    Takes a list or string, if list, joins the list to a string and assigns to 
     lookup_output_container.
         ''' 
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
@@ -64,7 +65,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        user_is_a_doofus_CID_message        = 'Stop being a doofus! Accepted types are "name","cas" or "cid" '
+        user_is_a_doofus_CID_message        = 'Stop being a doofus! Accepted types are "iupac_name","cas" or "cid" '
         user_is_a_doofus_input_id_message   = 'bloop '
         user_is_a_doofus_formula_message    = "Stop being a doofus and feed me a good formula!"
         user_is_a_doofus_form_react_message = "the following input was invalid: " + bad_string 
@@ -106,6 +107,10 @@ Example 3 : .pubchemlookup 113-00-8 cas
         """
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
+        # seriously, 
+        # if type_of_input in pubchem_search_types:
+        # didnt work.
+        # no idea why.
         fuck_this = lambda fuck: fuck in self.pubchem_search_types 
         if fuck_this(type_of_input) :#in pubchem_search_types:
             greenprint("user supplied a : " + type_of_input)

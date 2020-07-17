@@ -133,7 +133,7 @@ class EquationBalancer():
         # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
         # [ [reactants] , [products] ]
             #return [user_input_reactants, user_input_products]
-            EquationBalancer.balance_simple_equation(user_input_reactants, user_input_products)
+            self.balance_simple_equation(user_input_reactants, user_input_products)
         except Exception:
             function_message("formula validation exception", Exception, "red")
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
@@ -144,7 +144,7 @@ class EquationBalancer():
         #prod  = chempy.Substance.from_formula(products)
         balanced_reaction = chempy.balance_stoichiometry(reactants,products)
         print(balanced_reaction)
-        EquationBalancer.reply_to_query(balanced_reaction)
+        self.reply_to_query(balanced_reaction)
 
 
     def reply_to_query(self, message):
@@ -169,13 +169,41 @@ class Resistor():
 
 
 class Inductor():
-    def __init__ (self, inductance, current, voltage, frequency = 0):
-        self.inductance   = inductance
-        self.current      = current
-        self.voltage      = voltage
-        self.frequency    = frequency
-        self.stored_e     = 1/2 * (inductance * current^2)
-        self.qfactor      = (2 * pi * self.frequency * self.inductance) / self.resistance
+    '''
+    Required inputs:
+    inductance    : dict
+        { value_float : unit_of_measure }
+
+    current       : dict
+        { value_float : unit_of_measure }
+   
+    voltage       : dict
+        { value_float : unit_of_measure }
+
+    frequency     : dict
+        default = 0
+        { value_float : unit_of_measure }
+
+    dc_resistance : dict
+        default = 0
+        optional
+        { value_float : unit_of_measure }
+
+        physical resistance of the conductor material.
+
+    '''
+    def __init__ (self, inductance, current, voltage, frequency = 0.0 , dc_resistance = 0.0):
+
+        self.inductance    = inductance
+        self.current       = current
+        self.voltage       = voltage
+        self.frequency     = frequency
+        self.dc_resistance = dc_resistance
+        self.stored_e      = 1.0/2.0 * (inductance * current^2.0)
+        self.reactance     = 2.0 * pi * self.frequency * self.inductance
+        # requires DC resistance of inductor material
+        if self.dc_resistance != 0.0 : 
+            self.qfactor = self.reactance / self.dc_resistance
 
 
 class Capacitor():
@@ -214,9 +242,13 @@ class LC_circuit():
         self.resonant_frequency_hertz = 1/(2 * pi * math.sqrt(self.inductance * self.capacitance))
         self.resonant_frequency_w     = math.sqrt(1/(self.inductance * self.capacitance))
         if series:
-            self.impedance            = ((math.pow(self.resonant_frequency_w , 2) * self.inductance * self.capacitance - 1)* 1j) / (self.resonant_frequency_w * self.capacitance)
+            self.impedance            = ((math.pow(self.resonant_frequency_w , 2) \
+                                        * self.inductance * self.capacitance - 1)*\
+                                          1j) / (self.resonant_frequency_w * self.capacitance)
         elif parallel:
-            self.impedance            = (-1j * self.resonant_frequency_w * self.inductance)/ (math.pow(self.resonant_frequency_w , 2) * self.inductance * self.capacitance -1)
+            self.impedance            = (-1j * self.resonant_frequency_w * self.inductance)/ \
+                                        (math.pow(self.resonant_frequency_w , 2) * \
+                                        self.inductance * self.capacitance -1)
         else:
             print("AGGGGHHHHH MY LC_circuit IS BURNING AGHHHHHHH!!!")
 
@@ -280,7 +312,8 @@ class RLC_circuit():
             self.damping_factor = (1/(2 * self.resistance))* math.sqrt(self.inductance / self.capacitance)
             self.q_factor = self.resistance * math.sqrt(self.capacitance/self.inductance)
             self.bandwidth = (1/ self.resistance) * math.sqrt(self.inductance/self.capacitance)
-            self.frequency_domain = 1/(1j * self.resonant_frequency * self.inductance) + 1j * self.resonant_frequency * self.capacitance + 1/self.resistance
+            self.frequency_domain = 1/(1j * self.resonant_frequency * self.inductance) + 1j * \
+                                    self.resonant_frequency * self.capacitance + 1/self.resistance
             if self.damping_factor < 1:
                 self.underdamped = 1
             elif self.damping_factor > 1:
