@@ -137,7 +137,6 @@ scale_converter_unit_list = {"mega"  : mega  , "kilo" : kilo , "hecto" : hecto ,
                              "deca"  : deca  , "deci" : deci , "milli" : milli ,\
                              "micro" : micro , "pico" : pico , "nano"  : nano }
 
-
 def scale_converter(number, unit):
     """
     This function is used to convert numbers input by the user to something the

@@ -38,6 +38,7 @@
 from variables_for_reality import function_message
 from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import lookup_input_container, lookup_output_container
+from variables_for_reality import scale_converter_unit_list
 from database_setup import Database_functions,Compound,Composition,TESTING
 
 ####################################################################################
@@ -158,8 +159,25 @@ class EquationBalancer():
         temp_array = [message]
         lookup_output_container = temp_array
 
+def scale_converter(number, unit):
+    """
+    This function is used to convert numbers input by the user to something the
+    Program can understand. It allows the user to say, for example :
+
+    jazzy_prompt #> 150 milli volts * 200 milli amps
+
+    """
+    if unit in scale_converter_unit_list:
+        return number* scale_converter_unit_list.get(unit)
+
 class Resistor():
-    def __init__ (self, resistance, current, voltage):
+        '''
+    Required inputs:
+    resistance    : dict
+        { value_float : unit_of_measure }
+    
+    '''
+    def __init__ (self, resistance : dict , current : dict, voltage : dict):
         self.resistance   = resistance
         self.voltage      = voltage
         self.current      = self.voltage / self.resistance

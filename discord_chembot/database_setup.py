@@ -206,7 +206,7 @@ class Database_functions():
     def _init_(self):
         self.TESTING = False
      
-    def Compound_by_id(cid_of_compound : str):
+    def Compound_by_id(self, cid_of_compound : str):
         """
         Returns a compound from the local DB
         Returns FALSE if entry does not exist
@@ -222,7 +222,7 @@ class Database_functions():
             return False
 
     ################################################################################
-    def internal_local_database_lookup(entity : str, id_of_record:str ):
+    def internal_local_database_lookup(self, entity : str, id_of_record:str ):
         """
         feed it a formula or CID followed buy "formula" or "cid"
         Returns False and raises and exception/prints exception on error
@@ -243,7 +243,7 @@ class Database_functions():
             return lookup_result
 
 
-    def add_to_db(thingie):
+    def add_to_db(self, thingie):
         """
         Takes SQLAchemy Class_model Objects 
         For updating changes to Class_model.Attribute using the form:
@@ -261,7 +261,7 @@ class Database_functions():
             print(Exception.__cause__)
     ################################################################################
 
-    def update_db():
+    def update_db(self):
         """
         DUH
         """
@@ -272,7 +272,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_db():
+    def dump_db(self):
         """
     Prints database to screen
         """
@@ -285,7 +285,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_compositions():
+    def dump_compositions(self):
         """
     Prints database to screen
         """
@@ -297,7 +297,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_compounds():
+    def dump_compounds(self):
         """
     Prints database to screen
         """
