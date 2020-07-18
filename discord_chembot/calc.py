@@ -119,14 +119,14 @@ class EquationBalancer():
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
-                    validation_check = chempy.Substance(each)
+                    chempy.Substance(each)
                 except Exception:
                     function_message("reactants contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
                 #validate products contents
             for each in user_input_products:
                 try:
-                    validation_check = chempy.Substance(each)
+                    chempy.Substance(each)
                 except Exception:
                     function_message("products contents",Exception , "red")
                     Pubchem_lookup.user_input_was_wrong("formula_products", each)
@@ -159,30 +159,78 @@ class EquationBalancer():
         temp_array = [message]
         lookup_output_container = temp_array
 
-def scale_converter(number, unit):
+
+########################################################################################
+##### Electrical calculator
+######################################################################################
+def reply_to_query(message):
+    '''
+Takes a list or string, if list, joins the list to a string and assigns to 
+lookup_output_container.
+    ''' 
+    list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+    if isinstance(message,list):
+        message = list_to_string(message) 
+    temp_array = [message]
+    global lookup_output_container
+    lookup_output_container = temp_array
+
+def scale_converter(unit_num : list):
     """
     This function is used to convert numbers input by the user to something the
     Program can understand. It allows the user to say, for example :
 
     jazzy_prompt #> 150 milli volts * 200 milli amps
 
+    unit_num : list
+        { unit , number }
+
+    Example:
+        user_input = { 'milli' , 20 }
+        scale_converter(user_input)
+
     """
+    unit   = unit_num[0]
+    number = unit_num[1]
     if unit in scale_converter_unit_list:
-        return number* scale_converter_unit_list.get(unit)
+        return number * scale_converter_unit_list.get(unit)
 
 class Resistor():
-        '''
-    Required inputs:
-    resistance    : dict
-        { value_float : unit_of_measure }
-    
     '''
-    def __init__ (self, resistance : dict , current : dict, voltage : dict):
-        self.resistance   = resistance
-        self.voltage      = voltage
-        self.current      = self.voltage / self.resistance
-        self.resistance   = self.voltage / self.current
-        self.voltage      = self.resistance * self.current
+    Required inputs:
+    resistance      : list
+    current         : list
+    voltage         : list
+    e.g :        
+        (unit, number)
+            unit   : str
+            number : int OR float
+
+    '''
+    def __init__ (self, resistance : list , current : list, voltage : list):
+        
+        if (voltage and current)      and (isinstance(voltage , list) and isinstance(current, list)):
+            #solve for resistance
+            self.voltage      = scale_converter((voltage[0]     , voltage[1]))
+            self.current      = scale_converter((current[0]     , current[1]))
+            self.resistance   = self.voltage / self.current
+
+        elif (voltage and resistance) and (isinstance(voltage   , list) and isinstance(resistance, list)):
+            #solve for current
+            self.resistance   = scale_converter((resistance[0]  , resistance[1]))
+            self.voltage      = scale_converter((voltage[0]     , voltage[1]))
+            self.current      = self.voltage / self.resistance
+
+        elif (resistance and current) and (isinstance(resistance , list) and isinstance(current, list)):
+            #solve for voltage
+            self.resistance   = scale_converter((resistance[0]  , resistance[1]))
+            self.current      = scale_converter((current[0]     , current[1]))
+            self.voltage      = self.resistance * self.current
+
+        else:
+            #shit went wrong
+            reply_to_query("user input sopmething wrong")
+
         self.loss         = self.voltage^2 / self.resistance
 
 
