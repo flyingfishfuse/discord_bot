@@ -157,6 +157,7 @@ class EquationBalancer():
         if isinstance(message,list):
             message = list_to_string(message) 
         temp_array = [message]
+        global lookup_output_container
         lookup_output_container = temp_array
 
 
@@ -236,29 +237,65 @@ class Resistor():
 
 class Inductor():
     '''
-    Required inputs:
-    inductance    : dict
-        { value_float : unit_of_measure }
+    v = L * dI/dT
 
-    current       : dict
-        { value_float : unit_of_measure }
+    v     = instantaneous voltage
+    L     = Inductance ( in Henries)
+    dI/dT = rate of current change (amps/second)
+
+    In DC applications, an inductor works like a short circuit.
+    So we assume all inputs to be a "snapshot" of the circuit at any given moment
+
+    This object will be used in loops for SIMULATION
+    This object can be used alone for node analysis.
+
+    inputs:
+    inductance    : list
+        { unit_of_measure , value }
+
+    current       : list
+        { unit_of_measure , value }
    
-    voltage       : dict
-        { value_float : unit_of_measure }
+    voltage       : list
+        { unit_of_measure , value }
 
-    frequency     : dict
+    frequency     : list
         default = 0
-        { value_float : unit_of_measure }
+        { unit_of_measure , value }
 
-    dc_resistance : dict
+    dc_resistance : list
         default = 0
         optional
-        { value_float : unit_of_measure }
+        { unit_of_measure , value }
 
         physical resistance of the conductor material.
 
     '''
-    def __init__ (self, inductance, current, voltage, frequency = 0.0 , dc_resistance = 0.0):
+    def __init__ (self, inductance, delta_current, voltage, frequency = 0.0 , dc_resistance = 0.0):
+        if (voltage and delta_current)      and (isinstance(voltage , list) \
+                                            and isinstance(delta_current, list)):
+            #solve for inductance
+            self.voltage      = scale_converter((voltage[0]     , voltage[1]))
+            self.current      = scale_converter((delta_current[0]     , delta_current[1]))
+            self.inductance   = self.voltage / self.current
+
+        elif (voltage and inductance)       and (isinstance(voltage   , list) \
+                                            and isinstance(inductance, list)):
+            #solve for current
+            self.inductance   = scale_converter((inductance[0]  , inductance[1]))
+            self.voltage      = scale_converter((voltage[0]     , voltage[1]))
+            self.current      = self.voltage / self.inductance
+
+        elif (inductance and delta_current) and (isinstance(inductance, list) \
+                                            and isinstance(delta_current, list)):
+            #solve for voltage
+            self.inductance   = scale_converter((inductance[0]    , inductance[1]))
+            self.current      = scale_converter((delta_current[0] , delta_current[1]))
+            self.voltage      = self.inductance * self.delta_current
+
+        else:
+            #shit went wrong
+            reply_to_query("user input sopmething wrong")
 
         self.inductance    = inductance
         self.current       = current
