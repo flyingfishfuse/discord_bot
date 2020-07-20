@@ -208,7 +208,7 @@ class Database_functions():
     def _init_(self):
         self.TESTING = False
      
-    def Compound_by_id(self, cid_of_compound : str):
+    def Compound_by_id(cid_of_compound : str):
         """
         Returns a compound from the local DB
         Returns FALSE if entry does not exist
@@ -224,7 +224,7 @@ class Database_functions():
             return False
 
     ################################################################################
-    def internal_local_database_lookup(self, entity : str, id_of_record:str ):
+    def internal_local_database_lookup(entity : str, id_of_record:str ):
         """
         feed it a formula or CID followed buy "formula" or "cid"
         Returns False and raises and exception/prints exception on error
@@ -244,7 +244,7 @@ class Database_functions():
             return lookup_result
 
 
-    def add_to_db(self, thingie):
+    def add_to_db(thingie):
         """
         Takes SQLAchemy Class_model Objects 
         For updating changes to Class_model.Attribute using the form:
@@ -262,7 +262,7 @@ class Database_functions():
             print(Exception.__cause__)
     ################################################################################
 
-    def update_db(self):
+    def update_db():
         """
         DUH
         """
@@ -273,7 +273,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_db(self):
+    def dump_db():
         """
     Prints database to screen
         """
@@ -286,7 +286,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_compositions(self):
+    def dump_compositions():
         """
     Prints database to screen
         """
@@ -298,7 +298,7 @@ class Database_functions():
 
     ###############################################################################
 
-    def dump_compounds(self):
+    def dump_compounds():
         """
     Prints database to screen
         """
@@ -309,7 +309,7 @@ class Database_functions():
         redprint("-------------END DATABASE DUMP------------")
     ###############################################################################
 
-    def compound_to_database(self, lookup_list: list):
+    def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name"]
@@ -321,7 +321,7 @@ class Database_functions():
         lookup_molweight           = lookup_list[0].get('molweight')        
         lookup_charge              = lookup_list[0].get('charge')
         lookup_name                = lookup_list[0].get('iupac_name')
-        self.add_to_db(Compound(                       \
+        Database_functions.add_to_db(Compound(                       \
             cid              = lookup_cid                    ,\
             #cas             = lookup_cas                    ,\
             smiles           = lookup_smiles                 ,\
@@ -331,7 +331,7 @@ class Database_functions():
             iupac_name       = lookup_name                   ))
 
 ###############################################################################
-    def composition_to_database(self, comp_name: str, units_used :str, \
+    def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
         """
         The composition is a relation between multiple Compounds
@@ -351,7 +351,7 @@ class Database_functions():
 #            input = Pubchem_lookup.formula_input_validation(each)
 
         # extend this but dont forget to add more fields in the database model!
-        self.add_to_db(Composition(\
+        Database_functions.add_to_db(Composition(\
                 name       = comp_name,               \
                 units      = units_used,              \
                 compounds  = formula_list,            \
