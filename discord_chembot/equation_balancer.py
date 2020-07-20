@@ -49,6 +49,7 @@ import math, cmath
 import chempy
 from chempy import balance_stoichiometry, mass_fractions
 from variables_for_reality import pi,Vbe
+from pubchem_test import Pubchem_lookup
 #do thnigs with this , this seems nice
 import pyEQL
 
