@@ -19,8 +19,8 @@ Also does chempy translation to feed data to the calculation engine
     def balancer_help_message():
         return " Reactants and Products are Comma Seperated Values using"+\
         "symbolic names for elements e.g. \n "        +\
-        "user input for reactants => NH4ClO4,Al \n"   +\
-        "user input for products  => Al2O3,HCl,H2O,N2 \n"
+        " user input will be valid only in the form of:" +\
+        "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
 
     def help_message():
         return """
@@ -79,18 +79,18 @@ Example 3 : .pubchemlookup 113-00-8 cas
         user_is_a_doofus_form_prod_message  = "the following input was invalid: " + bad_string
         #user_is_a_doofus_form_gen_message  = "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            self.reply_to_query(user_is_a_doofus_CID_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
-            self.reply_to_query(user_is_a_doofus_formula_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
         elif type_of_pebkac_failure == "formula_reactants":
-            self.reply_to_query(user_is_a_doofus_form_react_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
         elif type_of_pebkac_failure == "formula_products":
-            self.reply_to_query(user_is_a_doofus_form_prod_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
         elif type_of_pebkac_failure == "user_input_identification":
-            self.reply_to_query(user_is_a_doofus_input_id_message)
+            Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
         else:
             #change this to sonething reasonable
-            self.reply_to_query(type_of_pebkac_failure)
+            Pubchem_lookup.reply_to_query(type_of_pebkac_failure)
 
     def lookup_failure(self, type_of_failure: str):
         """

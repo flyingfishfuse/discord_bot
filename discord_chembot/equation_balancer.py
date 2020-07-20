@@ -85,7 +85,7 @@ class EquationBalancer():
     def _init_(self):
         print("asdf wat")
 
-    def validate_formula_input(self, equation_user_input : str):
+    def validate_formula_input(equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
         :type formula_input: str     
@@ -97,56 +97,60 @@ class EquationBalancer():
         #user_input_reactants = "NH4ClO4,Al"
         #user_input_products  = "Al2O3,HCl,H2O,N2"
         #equation_user_input  = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
+        
 
         # if it doesn't work, lets see why!
         try:
             # validate equation formatting
-            parsed_equation = equation_user_input.split(" => ")
+            parsed_equation1 = equation_user_input.split("=>")[0]
+            print(parsed_equation1)
+            parsed_equation2 = equation_user_input.split("=>")[1]
+            print(parsed_equation2)
             try:
                 #validate reactants formatting
-                user_input_reactants = str.split(parsed_equation[0], sep =",")
+                user_input_reactants = str.split(parsed_equation1, sep =",")
             except Exception:
-                function_message("reactants formatting",Exception , "red")
+                redprint("reactants formatting")
                 Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
             try:
                 #validate products formatting
-                user_input_products  = str.split(parsed_equation[1], sep =",")
+                user_input_products  = str.split(parsed_equation2, sep =",")
             except Exception:
-                function_message("products formatting",Exception , "red")
+                redprint("products formatting")
                 Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
                     chempy.Substance(each)
                 except Exception:
-                    function_message("reactants contents",Exception , "red")
+                    redprint("reactants contents")
                     Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
                 #validate products contents
             for each in user_input_products:
                 try:
                     chempy.Substance(each)
                 except Exception:
-                    function_message("products contents",Exception , "red")
+                    redprint("products contents")
                     Pubchem_lookup.user_input_was_wrong("formula_products", each)
         # if the inputs passed all the checks
         # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
         # [ [reactants] , [products] ]
             #return [user_input_reactants, user_input_products]
-            self.balance_simple_equation(user_input_reactants, user_input_products)
+            EquationBalancer.balance_simple_equation(user_input_reactants, user_input_products)
         except Exception:
-            function_message("formula validation exception", Exception, "red")
+            redprint("formula validation exception")
             Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
 
 
-    def balance_simple_equation(self, reactants, products):
+    def balance_simple_equation(reactants, products):
         #react = chempy.Substance.from_formula(reactants)
         #prod  = chempy.Substance.from_formula(products)
         balanced_reaction = chempy.balance_stoichiometry(reactants,products)
         #print(balanced_reaction)
-        self.reply_to_query(balanced_reaction)
+        EquationBalancer.reply_to_query(balanced_reaction)
 
 
-    def reply_to_query(self, message):
+    def reply_to_query(message):
         '''
         Assigns to lookup_output_container.
         ''' 

@@ -63,7 +63,7 @@ async def bot_usage(ctx):
 
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
-    await element_lookup_class.Element_lookup.validate_user_input(ctx, arg1, arg2)
+    element_lookup_class.Element_lookup.validate_user_input(arg1, arg2)
     #print( list_to_string(lookup_output_container))
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(lookup_output_container)
@@ -85,7 +85,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
     # this does the thing and places the output in lookup_output_container
-    EquationBalancer.validate_formula_input(ctx, arg1)
+    EquationBalancer.validate_formula_input(arg1)
     #string_to_send = list_to_string(lookup_output_container)
     ##########################################################################
     # DO STUFF HERE TO create the discord.Embed object
