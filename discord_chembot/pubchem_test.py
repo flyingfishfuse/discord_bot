@@ -110,7 +110,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
     def validate_user_input(self, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
-        only one input, we are retrieving one record for one entity
+        type of input is one of the following:
+        cid , iupac_name , cas
     
         """
         import re
