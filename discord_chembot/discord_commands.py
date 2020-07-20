@@ -87,7 +87,7 @@ async def element_lookup(ctx, arg1, arg2):
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+    Pubchem_lookup.validate_user_input(arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container)
 

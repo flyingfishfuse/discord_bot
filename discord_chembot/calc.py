@@ -345,8 +345,7 @@ class LC_circuit():
         self.resonant_frequency_hertz = 1/(2 * pi * math.sqrt(self.inductance * self.capacitance))
         self.resonant_frequency_w     = math.sqrt(1/(self.inductance * self.capacitance))
         if series:
-            self.impedance            = ((math.pow(self.resonant_frequency_w , 2) \
-                                        * self.inductance * self.capacitance - 1)*\
+            self.impedance = ((math.pow(self.resonant_frequency_w , 2) * self.inductance * self.capacitance - 1)*\
                                           1j) / (self.resonant_frequency_w * self.capacitance)
         elif parallel:
             self.impedance            = (-1j * self.resonant_frequency_w * self.inductance)/ \
