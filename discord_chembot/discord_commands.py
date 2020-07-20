@@ -75,6 +75,8 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #string_to_send = list_to_string(lookup_output_container)
     ##########################################################################
     # DO STUFF HERE TO create the discord.Embed object
+    # lookup_output_container is holding the local lookup from the DB
+    # it's already done the remote lookup and stored the result
     ##########################################################################
 
 
