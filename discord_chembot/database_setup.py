@@ -46,8 +46,8 @@ import inspect
 ###############################################################################
 ###############################################################################
 ## TESTING VARS
-TESTING = True
-#TESTING = False
+#TESTING = True
+TESTING = False
 #The sqlite :memory: identifier is the default if no filepath is present. 
 # Specify sqlite:// and nothing else:
 #e = create_engine('sqlite://')
@@ -76,9 +76,11 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 class Config(object):
     if TESTING == True:
         SQLALCHEMY_DATABASE_URI = TEST_DB
-        SQLALCHEMY_TRACK_MODIFICATIONS = True
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
     elif TESTING == False:
         SQLALCHEMY_DATABASE_URI = LOCAL_CACHE_FILE
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 try:
     chembot_server = Flask(__name__ , template_folder="templates" )

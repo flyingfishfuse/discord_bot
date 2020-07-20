@@ -142,7 +142,7 @@ class EquationBalancer():
         #react = chempy.Substance.from_formula(reactants)
         #prod  = chempy.Substance.from_formula(products)
         balanced_reaction = chempy.balance_stoichiometry(reactants,products)
-        print(balanced_reaction)
+        #print(balanced_reaction)
         self.reply_to_query(balanced_reaction)
 
 

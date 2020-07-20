@@ -15,7 +15,6 @@ Also does chempy translation to feed data to the calculation engine
         self.user_input     = user_input
         self.type_of_input  = type_of_input
         self.validate_user_input(self.user_input , self.type_of_input)
-        self.pubchem_search_types = ["iupac_name", "cid", "cas"]
 
     def balancer_help_message():
         return " Reactants and Products are Comma Seperated Values using"+\
@@ -120,7 +119,8 @@ Example 3 : .pubchemlookup 113-00-8 cas
         # if type_of_input in pubchem_search_types:
         # didnt work.
         # no idea why.
-        fuck_this = lambda fuck: fuck in self.pubchem_search_types 
+        pubchem_search_types = ["iupac_name", "cid", "cas"]
+        fuck_this = lambda fuck: fuck in pubchem_search_types 
         if fuck_this(type_of_input) :#in pubchem_search_types:
             greenprint("user supplied a : " + type_of_input)
             try:

@@ -15,6 +15,10 @@ lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
 
+# check if the person sending the command is a developer
+def dev_check(ctx):
+    return str(ctx.author.id) in str(devs)
+
 @commands.check(dev_check)
 async def unload(ctx, extension):
     lookup_bot.unload_extension(f"cogs.{extension}")
@@ -23,10 +27,6 @@ async def unload(ctx, extension):
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
-
-# check if the person sending the command is a developer
-def dev_check(ctx):
-    return str(ctx.author.id) in str(devs)
 
 # WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
 @lookup_bot.event

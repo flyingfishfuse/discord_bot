@@ -42,5 +42,5 @@ discord_bot_token   = "NzE0NjA3NTAyOTg1MDAzMDgw.XsxIQA.6yt4UP9u8BXy5Jg7eZJzBVYLf
 COMMAND_PREFIX      = "."
 BOT_PERMISSIONS     = 3072
 devs                = [712737412018733076]
-cog_directory_files = os.listdir("./things_it_does/cogs")
+#cog_directory_files = os.listdir("./things_it_does/cogs")
 load_cogs           = False
