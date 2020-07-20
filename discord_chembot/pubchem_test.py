@@ -32,17 +32,25 @@ Example 2 : .pubchemlookup 3520 cid
 Example 3 : .pubchemlookup 113-00-8 cas
 """
 ###############################################################################
-    def reply_to_query(self, message):
+    def reply_to_query(self, message_object):
         '''    
-    Takes a list or string, if list, joins the list to a string and assigns to 
-    lookup_output_container.
+        Just accepts an object of your choice, then you import the 
+        lookup_output_container to your main file and work in that file
+
+        The commented out code is for turning everything to a string
+        from a list or string
         ''' 
-        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        if isinstance(message,list):
-            message = list_to_string(message) 
-        temp_array = [message]
-        lookup_output_container = temp_array
-        print(lookup_output_container) 
+        #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        #if isinstance(message,list):
+        #    message = list_to_string(message) 
+        #temp_array = [message]
+        global lookup_output_container
+        lookup_output_container = message_object
+        if TESTING == True:
+            blueprint("=============================================")
+            greenprint("[+] Sending the following reply to output container")
+            print(lookup_output_container)
+            blueprint("=============================================")
 
 ###############################################################################
     #def parse_lookup_to_chempy(self, pubchem_lookup : list):

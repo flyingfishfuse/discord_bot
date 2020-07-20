@@ -63,9 +63,9 @@ async def element_lookup_usage(ctx):
 async def pubchem_lookup_usage(ctx):
     await ctx.send(Pubchem_lookup.help_message())
 
-@lookup_bot.command()
-async def balancer_usage(ctx):
-    await ctx.send(Pubchem_lookup.balancer_help_message())
+#@lookup_bot.command()
+#async def balancer_usage(ctx):
+#    await ctx.send(Pubchem_lookup.balancer_help_message())
 
 @lookup_bot.command()
 async def bot_usage(ctx):
@@ -87,36 +87,34 @@ async def element_lookup(ctx, arg1, arg2):
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
+    # this does the thing and places the output in lookup_output_container
     Pubchem_lookup.validate_user_input(arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container)
 
-@lookup_bot.command()
-async def composition_lookup(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+#@lookup_bot.command()
+#async def composition_lookup(ctx, arg1, arg2):
+    # this does the thing and places the output in lookup_output_container
+#   Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container)
+#    await ctx.send(content="lol", embed=lookup_output_container)
 
-@lookup_bot.command()
-@commands.check(dev_check)
-async def composition_to_db(ctx, arg1, arg2):
-    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+#@lookup_bot.command()
+#@commands.check(dev_check)
+#async def composition_to_db(ctx, arg1, arg2):
+    # this does the thing and places the output in lookup_output_container
+#    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
     #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container)
+#    await ctx.send(content="lol", embed=lookup_output_container)
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
-    await EquationBalancer.validate_formula_input(ctx, arg1)
+    # this does the thing and places the output in lookup_output_container
+    EquationBalancer.validate_formula_input(ctx, arg1)
     string_to_send = list_to_string(lookup_output_container)
     #await ctx.send(content="lol", embed=lookup_output_container[0])
     await ctx.send(string_to_send)
 
-@lookup_bot.command()
-async def LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool):
-    await LC_circuit(ctx, inductance, capacitance, voltage, current_bool,series_bool, parallel_bool)
-    #string_to_send = list_to_string(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
-################################################################################
 
 ######## AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
 lookup_bot.run(discord_key.discord_bot_token, bot=True)

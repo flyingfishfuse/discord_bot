@@ -235,7 +235,6 @@ class Database_functions():
             if id_of_record in pubchem_search_types:
                 kwargs  = { id_of_record : entity}
                 lookup_result  = Compound.query.filter_by(**kwargs ).first()
-                #lookup_result = database.Query()
                 #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
             return lookup_result
         except Exception:

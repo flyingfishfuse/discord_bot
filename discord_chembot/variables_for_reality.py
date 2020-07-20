@@ -137,16 +137,16 @@ scale_converter_unit_list = {"mega"  : mega  , "kilo" : kilo , "hecto" : hecto ,
                              "deca"  : deca  , "deci" : deci , "milli" : milli ,\
                              "micro" : micro , "pico" : pico , "nano"  : nano }
 
-def scale_converter(number, unit):
-    """
-    This function is used to convert numbers input by the user to something the
-    Program can understand. It allows the user to say, for example :
-
-    jazzy_prompt #> 150 milli volts * 200 milli amps
-
-    """
-    if unit in scale_converter_unit_list:
-        return number* scale_converter_unit_list.get(unit)
+#def scale_converter(number, unit):
+#    """
+#    This function is used to convert numbers input by the user to something the
+#    Program can understand. It allows the user to say, for example :
+#
+#    jazzy_prompt #> 150 milli volts * 200 milli amps
+#
+#    """
+#    if unit in scale_converter_unit_list:
+#        return number* scale_converter_unit_list.get(unit)
 
 specifics_list = ["basic" , "historical" , "physical" , "chemical", "nuclear", "ionization",\
         "isotopes", "oxistates"]

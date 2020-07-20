@@ -288,7 +288,7 @@ class Inductor():
 
         elif (inductance and delta_current) and (isinstance(inductance, list) \
                                             and isinstance(delta_current, list)):
-            #solve for voltage
+            #solve for voltage, given inductance and current plus initial current at time = 0
             self.inductance   = scale_converter((inductance[0]    , inductance[1]))
             self.current      = scale_converter((delta_current[0] , delta_current[1]))
             self.voltage      = self.inductance * self.delta_current
