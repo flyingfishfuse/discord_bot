@@ -66,31 +66,32 @@ async def element_lookup(ctx, arg1, arg2):
     element_lookup_class.Element_lookup.validate_user_input(arg1, arg2)
     #print( list_to_string(lookup_output_container))
     #string_to_send = list_to_string(lookup_output_container)
+    greenprint(lookup_output_container)
     await ctx.send(lookup_output_container)
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
     # this does the thing and places the output in lookup_output_container
     Pubchem_lookup.validate_user_input(arg1, arg2)
-    #string_to_send = list_to_string(lookup_output_container)
     ##########################################################################
     # DO STUFF HERE TO create the discord.Embed object
     # lookup_output_container is holding the local lookup from the DB
     # it's already done the remote lookup and stored the result
     ##########################################################################
-
-
-    await ctx.send(content="lol", embed=lookup_output_container)
+    #string_to_send = list_to_string(lookup_output_container)
+    #print(string_to_send)
+    #await ctx.send(content="lol", embed=lookup_output_container)
+    await ctx.send(lookup_output_container[0].__repr__)
 
 @lookup_bot.command()
-async def balance_equation(ctx, arg1):
+async def balance_equation(arg1):
     # this does the thing and places the output in lookup_output_container
     EquationBalancer.validate_formula_input(arg1)
     #string_to_send = list_to_string(lookup_output_container)
     ##########################################################################
     # DO STUFF HERE TO create the discord.Embed object
     ##########################################################################
-    
+    greenprint(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
     #await ctx.send(string_to_send)
 

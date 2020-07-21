@@ -199,6 +199,8 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 #        Returns information about the element requested
 #        takes either a name,atomic number, or symbol
 #        """
+# https://discordapp.com/oauth2/authorize?client_id=734743918951792681&scope=bot
+# 734743918951792681
 #        output_container = []
 #        element_object = mendeleev.element(element_id_user_input)
 #        output_container.append(" yatta yatta yata " + element_object.description  + "\n")

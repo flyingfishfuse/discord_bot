@@ -44,7 +44,7 @@ Example 3 : .pubchemlookup 113-00-8 cas
         #    message = list_to_string(message) 
         #temp_array = [message]
         global lookup_output_container
-        lookup_output_container = message_object
+        lookup_output_container.append(message_object)
         if TESTING == True:
             blueprint("=============================================")
             greenprint("[+] Sending the following reply to output container")
