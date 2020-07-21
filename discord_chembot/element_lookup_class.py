@@ -1,30 +1,35 @@
 from variables_for_reality import *
 import mendeleev
 
+####################
+# Replace Element_lookup with "self" and add "self" to functions inputs
+# to turn into standalone
+#######################
 class Element_lookup():
     def __init__(self, element_id_user_input: str or int, specifics_requested : str):
-        self.element_id_user_input = element_id_user_input
-        self.specifics_requested   = specifics_requested
-        self.validate_user_input(self.element_id_user_input, self.specifics_requested)
+        #self.element_id_user_input = element_id_user_input
+        #self.specifics_requested   = specifics_requested
+        #self.validate_user_input(self.element_id_user_input, self.specifics_requested)
+        print("wat")
 
-    def help_message(self):
+    def help_message():
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
 isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         
-    def reply_to_query(self,message):
+    def reply_to_query(message):
         '''
-    Takes a list or string, if list, joins the list to a string and assigns to 
-    lookup_output_container. Sends the global output container 
+     assigns to lookup_output_container. Sends the global output container 
         '''
-        list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        if isinstance(message,list):
-            message = list_to_string(message) 
+        # Takes a list or string, if list, joins the list to a string and
+        #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+        #if isinstance(message,list):
+        #    message = list_to_string(message) 
         temp_array = [message]
         global lookup_output_container
         lookup_output_container = temp_array        
         
-    def user_input_was_wrong(self, type_of_pebkac_failure : str):
+    def user_input_was_wrong(type_of_pebkac_failure : str):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -33,13 +38,13 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         user_is_a_doofus_element_message  = "Stop being a doofus and feed the data on elements that I expect! "
         user_is_a_doofus_specific_message = "Stop being a doofus and feed the data on specifics that I expect!"
         if type_of_pebkac_failure   == "element":
-            self.reply_to_query(user_is_a_doofus_element_message)
+            Element_lookup.reply_to_query(user_is_a_doofus_element_message)
         elif type_of_pebkac_failure == "specifics":
-            self.reply_to_query(user_is_a_doofus_specific_message)
+            Element_lookup.reply_to_query(user_is_a_doofus_specific_message)
         else:
-            self.reply_to_query(type_of_pebkac_failure)
+            Element_lookup.reply_to_query(type_of_pebkac_failure)
 
-    def validate_user_input(self, element_id_user_input: str or int, specifics_requested : str):
+    def validate_user_input(element_id_user_input: str or int, specifics_requested : str):
         """
         checks if the user is requesting an actual element and set of data.
         This is the main function that "does the thing", you add new
@@ -73,7 +78,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             if any(user_input == element_id_user_input.capitalize() for user_input in element_list):
                 element_valid = True
         else:
-            self.user_input_was_wrong("element")
+            Element_lookup.user_input_was_wrong("element")
 
         if isinstance(specifics_requested, str):
             specifics_requested = specifics_requested.lower()
@@ -81,10 +86,10 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             if any(user_input == specifics_requested for user_input in specifics_list):
                 specifics_valid = True
             else:
-                self.user_input_was_wrong("specifics")
+                Element_lookup.user_input_was_wrong("specifics")
 
         else:
-            self.user_input_was_wrong("specifics")
+            Element_lookup.user_input_was_wrong("specifics")
         # you extend this when you add more functions
         # this is the function list
         #it should be refactored... I know... yes its badcode
@@ -92,30 +97,30 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         if element_valid and specifics_valid == True:      
             #global lookup_output_container
             if specifics_requested    == "basic":
-                self.get_basic_element_properties(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_basic_element_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
-                self.get_history(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_history(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
-                self.get_physical_properties(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_physical_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "chemical":
-                self.get_chemical_properties(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_chemical_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "nuclear":
-                self.get_nuclear_properties(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_nuclear_properties(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "ionization":
-                self.get_ionization_energy(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_ionization_energy(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "isotopes":
-                self.get_isotopes(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_isotopes(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "oxistates":
-                self.get_oxistates(element_id_user_input)
-                self.reply_to_query(lookup_output_container)
+                Element_lookup.get_oxistates(element_id_user_input)
+                Element_lookup.reply_to_query(lookup_output_container)
             # input given by user was NOT found in the validation data
             else:
                 print("wtf")
@@ -134,7 +139,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 # This function compares ALL the elements to the one you provide
 # you can extend the functionality by copying the relevant code
 ###############################################################################
-    def compare_element_list(self, element_id_user_input, data_type : str, less_greater: str):
+    def compare_element_list(element_id_user_input, data_type : str, less_greater: str):
         element_data_list = []
         return_element_by_id = lambda element_id_input : mendeleev.element(element_id_input)
         element_to_compare   = return_element_by_id(element_id_user_input)
@@ -159,7 +164,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
                         element_data_list.append(element_object.electronegativity)
 
 ###############################################################################
-    def get_history(self, element_id_user_input):
+    def get_history(element_id_user_input):
         """
         Returns some historical information about the element requested
         takes either a name,atomic number, or symbol
@@ -176,7 +181,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         global lookup_output_container
         lookup_output_container = temp_output_container
 
-    def calculate_hardness_softness(self, element_id_user_input, hard_or_soft, ion_charge):
+    def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
         """
         calculates hardness/softness of an ion
         """
@@ -207,7 +212,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 #        return output_container
 
 ###############################################################################
-    def get_basic_element_properties(self, element_id_user_input):
+    def get_basic_element_properties(element_id_user_input):
         """
         takes either a name,atomic number, or symbol
         """
@@ -224,7 +229,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         print(temp_output_container)
 
 ###############################################################################
-    def get_physical_properties(self, element_id_user_input):
+    def get_physical_properties(element_id_user_input):
         """
         Returns physical properties of the element requested
         """
@@ -241,7 +246,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 
 ###############################################################################
 
-    def get_chemical_properties(self, element_id_user_input):
+    def get_chemical_properties(element_id_user_input):
         """
         Returns Chemical properties of the element requested
         """
@@ -258,7 +263,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 
 ###############################################################################
 
-    def get_nuclear_properties(self, element_id_user_input):
+    def get_nuclear_properties(element_id_user_input):
         """
         Returns Nuclear properties of the element requested
         """
@@ -274,7 +279,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 
 ###############################################################################
     
-    def get_isotopes(self, element_id_user_input):
+    def get_isotopes(element_id_user_input):
         """
         Returns Isotopes of the element requested
         """
@@ -287,7 +292,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 
 ###############################################################################
 
-    def get_ionization_energy(self, element_id_user_input):
+    def get_ionization_energy(element_id_user_input):
         """
         Returns Ionization energies of the element requested
         """
