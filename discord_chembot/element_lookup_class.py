@@ -98,29 +98,22 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             #global lookup_output_container
             if specifics_requested    == "basic":
                 Element_lookup.get_basic_element_properties(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
                 # so now you got the basic structure of the control loop!
             elif specifics_requested  == "historical":
                 Element_lookup.get_history(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "physical":
                 Element_lookup.get_physical_properties(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "chemical":
                 Element_lookup.get_chemical_properties(element_id_user_input)
                 Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "nuclear":
                 Element_lookup.get_nuclear_properties(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "ionization":
                 Element_lookup.get_ionization_energy(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "isotopes":
                 Element_lookup.get_isotopes(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             elif specifics_requested  == "oxistates":
                 Element_lookup.get_oxistates(element_id_user_input)
-                Element_lookup.reply_to_query(lookup_output_container)
             # input given by user was NOT found in the validation data
             else:
                 print("wtf")
@@ -180,6 +173,7 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Discovery Year: " + str(element_object.discovery_year)        + "\n")
         global lookup_output_container
         lookup_output_container = temp_output_container
+        Element_lookup.reply_to_query(lookup_output_container)
 
     def calculate_hardness_softness(element_id_user_input, hard_or_soft, ion_charge):
         """
@@ -225,8 +219,8 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Description: " + element_object.description  + "\n")
         temp_output_container.append("Sources: " + element_object.sources  + "\n")
         global lookup_output_container
-        lookup_output_container = temp_output_container
-        print(temp_output_container)
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)
 
 ###############################################################################
     def get_physical_properties(element_id_user_input):
@@ -241,8 +235,9 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Melting Point:"  + str(element_object.melting_point) + "\n")
         temp_output_container.append("Specific Heat:"  + str(element_object.specific_heat) + "\n")
         temp_output_container.append("Thermal Conductivity:"  + str(element_object.thermal_conductivity) + "\n")
-        #global lookup_output_container
-        lookup_output_container = temp_output_container
+        global lookup_output_container
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)
 
 ###############################################################################
 
@@ -259,7 +254,8 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         #temp_output_container.append("Covalent Radius: "      + str(element_object.covalent_radius)    + "\n")
         #temp_output_container.append("Polarizability: "       + str(element_object.dipole_polarizability)  + "\n")
         global lookup_output_container
-        lookup_output_container = temp_output_container
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)
 
 ###############################################################################
 
@@ -274,8 +270,9 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container.append("Atomic Radius: "  + str(element_object.atomic_radius)  + "\n")
         temp_output_container.append("Atomic Weight: "  + str(element_object.atomic_weight)  + "\n")
         temp_output_container.append("Radioactivity: "  + str(element_object.is_radioactive)  + "\n")
-        #global lookup_output_container
-        lookup_output_container = temp_output_container
+        global lookup_output_container
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)
 
 ###############################################################################
     
@@ -286,10 +283,10 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Isotopes: " + str(element_object.isotopes) + "\n")
-        #await Element_lookup.format_and_print_output(output_container)
-        #global lookup_output_container
-        lookup_output_container = temp_output_container
-
+        global lookup_output_container
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)
+        
 ###############################################################################
 
     def get_ionization_energy(element_id_user_input):
@@ -299,5 +296,6 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
         temp_output_container = []
         element_object = mendeleev.element(element_id_user_input)
         temp_output_container.append("Ionization Energies: " + str(element_object.ionenergies)  + "\n")
-        #global lookup_output_container
-        lookup_output_container = temp_output_container
+        global lookup_output_container
+        lookup_output_container.append(temp_output_container)
+        Element_lookup.reply_to_query(lookup_output_container)

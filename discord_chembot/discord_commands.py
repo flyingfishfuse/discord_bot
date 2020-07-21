@@ -64,10 +64,13 @@ async def bot_usage(ctx):
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
     element_lookup_class.Element_lookup.validate_user_input(arg1, arg2)
+    ##########################################################################
+    # DO STUFF HERE TO create the discord.Embed object
+    ##########################################################################
     #print( list_to_string(lookup_output_container))
     #string_to_send = list_to_string(lookup_output_container)
-    greenprint(lookup_output_container)
-    await ctx.send(lookup_output_container)
+    #greenprint(lookup_output_container[0])
+    await ctx.send(lookup_output_container[0])
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
@@ -81,7 +84,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #string_to_send = list_to_string(lookup_output_container)
     #print(string_to_send)
     #await ctx.send(content="lol", embed=lookup_output_container)
-    await ctx.send(lookup_output_container[0].__repr__)
+    await ctx.send(str(lookup_output_container[0].__repr__))
 
 @lookup_bot.command()
 async def balance_equation(arg1):
@@ -91,7 +94,7 @@ async def balance_equation(arg1):
     ##########################################################################
     # DO STUFF HERE TO create the discord.Embed object
     ##########################################################################
-    greenprint(lookup_output_container)
+    #greenprint(lookup_output_container)
     await ctx.send(content="lol", embed=lookup_output_container[0])
     #await ctx.send(string_to_send)
 
