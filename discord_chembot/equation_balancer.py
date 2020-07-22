@@ -49,7 +49,6 @@ import math, cmath
 import chempy
 from chempy import balance_stoichiometry, mass_fractions
 from variables_for_reality import pi,Vbe
-from pubchem_test import Pubchem_lookup
 #do thnigs with this , this seems nice
 import pyEQL
 
@@ -118,35 +117,32 @@ class EquationBalancer():
                 user_input_reactants = str.split(parsed_equation1, sep =",")
             except Exception:
                 redprint("reactants formatting")
-                Pubchem_lookup.user_input_was_wrong("formula_reactants", user_input_reactants)                
+                EquationBalancer.user_input_was_wrong("formula_reactants", user_input_reactants)                
             try:
                 #validate products formatting
                 user_input_products  = str.split(parsed_equation2, sep =",")
             except Exception:
                 redprint("products formatting")
-                Pubchem_lookup.user_input_was_wrong("formula_products", user_input_products)  
+                EquationBalancer.user_input_was_wrong("formula_products", user_input_products)  
                 #validate reactants contents
             for each in user_input_reactants:
                 try:
                     chempy.Substance(each)
                 except Exception:
                     redprint("reactants contents")
-                    Pubchem_lookup.user_input_was_wrong("formula_reactants", each)  
+                    EquationBalancer.user_input_was_wrong("formula_reactants", each)  
                 #validate products contents
             for each in user_input_products:
                 try:
                     chempy.Substance(each)
                 except Exception:
                     redprint("products contents")
-                    Pubchem_lookup.user_input_was_wrong("formula_products", each)
+                    EquationBalancer.user_input_was_wrong("formula_products", each)
         # if the inputs passed all the checks
-        # RETURN THE REACTANTS AND THE PRODUCTS AS A LIST
-        # [ [reactants] , [products] ]
-            #return [user_input_reactants, user_input_products]
             EquationBalancer.balance_simple_equation(user_input_reactants, user_input_products)
         except Exception:
             redprint("formula validation exception")
-            Pubchem_lookup.user_input_was_wrong("formula_general", equation_user_input)
+            EquationBalancer.user_input_was_wrong("formula_general", equation_user_input)
 
 
     def balance_simple_equation(reactants, products):
@@ -167,3 +163,19 @@ class EquationBalancer():
         temp_array = [message]
         global lookup_output_container
         lookup_output_container.append(temp_array)
+
+    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = ""):
+        """
+        You can put something funny here!
+            This is something the creator of the bot needs to modify to suit
+            Thier community.
+        """
+        user_is_a_doofus_formula_message    = "Stop being a doofus and feed me a good formula!"
+        user_is_a_doofus_form_react_message = "the following input was invalid: " + bad_string 
+        user_is_a_doofus_form_prod_message  = "the following input was invalid: " + bad_string
+        if type_of_pebkac_failure == "formula":
+            EquationBalancer.reply_to_query(user_is_a_doofus_formula_message)
+        elif type_of_pebkac_failure == "formula_reactants":
+            EquationBalancer.reply_to_query(user_is_a_doofus_form_react_message)
+        elif type_of_pebkac_failure == "formula_products":
+            EquationBalancer.reply_to_query(user_is_a_doofus_form_prod_message)
