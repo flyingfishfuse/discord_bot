@@ -48,7 +48,7 @@ async def pubchem_lookup_usage(ctx):
 
 @lookup_bot.command()
 async def balancer_usage(ctx):
-    await ctx.send(Pubchem_lookup.balancer_help_message())
+    await ctx.send(EquationBalancer.balancer_help_message())
 
 @lookup_bot.command()
 async def bot_usage(ctx):
@@ -87,7 +87,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     await ctx.send(str(lookup_output_container[0].__repr__))
 
 @lookup_bot.command()
-async def balance_equation(arg1):
+async def balance_equation(ctx, arg1):
     # this does the thing and places the output in lookup_output_container
     EquationBalancer.validate_formula_input(arg1)
     #string_to_send = list_to_string(lookup_output_container)
@@ -95,7 +95,7 @@ async def balance_equation(arg1):
     # DO STUFF HERE TO create the discord.Embed object
     ##########################################################################
     #greenprint(lookup_output_container)
-    await ctx.send(content="lol", embed=lookup_output_container[0])
+    await ctx.send(lookup_output_container)
     #await ctx.send(string_to_send)
 
 

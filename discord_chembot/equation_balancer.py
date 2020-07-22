@@ -85,6 +85,13 @@ class EquationBalancer():
     def _init_(self):
         print("asdf wat")
 
+    def balancer_help_message():
+        return " Reactants and Products are Comma Seperated Values using"+\
+        "symbolic names for elements e.g. \n "        +\
+        " user input will be valid only in the form of:" +\
+        "NH4ClO4,Al=>Al2O3,HCl,H2O,N2" + \
+        " Note the lack of spaces"
+
     def validate_formula_input(equation_user_input : str):
         """
         :param formula_input: comma seperated values of element symbols
@@ -159,4 +166,4 @@ class EquationBalancer():
         #    message = list_to_string(message) 
         temp_array = [message]
         global lookup_output_container
-        lookup_output_container = temp_array
+        lookup_output_container.append(temp_array)

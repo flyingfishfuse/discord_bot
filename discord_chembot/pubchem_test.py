@@ -16,19 +16,13 @@ Also does chempy translation to feed data to the calculation engine
         self.type_of_input  = type_of_input
         self.validate_user_input(self.user_input , self.type_of_input)
 
-    def balancer_help_message():
-        return " Reactants and Products are Comma Seperated Values using"+\
-        "symbolic names for elements e.g. \n "        +\
-        " user input will be valid only in the form of:" +\
-        "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
-
     def help_message():
         return """
 input CID/CAS or IUPAC name or synonym
-Provide a search term and "term type", term types are "cas" , "name" , "cid"
-Example 1 : .pubchemlookup methanol name
-Example 2 : .pubchemlookup 3520 cid
-Example 3 : .pubchemlookup 113-00-8 cas
+Provide a search term and "term type", term types are "cas" , "iupac_name" , "cid"
+Example 1 : .pubchem_lookup methanol iupac_name
+Example 2 : .pubchem_lookup 3520 cid
+Example 3 : .pubchem_lookup 113-00-8 cas
 """
 ###############################################################################
     def reply_to_query(message_object):
