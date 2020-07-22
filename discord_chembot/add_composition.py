@@ -38,7 +38,7 @@
 #from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import lookup_input_container, lookup_output_container
 from database_setup import Database_functions,Compound,Composition,TESTING
-
+from equation_balancer import EquationBalancer
 ####################################################################################
 # module imports for functionality, this can include local library functions
 ###################################################################################
@@ -48,8 +48,33 @@ import chempy
 from chempy import balance_stoichiometry, mass_fractions
 
 
+#we dont have to do class methods and it makes it easier not to in this 
+#particular instance, notice the standalone versions have "self" instead
+class AddComposition():
+    '''
+Adds a composition to database from user input.
+Performs pubchem queries on each of the compounds in the compositions
+and adds database entries for each. while also calculating the products
+of reaction and storing the result of that.
+    '''
+    def __init__(self):
+        #super().__init__()
+        print("nope")
+    
+    #every module gets a help message
+    def help_message():
+        return """ asdf help message goes here"""
 
-# This is a tutorial on how to make a module
-
-
-#These are the basic imports
+    #every module has a validation function for the user input
+    def validate_user_input(comp_name,units,formula,info):
+        #validate each input term to make sure it conforms to spec
+        if isinstance(comp_name, str):
+            #do thing
+            pass
+        
+        Database_functions.composition_to_database(composition_name,\
+                                                   units_used      ,\
+                                                   formula_list    ,\
+                                                   informational_paragraph)
+        pass
+    
