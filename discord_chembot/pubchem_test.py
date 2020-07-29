@@ -2,8 +2,19 @@ from variables_for_reality import function_message
 from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import lookup_input_container, lookup_output_container
 from database_setup import Database_functions,Compound,Composition,TESTING
-import pubchempy as pubchem
+import hacked_pubchempy as pubchem
 import re
+import lxml
+import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common import keys
+from selenium.webdriver.chrome.options import Options
+
+import platform
+OS_NAME = platform.system()
+
+#just the usual linter errors
 
 ###############################################################################
 class Pubchem_lookup():
@@ -252,7 +263,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
         return local_query
-        # OR return the remote lookup entry, either way, the information was stored.
+        # OR return the remote lookup entry, either way, the information was stored
+        # and you get a common "api" to draw data from.
 
 #testing stuff
 if TESTING == True:

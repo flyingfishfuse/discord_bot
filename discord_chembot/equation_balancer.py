@@ -81,7 +81,7 @@ Formula Rules:
 '''
 
 class EquationBalancer():
-    def _init_(self):
+    def __init__(self):
         print("asdf wat")
 
     def balancer_help_message():
@@ -97,12 +97,12 @@ class EquationBalancer():
         :type formula_input: str     
     makes sure the formula supplied to the code is valid
     user input will be valid only in the form of:
-    eq = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
-    note the two spaces
+    eq = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
+    note the lack of spaces
         """
         #user_input_reactants = "NH4ClO4,Al"
         #user_input_products  = "Al2O3,HCl,H2O,N2"
-        #equation_user_input  = "NH4ClO4,Al => Al2O3,HCl,H2O,N2"
+        #equation_user_input  = "NH4ClO4,Al=>Al2O3,HCl,H2O,N2"
         
 
         # if it doesn't work, lets see why!

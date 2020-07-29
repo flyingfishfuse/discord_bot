@@ -205,7 +205,7 @@ def pubchem_route():
 ##############                     FUNCTIONS                   #################
 ################################################################################
 class Database_functions():
-    def _init_(self):
+    def __init__(self):
         self.TESTING = False
      
     def Compound_by_id(cid_of_compound : str):

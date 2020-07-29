@@ -84,7 +84,18 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #string_to_send = list_to_string(lookup_output_container)
     #print(string_to_send)
     #await ctx.send(content="lol", embed=lookup_output_container)
-    await ctx.send(str(lookup_output_container[0].__repr__))
+    #await ctx.send(str(lookup_output_container[0].__repr__))
+    #lookup_output_container[0].cid
+    #lookup_output_container[0].cas
+    #lookup_output_container[0].isomeric_smiles
+    #lookup_output_container[0].molecular_formula
+    #lookup_output_container[0].molecular_weight
+    #lookup_output_container[0].charge
+    #lookup_output_container[0].iupac_name
+    embed = discord.Embed(
+        lookup_output_container[0].
+    )
+    await ctx.send(str(lookup_output_container[0]))
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
