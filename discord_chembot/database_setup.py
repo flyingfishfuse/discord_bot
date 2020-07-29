@@ -123,6 +123,7 @@ class Compound(database.Model):
     formula             = database.Column(database.String(120))
     molweight           = database.Column(database.String(32))
     charge              = database.Column(database.String(32))
+    description         = database.Column(database.Text)
 
     def __repr__(self):
         return 'IUPAC name         : {} \n \
@@ -130,9 +131,10 @@ CAS                : {} \n \
 Formula            : {} \n \
 Molecular Weight   : {} \n \
 Charge             : {} \n \
-CID                : {} \n '.format( \
+CID                : {} \n \
+Description:       : {} \n '.format( \
      self.iupac_name, self.cas , self.formula, self.molweight, \
-    self.charge, self.cid)
+    self.charge, self.cid, self.description)
 
 
 class Composition(database.Model):

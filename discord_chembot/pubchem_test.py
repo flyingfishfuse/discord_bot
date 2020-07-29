@@ -74,21 +74,30 @@ class pubchemREST_Description_Request():
     To return a Substance type
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name' , ):
+        # it doesnt work the other way elsewhere in the script, I dont know why
+        # to avoid that issue im just using it for everything
         fuck_this = lambda fuck: fuck in pubchem_search_types 
         if fuck_this(input_type) :#in pubchem_search_types:
             if TESTING == True:
                 greenprint("user supplied a : " + input_type)
-            if input_type   == "iupac_name":
-                thing_type  = "name"
+            if input_type  == "iupac_name":
+                thing_type = "name"
             else :
                 thing_type = input_type
         #finalized URL        
-        self.request_url = API_BASE + "compound/" + thing_type + "/" + record_to_request + "/description/XML"
-        #make some soup
+        self.request_url        = API_BASE + "compound/" + thing_type + "/" +\
+                                  record_to_request + "/description/XML"
+        #make the request
         self.request_return     = requests.get(self.request_url)
+        #make some soup
         self.soupyresults       = BeautifulSoup(self.request_return.content , 'lxml')
-        self.divs               = self.soupyresults.find(lambda tag:  tag.name =='div' \
-                                  and tag.has_key('class') and tag['class'] == self.container_name)
+        #serve up the Descriptions
+        self.descriptions       = self.soupyresults.find_all("Description")
+        if self.descriptions not None:
+            return self.descriptions
+        else:
+            return "No Description Available in XML REST response"
+            #lambda tag:  tag.name =='Description' and tag.has_key('class') and tag['class'] == self.container_name)
 
 ###############################################################################
 class Pubchem_lookup():
