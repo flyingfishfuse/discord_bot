@@ -1,20 +1,94 @@
-from variables_for_reality import function_message
-from variables_for_reality import greenprint,redprint,blueprint
-from variables_for_reality import lookup_input_container, lookup_output_container
-from database_setup import Database_functions,Compound,Composition,TESTING
-import hacked_pubchempy as pubchem
+# -*- coding: utf-8 -*-
+################################################################################
+## Chemical element resource database from wikipedia/mendeleev python library ##
+##                             for discord bot                                ##
+################################################################################
+# Copyright (c) 2020 Adam Galindo                                             ##
+#                                                                             ##
+# Permission is hereby granted, free of charge, to any person obtaining a copy##
+# of this software and associated documentation files (the "Software"),to deal##
+# in the Software without restriction, including without limitation the rights##
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   ##
+# copies of the Software, and to permit persons to whom the Software is       ##
+# furnished to do so, subject to the following conditions:                    ##
+#                                                                             ##
+# Licenced under GPLv3                                                        ##
+# https://www.gnu.org/licenses/gpl-3.0.en.html                                ##
+#                                                                             ##
+# The above copyright notice and this permission notice shall be included in  ##
+# all copies or substantial portions of the Software.                         ##
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+####
+################################################################################
+##    Search by element number, symbol,
+##    list resources available
+##    TODO: show basic info if no specificity in query
+# created by : mr_hai on discord / flyingfishfuse on github
+## Test/Personal Server : https://discord.gg/95V7Mn
+
+"""
+PubChemPy caching wrapper
+
+Caching extension to the Python interface for the PubChem PUG REST service.
+https://github.com/mcs07/PubChemPy
+"""
+#do a search for if TESTING == True 
+# to find the testing blocks
 import re
 import lxml
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common import keys
-from selenium.webdriver.chrome.options import Options
+import hacked_pubchempy as pubchem
+from variables_for_reality import pubchem_search_types
+from variables_for_reality import function_message, API_BASE
+from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import lookup_input_container, lookup_output_container
+from database_setup import Database_functions,Compound,Composition,TESTING
+
+
+__author__ = 'Adam Galindo'
+__email__ = 'null@null.com'
+__version__ = '1'
+__license__ = 'GPLv3'
 
 import platform
 OS_NAME = platform.system()
 
 #just the usual linter errors
+###############################################################################
+# Additional REST request required, regrettably, return 
+# values lack the description field
+class pubchemREST_Description_Request():
+    # hey it rhymes
+    '''
+    This class is to be used only with validated information
+    Returns the description field using the XML return from the REST service
+    Does Compounds ONLY!, Needs a second clas or modifications to this one 
+    To return a Substance type
+    '''
+    def __init__(self, record_to_request: str ,input_type = 'iupac_name' , ):
+        fuck_this = lambda fuck: fuck in pubchem_search_types 
+        if fuck_this(input_type) :#in pubchem_search_types:
+            if TESTING == True:
+                greenprint("user supplied a : " + input_type)
+            if input_type   == "iupac_name":
+                thing_type  = "name"
+            else :
+                thing_type = input_type
+        #finalized URL        
+        self.request_url = API_BASE + "compound/" + thing_type + "/" + record_to_request + "/description/XML"
+        #make some soup
+        self.request_return     = requests.get(self.request_url)
+        self.soupyresults       = BeautifulSoup(self.request_return.content , 'lxml')
+        self.divs               = self.soupyresults.find(lambda tag:  tag.name =='div' \
+                                  and tag.has_key('class') and tag['class'] == self.container_name)
 
 ###############################################################################
 class Pubchem_lookup():
