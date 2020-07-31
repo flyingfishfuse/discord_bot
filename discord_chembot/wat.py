@@ -1,34 +1,49 @@
 import lxml
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common import keys
-from selenium.webdriver.chrome.options import Options
-
-import platform
-OS_NAME = platform.system()
-
-class SoupyWebGetter():
+from variables_for_reality import TESTING
+from variables_for_reality import API_BASE_URL, pubchem_search_types
+from variables_for_reality import greenprint, redprint, blueprint
+#just the usual linter errors
+###############################################################################
+# Additional REST request required, regrettably, return 
+# values lack the description field
+class pubchemREST_Description_Request():
+    # hey it rhymes
     '''
-    Grabs shit from http with bs4/selenium and requests using lxml parser
+    This class is to be used only with validated information
+    Returns the description field using the XML return from the REST service
+    Does Compounds ONLY!, Needs a second clas or modifications to this one 
+    To return a Substance type
     '''
-    def __init__(self, validated_user_input, container_name = "section_content_id"):
-        self.nix_browser_binary_location	     = './bin/chrome_selenium'
-        self.win_browser_binary_location    	 = './chromium-browser'
-        self.useragent                           = {'User-Agent' : 'Mozilla/5.0 \
-            (X11; Linux x86_64; rv:28.0) Gecko/20100101  Firefox/28.0'}
-        self.search_url         = "https://pubchem.ncbi.nlm.nih.gov/compound/" +\
-            validated_user_input
-        self.container_name     = container_name
-        self.request_return     = requests.get(self.search_url)
+    def __init__(self, record_to_request: str ,input_type = 'iupac_name' ):
+        # it doesnt work the other way elsewhere in the script, I dont know why
+        # to avoid that issue im just using it for everything
+        fuck_this = lambda fuck: fuck in pubchem_search_types 
+        if fuck_this(input_type) :#in pubchem_search_types:
+            if TESTING == True:
+                greenprint("searching for a Description : " + input_type)
+            if input_type  == "iupac_name":
+                self.thing_type = "name"
+            else :
+                self.thing_type = input_type
+        self.record_to_request  = record_to_request
+        #do the thing
+        self.do_the_thing()
+
+    def do_the_thing(self):
+        #finalized URL        
+        self.request_url        = API_BASE_URL + "compound/" + self.thing_type + "/" +\
+                                  self.record_to_request + "/description/XML"
+        #make the request
+        self.request_return     = requests.get(self.request_url)
+        #make some soup
         self.soupyresults       = BeautifulSoup(self.request_return.content , 'lxml')
-        self.divs               = self.soupyresults.find(lambda tag:  tag.name =='div' \
-                                  and tag.has_key('class') and tag['class'] == self.container_name)
-
-        def selenium_open_browser(url_to_open:str):
-            chromeoptions = Options()
-            chromeoptions.binary_location = win_browser_binary_location
-            headless_browser = webdriver.Chrome(chrome_options=chromeoptions)
-            headless_browser.get(wiki_location))
-
-SoupyDescriptionGetter("2519")
+        #serve up the Descriptions
+        self.descriptions       = self.soupyresults.find_all("Description")
+        if self.descriptions != None:
+            return self.descriptions
+            greenprint(self.descriptions)
+        else:
+            return "No Description Available in XML REST response"
+            #lambda tag:  tag.name =='Description' and tag.has_key('class') and tag['class'] == self.container_name)

@@ -37,6 +37,8 @@
 PubChemPy caching wrapper
 
 Caching extension to the Python interface for the PubChem PUG REST service.
+
+Does not require pubchempy be installed, I integrated it without personalization
 https://github.com/mcs07/PubChemPy
 """
 #do a search for if TESTING == True 
@@ -46,8 +48,12 @@ import lxml
 import requests
 from bs4 import BeautifulSoup
 import hacked_pubchempy as pubchem
+
+from variables_for_reality import TESTING
+
+from wat import pubchemREST_Description_Request
 from variables_for_reality import pubchem_search_types
-from variables_for_reality import function_message, API_BASE
+from variables_for_reality import function_message, API_BASE_URL
 from variables_for_reality import greenprint,redprint,blueprint
 from variables_for_reality import lookup_input_container, lookup_output_container
 from database_setup import Database_functions,Compound,Composition,TESTING
@@ -61,54 +67,23 @@ __license__ = 'GPLv3'
 import platform
 OS_NAME = platform.system()
 
-#just the usual linter errors
-###############################################################################
-# Additional REST request required, regrettably, return 
-# values lack the description field
-class pubchemREST_Description_Request():
-    # hey it rhymes
-    '''
-    This class is to be used only with validated information
-    Returns the description field using the XML return from the REST service
-    Does Compounds ONLY!, Needs a second clas or modifications to this one 
-    To return a Substance type
-    '''
-    def __init__(self, record_to_request: str ,input_type = 'iupac_name' , ):
-        # it doesnt work the other way elsewhere in the script, I dont know why
-        # to avoid that issue im just using it for everything
-        fuck_this = lambda fuck: fuck in pubchem_search_types 
-        if fuck_this(input_type) :#in pubchem_search_types:
-            if TESTING == True:
-                greenprint("user supplied a : " + input_type)
-            if input_type  == "iupac_name":
-                thing_type = "name"
-            else :
-                thing_type = input_type
-        #finalized URL        
-        self.request_url        = API_BASE + "compound/" + thing_type + "/" +\
-                                  record_to_request + "/description/XML"
-        #make the request
-        self.request_return     = requests.get(self.request_url)
-        #make some soup
-        self.soupyresults       = BeautifulSoup(self.request_return.content , 'lxml')
-        #serve up the Descriptions
-        self.descriptions       = self.soupyresults.find_all("Description")
-        if self.descriptions not None:
-            return self.descriptions
-        else:
-            return "No Description Available in XML REST response"
-            #lambda tag:  tag.name =='Description' and tag.has_key('class') and tag['class'] == self.container_name)
-
 ###############################################################################
 class Pubchem_lookup():
     '''
 Class to perform lookups on CID's and IUPAC names
 Also does chempy translation to feed data to the calculation engine
+
+NOTE: to grab a description requires a seperate REST request.
+    Therefore, you must specify if the bot collects that information
+
+    SUBNOTE: TURNED ON BY DEFAULT because reasons
     '''
-    def __init__(self, user_input, type_of_input):
-        self.user_input     = user_input
-        self.type_of_input  = type_of_input
+    def __init__(self, user_input, type_of_input, description = True):
+        self.user_input       = user_input
+        self.type_of_input    = type_of_input
+        self.grab_description = description
         self.validate_user_input(self.user_input , self.type_of_input)
+
 
     def help_message():
         return """
@@ -268,6 +243,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         I'll look at it
         TODO: SEARCH LOCAL BY CAS!!!!
         '''
+        from variables_for_reality import GRAB_DESCRIPTION
         #make a thing
         return_relationships = []
         # you get multiple records returned from a pubchem search VERY often
@@ -280,6 +256,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
+                    if GRAB_DESCRIPTION == True:
+                        greenprint("[+] Grabbing Description")
+                        pubchemREST_Description_Request(compound_id, "iupac_name")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
                     Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -287,6 +266,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.Compound.from_cid(compound_id)
+                    pubchemREST_Description_Request(compound_id, "cid")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
                     Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -302,7 +282,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'formula'    : each.molecular_formula   ,\
                             'molweight'  : each.molecular_weight    ,\
                             'charge'     : each.charge              ,\
-                            'iupac_name' : each.iupac_name          }]
+                            'iupac_name' : each.iupac_name          ,\
+                            'description' : each.description          }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -326,7 +307,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'formula'    : lookup_results.molecular_formula   ,\
                             'molweight'  : lookup_results.molecular_weight    ,\
                             'charge'     : lookup_results.charge              ,\
-                            'iupac_name' : lookup_results.iupac_name          }]
+                            'iupac_name' : lookup_results.iupac_name          ,\
+                            'description' : each.description                  }]
+
                 return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 blueprint(str(return_relationships[return_index]))

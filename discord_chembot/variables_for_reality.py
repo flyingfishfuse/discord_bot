@@ -51,9 +51,27 @@ from colorama import Fore, Back, Style
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
+# Filter None values from kwargs
+#kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
+
+################################################################################
+## TESTING VARS
+################################################################################
+
+TESTING = True
+#TESTING = False
+#The sqlite :memory: identifier is the default if no filepath is present. 
+# Specify sqlite:// and nothing else:
+#e = create_engine('sqlite://')
+TEST_DB = 'sqlite://'
+
+################################################################################
+################################################################################
+
 COMMAND_PREFIX = "."
 devs = ['581952454124372068']
 list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+GRAB_DESCRIPTION = True
 
 # GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
 global lookup_output_container 
@@ -65,12 +83,12 @@ lookup_input_container = []
 
 # pubchem REST API service
 pubchem_search_types = ["iupac_name", "cid", "cas"]
-API_BASE             = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
+API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
 
 def function_message(exception_message : str,  location:str, color_to_print="red"):
     """
     A Robust exception message passing class? that uses colorama and inspect
-    Takes red, green, blue as color arguments. WORK IN PROGERESS!
+    Takes red, green as color arguments. WORK IN PROGERESS!
     """
     if color_to_print == "red":
         # gets name of object calling this function, the previous frame calling this object
@@ -80,14 +98,10 @@ def function_message(exception_message : str,  location:str, color_to_print="red
         #f_code code object being executed in this frame
         #inspect.currentframe().f_back.__base__
         redprint("something wierd happened in: "  + location)
-        blueprint("\n" + exception_message)
     elif color_to_print == "green":
         greenprint("something wierd happened in: " + location)
-        blueprint("\n" + exception_message)
     elif color_to_print == "blue":
         blueprint("something wierd happened in: " + location)
-        blueprint("\n" + exception_message)
-    blueprint("\n" + exception_message)
 
 # find these and change names to be same
 COMMAND_PREFIX = "."

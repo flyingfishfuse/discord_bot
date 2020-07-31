@@ -41,18 +41,8 @@ from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
 #    greenprint,redprint,blueprint,function_message
+from variables_for_reality import TESTING, TEST_DB
 from variables_for_reality import greenprint,redprint,blueprint,function_message
-import inspect
-###############################################################################
-###############################################################################
-## TESTING VARS
-#TESTING = True
-TESTING = False
-#The sqlite :memory: identifier is the default if no filepath is present. 
-# Specify sqlite:// and nothing else:
-#e = create_engine('sqlite://')
-TEST_DB = 'sqlite://'
-###############################################################################
 
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
