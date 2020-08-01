@@ -75,14 +75,15 @@ class pubchemREST_Description_Request():
         redprint(self.request_url)
         #make the request
         self.request_return     = requests.get(self.request_url)
-        print(self.request_return)
         #make some soup
-        self.soupyresults       = BeautifulSoup(self.request_return.content , 'lxml')
+        #hol up... I don't understand why I have to do this twice? I'm doing this right? Right?
+        self.soupyresults       = BeautifulSoup(self.request_return.text , features='lxml').contents[1]
         #serve up the Descriptions
-        self.descriptions       = self.soupyresults.find_all("Description")
-        if self.descriptions != None:
-            return self.descriptions
-            greenprint(self.descriptions)
+        #self.descriptions1       = BeautifulSoup(self.soupyresults.contents[1].text , features='lxml') 
+        self.descriptions2       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
+        if self.descriptions2 != []:
+            print(self.descriptions2)
+            return self.descriptions2
         else:
             return "No Description Available in XML REST response"
             #lambda tag:  tag.name =='Description' and tag.has_key('class') and tag['class'] == self.container_name)
