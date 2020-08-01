@@ -38,7 +38,6 @@ PubChemPy caching wrapper
 
 Caching extension to the Python interface for the PubChem PUG REST service.
 
-Does not require pubchempy be installed, I integrated it without personalization
 https://github.com/mcs07/PubChemPy
 """
 
@@ -58,6 +57,7 @@ import csv
 import lxml
 import requests
 from bs4 import BeautifulSoup
+import pubchempy
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
@@ -509,7 +509,7 @@ Example 2 : .pubchem_lookup 3520 cid
 Example 3 : .pubchem_lookup 113-00-8 cas
 """
 ###############################################################################
-    def reply_to_query(message_object):
+    def reply_to_query(self , message_object):
         '''    
         Just accepts an object of your choice, then you import the 
         lookup_output_container to your main file and work in that file
@@ -544,7 +544,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         #    function_message("asdf", "blue")
 ###############################################################################
 
-    def user_input_was_wrong(type_of_pebkac_failure : str, bad_string = ""):
+    def user_input_was_wrong(self , type_of_pebkac_failure : str, bad_string = ""):
         """
         You can put something funny here!
             This is something the creator of the bot needs to modify to suit
@@ -557,20 +557,20 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         user_is_a_doofus_form_prod_message  = "the following input was invalid: " + bad_string
         #user_is_a_doofus_form_gen_message  = "the following input was invalid: " + bad_string
         if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_CID_message)
+            self.reply_to_query(user_is_a_doofus_CID_message)
         elif type_of_pebkac_failure == "specifics":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_formula_message)
+            self.reply_to_query(user_is_a_doofus_formula_message)
         elif type_of_pebkac_failure == "formula_reactants":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_react_message)
+            self.reply_to_query(user_is_a_doofus_form_react_message)
         elif type_of_pebkac_failure == "formula_products":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_form_prod_message)
+            self.reply_to_query(user_is_a_doofus_form_prod_message)
         elif type_of_pebkac_failure == "user_input_identification":
-            Pubchem_lookup.reply_to_query(user_is_a_doofus_input_id_message)
+            self.reply_to_query(user_is_a_doofus_input_id_message)
         else:
             #change this to sonething reasonable
-            Pubchem_lookup.reply_to_query(type_of_pebkac_failure)
+            self.reply_to_query(type_of_pebkac_failure)
 
-    def lookup_failure(type_of_failure: str):
+    def lookup_failure(self , type_of_failure: str):
         """
         does what it says on the label, called when a lookup is failed
         """
@@ -584,7 +584,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             lookup_output_container = ["chempy failure"]
         pass
 
-    def validate_user_input(user_input: str, type_of_input:str):
+    def validate_user_input(self, user_input: str, type_of_input:str):
         """
     User Input is expected to be the proper identifier.
         type of input is one of the following:
@@ -611,14 +611,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             # if internal lookup is false, we do a remote lookup and then store the result
                             if internal_lookup == None or False:
                                 redprint("[-] Internal Lookup returned false")
-                                lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                                Pubchem_lookup.reply_to_query(lookup_object)
+                                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                                self.reply_to_query(lookup_object)
                             # we return the internal lookup if the entry is already in the DB
                             # for some reason, asking if it's true doesn't work here
                             # so we use a NOT instead of an Equals.
                             elif internal_lookup != None or False:
                                 greenprint("[+] Internal Lookup returned TRUE")
-                                Pubchem_lookup.reply_to_query(internal_lookup)
+                                self.reply_to_query(internal_lookup)
                         else:
                             function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
                     except Exception:
@@ -628,11 +628,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                         internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
                         if internal_lookup == None or False:
                             redprint("[-] Internal Lookup returned false")
-                            lookup_object = Pubchem_lookup.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                            Pubchem_lookup.reply_to_query(lookup_object)
+                            lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                            self.reply_to_query(lookup_object)
                         elif internal_lookup != None or False:
                             greenprint("[+] Internal Lookup returned TRUE")
-                            Pubchem_lookup.reply_to_query(internal_lookup)
+                            self.reply_to_query(internal_lookup)
                         else:
                             function_message("[-] Something is wrong with the database", "red")
                     except Exception:
@@ -641,9 +641,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 function_message("reached the exception : input_type was wrong somehow" , "red")
 
         else:
-            Pubchem_lookup.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)  
+            self.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)  
 
-    def pubchem_lookup_by_name_or_CID(compound_id, type_of_data:str):
+    def pubchem_lookup_by_name_or_CID(self , compound_id, type_of_data:str):
         '''
         Provide a search term and record type
         requests can be CAS,CID,IUPAC NAME/SYNONYM
@@ -667,24 +667,27 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         return_index = 0
         data = ["iupac_name","cid","cas"]
         if type_of_data in data:
+        #different methods are used depending on the type of input
+        #one way
             if type_of_data == ("iupac_name" or "cas"):                     
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
                     if GRAB_DESCRIPTION == True:
                         greenprint("[+] Grabbing Description")
-                        pubchemREST_Description_Request(compound_id, "iupac_name")
+                        lookup_description = pubchemREST_Description_Request(compound_id, "iupac_name")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
-                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                    self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+        # CID requires another way
             elif type_of_data == "cid":
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.Compound.from_cid(compound_id)
-                    pubchemREST_Description_Request(compound_id, "cid")
+                    lookup_description = pubchemREST_Description_Request(compound_id, "cid")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
-                    Pubchem_lookup.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
+                    self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
                 #once we have the lookup results, do something
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
@@ -698,7 +701,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'molweight'  : each.molecular_weight    ,\
                             'charge'     : each.charge              ,\
                             'iupac_name' : each.iupac_name          ,\
-                            'description' : each.description          }]
+                            'description' : lookup_description        }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -723,7 +726,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'molweight'  : lookup_results.molecular_weight    ,\
                             'charge'     : lookup_results.charge              ,\
                             'iupac_name' : lookup_results.iupac_name          ,\
-                            'description' : each.description                  }]
+                            'description' : lookup_description                  }]
 
                 return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
@@ -749,23 +752,22 @@ Example 3 : .pubchem_lookup 113-00-8 cas
 
 
 if TESTING == True:
+    import time
     #craft a list of queries to test with
-    test_query_list = [["420","cid"]                           ,\
-        ["methanol","iupac_name"]                              ,\
-        ["phenol","iupac_name"]                                ,\ 
-        ["methylene chloride","iupac_name"]                    ,\
-        # bisphenol-a
-        ["6623","cid"]                                         ,\
-        # phosphorus 
-        ["5462309","cid"]                                      ,\
-        #ozone
-        ["24823","cid"]                                        ,\
-        ["water","iupac_name"]                                  ]
+    test_query_list = [["420","cid"],\
+            ["methanol","iupac_name"],\
+             ["phenol","iupac_name"],\
+              ["methylene chloride","iupac_name"] ,\
+               ["6623","cid"],\
+                ["5462309","cid"],\
+                 ["24823","cid"],\
+                  ["water","iupac_name"]]
     ###################################################################
     # First we do some lookups to pull data and populate the database]
     #add more tests
     ###################################################################
     for each in test_query_list:
+        time.sleep(5)
         Pubchem_lookup(each[0],each[1])
     ###################################################################
     # then we test the "is it stored locally?" function
