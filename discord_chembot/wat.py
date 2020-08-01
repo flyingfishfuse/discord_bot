@@ -1,3 +1,4 @@
+import re
 import lxml
 import requests
 from bs4 import BeautifulSoup
@@ -49,8 +50,14 @@ class pubchemREST_Description_Request():
     '''
     This class is to be used only with validated information
     Returns the description field using the XML return from the REST service
-    Does Compounds ONLY!, Needs a second clas or modifications to this one 
+    Does Compounds ONLY!, Needs a second class or modifications to this one 
     To return a Substance type
+
+    results are stored in :
+        pubchemREST_Description_Request.parsed_results
+
+    the url of the API call is stored in :
+        pubchemREST_Description_Request.request_url
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name' ):
         # it doesnt work the other way elsewhere in the script, I dont know why
@@ -76,14 +83,17 @@ class pubchemREST_Description_Request():
         #make the request
         self.request_return     = requests.get(self.request_url)
         #make some soup
-        #hol up... I don't understand why I have to do this twice? I'm doing this right? Right?
         self.soupyresults       = BeautifulSoup(self.request_return.text , features='lxml').contents[1]
         #serve up the Descriptions
-        #self.descriptions1       = BeautifulSoup(self.soupyresults.contents[1].text , features='lxml') 
-        self.descriptions2       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
-        if self.descriptions2 != []:
-            print(self.descriptions2)
-            return self.descriptions2
+        self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
+        #if it's not empty
+        if self.parsed_result != []:
+            if TESTING == True:
+                print(str(self.parsed_result[0].contents[0]))
+                return str(self.parsed_result[0].contents[0])
+            else:
+                return str(self.parsed_result[0].contents[0])
+        #if it is empty
         else:
             return "No Description Available in XML REST response"
             #lambda tag:  tag.name =='Description' and tag.has_key('class') and tag['class'] == self.container_name)
