@@ -56,8 +56,9 @@ import re
 import csv
 import lxml
 import requests
+from requests.utils import requote_uri
 from bs4 import BeautifulSoup
-import pubchempy
+import pubchempy as pubchem
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
@@ -456,10 +457,7 @@ class pubchemREST_Description_Request():
             else :
                 self.thing_type = input_type
         self.record_to_request  = record_to_request
-        #do the thing
-        self.do_the_thing()
 
-    def do_the_thing(self):
         #finalized URL        
         self.request_url        = requote_uri("{}/compound/{}/{}/description/XML".format(\
                                     API_BASE_URL,self.thing_type,self.record_to_request))
@@ -472,15 +470,13 @@ class pubchemREST_Description_Request():
         #serve up the Descriptions
         self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
         #if it's not empty
-        if self.parsed_result != []:
-            if TESTING == True:
-                print(str(self.parsed_result[0].contents[0]))
-                return str(self.parsed_result[0].contents[0])
-            else:
-                return str(self.parsed_result[0].contents[0])
+        if self.parsed_result != [] :
+            print(str(self.parsed_result[0].contents[0]))
+            self.parsed_result = str(self.parsed_result[0].contents[0])
         #if it is empty
-        else:
-            return "No Description Available in XML REST response"
+        elif self.parsed_result == NoneType:
+            print("No Description Available in XML REST response")
+            self.parsed_result = "No Description Available in XML REST response"
 
 ###############################################################################
 class Pubchem_lookup():
@@ -611,8 +607,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             # if internal lookup is false, we do a remote lookup and then store the result
                             if internal_lookup == None or False:
                                 redprint("[-] Internal Lookup returned false")
-                                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                                self.lookup_description = description_lookup.parsed_result
+                                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                                 self.reply_to_query(lookup_object)
+                                self.reply_to_query(self.lookup_description)
                             # we return the internal lookup if the entry is already in the DB
                             # for some reason, asking if it's true doesn't work here
                             # so we use a NOT instead of an Equals.
@@ -628,8 +627,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                         internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
                         if internal_lookup == None or False:
                             redprint("[-] Internal Lookup returned false")
-                            lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                            description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                            self.lookup_description = description_lookup.parsed_result
+                            lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                             self.reply_to_query(lookup_object)
+                            self.reply_to_query(self.lookup_description)
                         elif internal_lookup != None or False:
                             greenprint("[+] Internal Lookup returned TRUE")
                             self.reply_to_query(internal_lookup)
@@ -658,8 +660,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         I'll look at it
         TODO: SEARCH LOCAL BY CAS!!!!
         '''
-        from variables_for_reality import GRAB_DESCRIPTION
         #make a thing
+        GRAB_DESCRIPTION = True
         return_relationships = []
         # you get multiple records returned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
@@ -673,9 +675,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
-                    if GRAB_DESCRIPTION == True:
-                        greenprint("[+] Grabbing Description")
-                        lookup_description = pubchemREST_Description_Request(compound_id, "iupac_name")
+                    #if GRAB_DESCRIPTION == True:
+                    #    greenprint("[+] Grabbing Description")
+                        #lookup_description = pubchemREST_Description_Request(compound_id, "iupac_name")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -684,7 +686,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.Compound.from_cid(compound_id)
-                    lookup_description = pubchemREST_Description_Request(compound_id, "cid")
+                    #lookup_description = pubchemREST_Description_Request(compound_id, "cid")
                 except Exception :# pubchem.PubChemPyError:
                     function_message("lookup by NAME/CAS exception - name", "red")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -701,7 +703,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'molweight'  : each.molecular_weight    ,\
                             'charge'     : each.charge              ,\
                             'iupac_name' : each.iupac_name          ,\
-                            'description' : lookup_description        }]
+                            'description' : self.lookup_description        }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     #Right here we need to find a way to store multiple records
@@ -726,7 +728,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'molweight'  : lookup_results.molecular_weight    ,\
                             'charge'     : lookup_results.charge              ,\
                             'iupac_name' : lookup_results.iupac_name          ,\
-                            'description' : lookup_description                  }]
+                            'description' : self.lookup_description                  }]
 
                 return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
