@@ -77,12 +77,16 @@ TESTING = True
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
 
-
 #TESTING colored print functions
-#make them global scope for testing purposes
-blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
-greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
-redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
+# ok so according to some website on the internet (professional, I know)
+# You can do THIS:
+# lambda <args> : <return Value> if <condition > ( <return value > if <condition> else <return value>)
+# make them global scope for testing purposes
+
+# so it prints to screen as a return "value" IF it's in "test mode" but returns NONE if test mode is off
+blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
+greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
+redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 
 ################################################################################
 # Random stuff 
@@ -93,6 +97,10 @@ redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if
 # List to string
 # list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 
+#  Stackoverflow of course.
+# >>> lod = [{1: "a"}, {2: "b"}]
+# >>> any(1 in d for d in lod) 
+# >>> True
 GRAB_DESCRIPTION = True
 
 # GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
@@ -478,9 +486,14 @@ NOTE: to grab a description requires a seperate REST request.
         self.user_input             = user_input
         self.type_of_input          = type_of_input
         self.grab_description       = description
-        self.local_output_container = [ {"test" : "sample text"} ] # wahoo! more abstraction!
+        if TESTING == True:
+            self.local_output_container = [ {"test" : "sample text"} ] # wahoo! more abstraction!
+        else: 
+            self.local_output_container = []
+        #do the thing 
         self.validate_user_input(self.user_input , self.type_of_input)
-        self.reply_to_query(self.local_output_container)
+        #say the thing
+        self.reply_to_query()
 
 
     def help_message():
@@ -492,44 +505,36 @@ Example 2 : .pubchem_lookup 3520 cid
 Example 3 : .pubchem_lookup 113-00-8 cas
 """
 ###############################################################################
-    def reply_to_query(self , message_object):
+    def reply_to_query(self):
         '''    
         message_object =  [ {message_id : message_to_send_text_raw}]
         message_id :
             "lookup_object"   : str
             "description"     : str
             "internal_lookup" : str
-        
-        The commented out code is for turning everything to a string
-        from a list or string
         ''' 
-        #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        #  Stackoverflow of course.
-        # lod = [{1: "a"}, {2: "b"}]
-        # any(1 in d for d in lod)
-        # 
-        #
-        temp_array = []
-        global lookup_output_container
-        if TESTING == True:
-            if any("test" in squirrels for squirrels in self.local_output_container):
-                for key_value_pairs in self.local_output_container:
-                    lookup_output_container.append(key_value_pairs.values)
-                    blueprint("=============================================")
-                    greenprint("[+] Sending the following reply to output container")
-                    print(lookup_output_container)
-                    blueprint("=============================================")
-        else:
-            # dict.get() returns None if key not present, ONE *SHOULD* be empty
-            # if internal lookup, which was run first, returns False...
-            # it should be empty
-            for key_value_pairs in self.local_output_container:
-                if self.internal_lookup_bool == False:
-                    lookup_output_container.append(key_value_pairs.get("lookup_object"))
-                else:
-                    lookup_output_container.append(key_value_pairs.get("internal_lookup"))
 
-                lookup_output_container.append(key_value_pairs.get("description"))
+        global lookup_output_container
+        #clear the output from any previous lookups
+        lookup_output_container.clear()
+
+        # dict.get() returns None if key not present, ONE *SHOULD* be empty
+        # if internal lookup, which was run first, returns False...
+        # it should be empty
+        for key_value_pairs in self.local_output_container:
+            if self.internal_lookup_bool == False:
+                lookup_output_container.append(key_value_pairs.get("lookup_object"))
+            else:
+                lookup_output_container.append(key_value_pairs.get("internal_lookup"))
+
+            lookup_output_container.append(key_value_pairs.get("description"))
+        redprint("=============================================")
+        greenprint("[+] Sending the following reply via global output container")
+        blueprint(lookup_output_container)
+        redprint("=============================================")
+        #clean up just in case
+        self.local_output_container.clear()
+
 
     def user_input_was_wrong(self , type_of_pebkac_failure : str, bad_string = ""):
         """
@@ -540,22 +545,13 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         derp = [{"bad_cas" :"Bad CAS input"}                                     ,\
                 {"bad CID" : 'Accepted types are "iupac_name","cas" or "cid" '}  ,\
                 {"input_id" : 'bloop '}                                  ]
+        #clear the container for cleanliness
+        self.local_output_container.clear()
+        #do a list/array operation
         for key_value_pairs in derp:
+            #to be able to access each dict in the list/array
             self.local_output_container = key_value_pairs.get(type_of_pebkac_failure) + bad_string + "\n"
-
-    def lookup_failure(self , type_of_failure: str):
-        """
-        does what it says on the label, called when a lookup is failed
-        """
-        #TODO: find sqlalchemy exception object
-        # why cant I find the type of object I need fuck me
-        if type_of_failure == "SQL":
-            global lookup_output_container
-            lookup_output_container = ["SQL QUERY FAILURE"]
-        elif type_of_failure == pubchem.PubChemPyError:
-            ##global lookup_output_container
-            lookup_output_container = ["chempy failure"]
-        pass
+        self.reply_to_query()
 
     def do_lookup(self, user_input, type_of_input):
         try:
@@ -602,18 +598,28 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         if fuck_this(type_of_input) :#in pubchem_search_types:
             greenprint("user supplied a : " + type_of_input)
             try:
+                #user gave a CAS
                 if type_of_input == "cas":
                     greenprint("[+} trying to match regular expression for CAS")
+                    #regex cas number
                     if re.match(cas_regex,user_input):
                         greenprint("[+] Good CAS Number")
+                        #do the thing
                         self.do_lookup(user_input, type_of_input)
                     else:
                         redprint("[-] Bad CAS Number")
+                        # dont do the thing
                         self.user_input_was_wrong("bad_cas")
+                #do the thing
+                else:
+                    self.do_lookup(user_input, type_of_input)
             except Exception:
+                #some thing was bad
                 redprint("[-] reached the exception : input_type was wrong somehow")
+                blueprint(str(Exception.with_traceback))
 
         else:
+            #user was doofus
             self.user_input_was_wrong("input_type" , type_of_input)  
 
     def pubchem_lookup_by_name_or_CID(self , compound_id, type_of_data:str):
