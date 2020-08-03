@@ -490,9 +490,9 @@ NOTE: to grab a description requires a seperate REST request.
         self.type_of_input          = type_of_input
         self.grab_description       = description
         if TESTING == True:
-            self.local_output_container = [ {"test" : "sample text"} ] # wahoo! more abstraction!
+            self.local_output_container = {"test" : "sample text"} # wahoo! more abstraction!
         else: 
-            self.local_output_container = []
+            self.local_output_container = {}
         #do the thing 
         self.validate_user_input(self.user_input , self.type_of_input)
         #say the thing
@@ -517,17 +517,21 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         # dict.get() returns None if key not present, ONE *SHOULD* be empty
         # if internal lookup, which was run first, returns False...
         # it should be empty
-        if key_value_pairs in self.local_output_container:
-            if self.internal_lookup_bool == False
-                temp_array.append(key_value_pairs.get("lookup_object"))
-            elif self.internal_lookup_bool == True:
-                temp_array.append(key_value_pairs.get("internal_lookup"))
-            else:
-                redprint("[-] Failure in reply_to_query if/elif/else")
-            temp_array.append(key_value_pairs.get("description"))
-            blueprint("Temp_array contents:" + str(temp_array))
+        
+        #the internal lookup was false, 
+        # I.E. This is the first time this compound was searched for
+        if self.local_output_container.
+        if self.internal_lookup_bool == False:
+            temp_array.append(self.local_output_container.get("lookup_object"))
+        elif self.internal_lookup_bool == True:
+            temp_array.append(self.local_output_container.get("internal_lookup"))
         else:
-            redprint("something wierd happened in reply_to_query input")
+            redprint("[-] Failure in reply_to_query if/elif/else")
+            greenprint(str(self.local_output_container))
+        temp_array.append(self.local_output_container.get("description"))
+        blueprint("Temp_array contents:" + str(temp_array))
+        
+        #redprint("something wierd happened in reply_to_query input")
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
@@ -548,17 +552,13 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        derp = [{"bad_cas" :"Bad CAS input"}                                     ,\
-                {"bad CID" : ('Accepted types are "iupac_name","cas" or "cid" : Input given was ' + bad_string)}  ,\
-                {"lookup_function" : bad_string}                                 ,\
-                {"input_id" : 'bloop '}                                           ]
+        derp = {"bad_CAS" :"Bad CAS input"                     ,\
+                "bad_CID" : "Input given was " + bad_string    ,\
+                "lookup_function" : bad_string                 ,\
+                "input_id" : 'bloop'                            }
         # clear the container for cleanliness
         self.local_output_container.clear()
-        # do a list/array operation
-        for key_value_pairs in derp:
-            # to be able to access each dict in the list/array
-            self.local_output_container = key_value_pairs.get(type_of_pebkac_failure) + bad_string + "\n"
-        self.reply_to_query()
+        self.local_output_container[type_of_pebkac_failure] = derp.get(type_of_pebkac_failure) + bad_string + "\n"
 
     def do_lookup(self, user_input, type_of_input):
         try:
@@ -622,7 +622,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     else:
                         redprint("[-] Bad CAS Number")
                         # dont do the thing
-                        self.user_input_was_wrong("bad_cas", user_input)
+                        self.user_input_was_wrong("bad_CAS", user_input)
                 #do the thing
                 elif type_of_input == "cid" or "iupac_name":
                     self.do_lookup(user_input, type_of_input)
