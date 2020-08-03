@@ -537,25 +537,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             This is something the creator of the bot needs to modify to suit
             Thier community.
         """
-        user_is_a_doofus_CID_message        = 'Stop being a doofus! Accepted types are "iupac_name","cas" or "cid" '
-        user_is_a_doofus_input_id_message   = 'bloop '
-        user_is_a_doofus_formula_message    = "Stop being a doofus and feed me a good formula!"
-        user_is_a_doofus_form_react_message = "the following input was invalid: " + bad_string 
-        user_is_a_doofus_form_prod_message  = "the following input was invalid: " + bad_string
-        #user_is_a_doofus_form_gen_message  = "the following input was invalid: " + bad_string
-        if type_of_pebkac_failure   == "pubchem_lookup_by_name_or_CID":
-            self.reply_to_query(user_is_a_doofus_CID_message)
-        elif type_of_pebkac_failure == "specifics":
-            self.reply_to_query(user_is_a_doofus_formula_message)
-        elif type_of_pebkac_failure == "formula_reactants":
-            self.reply_to_query(user_is_a_doofus_form_react_message)
-        elif type_of_pebkac_failure == "formula_products":
-            self.reply_to_query(user_is_a_doofus_form_prod_message)
-        elif type_of_pebkac_failure == "user_input_identification":
-            self.reply_to_query(user_is_a_doofus_input_id_message)
-        else:
-            #change this to sonething reasonable
-            self.reply_to_query(type_of_pebkac_failure)
+        derp = [{"bad_cas" :"Bad CAS input"}                                     ,\
+                {"bad CID" : 'Accepted types are "iupac_name","cas" or "cid" '}  ,\
+                {"input_id" : 'bloop '}                                  ]
+        for key_value_pairs in derp:
+            self.local_output_container = key_value_pairs.get(type_of_pebkac_failure) + bad_string + "\n"
 
     def lookup_failure(self , type_of_failure: str):
         """
@@ -570,6 +556,33 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             ##global lookup_output_container
             lookup_output_container = ["chempy failure"]
         pass
+
+    def do_lookup(self, user_input, type_of_input):
+        try:
+            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
+            # if internal lookup is false, we do a remote lookup and then store the result
+            if internal_lookup == None or False:
+                redprint("[-] Internal Lookup returned false")
+                # perform the REST description lookup
+                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                # store the result
+                self.lookup_description = description_lookup.parsed_result
+                # perform the remote lookup
+                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                #append the remote lookup to the internal output container
+                self.local_output_container.append({ "lookup_object" : lookup_object })
+            # we return the internal lookup if the entry is already in the DB
+            # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
+            elif internal_lookup != None or False:
+                greenprint("[+] Internal Lookup returned TRUE")
+                # append the internal lookup to the internal output container
+                self.local_output_container.append({ "internal_lookup" : internal_lookup})
+        # bad things happened do stuff with this stuff please
+        # its in dire need of proper exception handling              
+        except Exception:
+            redprint('[-] Something happened in the try/except block for the function do_lookup')
+            blueprint(Exception.with_traceback)
+
 
     def validate_user_input(self, user_input: str, type_of_input:str):
         """
@@ -590,50 +603,18 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             greenprint("user supplied a : " + type_of_input)
             try:
                 if type_of_input == "cas":
-                    try:
-                        greenprint("[+} trying to match regular expression for CAS")
-                        if re.match(cas_regex,user_input):
-                            greenprint("[+] Good CAS Number")
-                            internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                            # if internal lookup is false, we do a remote lookup and then store the result
-                            if internal_lookup == None or False:
-                                redprint("[-] Internal Lookup returned false")
-                                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
-                                self.lookup_description = description_lookup.parsed_result
-                                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                                self.local_output_container.append({ "lookup_object" : lookup_object })
-                            # we return the internal lookup if the entry is already in the DB
-                            # for some reason, asking if it's true doesn't work here
-                            # so we use a NOT instead of an Equals.
-                            elif internal_lookup != None or False:
-                                greenprint("[+] Internal Lookup returned TRUE")
-                                self.local_output_container.append({ "internal_lookup" : internal_lookup})
-                        else:
-                            redprint("[-] Bad CAS Number validation CAS lookup checks")                    
-                    except Exception:
-                        redprint('[-] Something happened in the try/except block for cas numbers')
-                        blueprint(Exception.with_traceback)
-                else:
-                    try:
-                        internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
-                        if internal_lookup == None or False:
-                            redprint("[-] Internal Lookup returned false")
-                            description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
-                            self.lookup_description = description_lookup.parsed_result
-                            lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                            self.local_output_container.append({ "lookup_object" : lookup_object })
-                        elif internal_lookup != None or False:
-                            greenprint("[+] Internal Lookup returned TRUE")
-                            self.reply_to_query({ "internal_lookup" : internal_lookup})
-                        else:
-                            redprint("[-] Something is wrong with the database")
-                    except Exception:
-                        redprint("reached exception : name/cid lookup - control flow")
+                    greenprint("[+} trying to match regular expression for CAS")
+                    if re.match(cas_regex,user_input):
+                        greenprint("[+] Good CAS Number")
+                        self.do_lookup(user_input, type_of_input)
+                    else:
+                        redprint("[-] Bad CAS Number")
+                        self.user_input_was_wrong("bad_cas")
             except Exception:
-                redprint("reached the exception : input_type was wrong somehow")
+                redprint("[-] reached the exception : input_type was wrong somehow")
 
         else:
-            self.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)  
+            self.user_input_was_wrong("input_type" , type_of_input)  
 
     def pubchem_lookup_by_name_or_CID(self , compound_id, type_of_data:str):
         '''
