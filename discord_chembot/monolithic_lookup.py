@@ -79,10 +79,13 @@ TEST_DB = 'sqlite://'
 
 #TESTING colored print functions
 # ok so according to some website on the internet (professional, I know)
+# https://thispointer.com/python-how-to-use-if-else-elif-in-lambda-functions/
 # You can do THIS:
 # lambda <args> : <return Value> if <condition > ( <return value > if <condition> else <return value>)
 # make them global scope for testing purposes
 
+# this one is used inline to convert lists top strings in front of print functions
+list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 # so it prints to screen as a return "value" IF it's in "test mode" but returns NONE if test mode is off
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
@@ -466,7 +469,7 @@ class pubchemREST_Description_Request():
             #print(str(self.parsed_result[0].contents[0]))
             self.parsed_result = str(self.parsed_result[0].contents[0])
         #if it is empty
-        elif self.parsed_result == NoneType:
+        elif self.parsed_result == [] or NoneType:
             print("No Description Available in XML REST response")
             self.parsed_result = "No Description Available in XML REST response"
 
@@ -507,32 +510,35 @@ Example 3 : .pubchem_lookup 113-00-8 cas
 ###############################################################################
     def reply_to_query(self):
         '''    
-        message_object =  [ {message_id : message_to_send_text_raw}]
-        message_id :
-            "lookup_object"   : str
-            "description"     : str
-            "internal_lookup" : str
+        oh wow nothing to document?
         ''' 
-
+        temp_array = []
         global lookup_output_container
-        #clear the output from any previous lookups
-        lookup_output_container.clear()
-
         # dict.get() returns None if key not present, ONE *SHOULD* be empty
         # if internal lookup, which was run first, returns False...
         # it should be empty
-        for key_value_pairs in self.local_output_container:
-            if self.internal_lookup_bool == False:
-                lookup_output_container.append(key_value_pairs.get("lookup_object"))
+        if key_value_pairs in self.local_output_container:
+            if self.internal_lookup_bool == False
+                temp_array.append(key_value_pairs.get("lookup_object"))
+            elif self.internal_lookup_bool == True:
+                temp_array.append(key_value_pairs.get("internal_lookup"))
             else:
-                lookup_output_container.append(key_value_pairs.get("internal_lookup"))
-
-            lookup_output_container.append(key_value_pairs.get("description"))
+                redprint("[-] Failure in reply_to_query if/elif/else")
+            temp_array.append(key_value_pairs.get("description"))
+            blueprint("Temp_array contents:" + str(temp_array))
+        else:
+            redprint("something wierd happened in reply_to_query input")
+        
+        # clear the output from any previous lookups
+        lookup_output_container.clear()
+        # add the new message
+        lookup_output_container.append(temp_array)
+        # this code only runs if TESTING is set to True
         redprint("=============================================")
         greenprint("[+] Sending the following reply via global output container")
-        blueprint(lookup_output_container)
+        blueprint(str(lookup_output_container))
         redprint("=============================================")
-        #clean up just in case
+        # clean up just in case
         self.local_output_container.clear()
 
 
@@ -543,13 +549,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             Thier community.
         """
         derp = [{"bad_cas" :"Bad CAS input"}                                     ,\
-                {"bad CID" : 'Accepted types are "iupac_name","cas" or "cid" '}  ,\
-                {"input_id" : 'bloop '}                                  ]
-        #clear the container for cleanliness
+                {"bad CID" : ('Accepted types are "iupac_name","cas" or "cid" : Input given was ' + bad_string)}  ,\
+                {"lookup_function" : bad_string}                                 ,\
+                {"input_id" : 'bloop '}                                           ]
+        # clear the container for cleanliness
         self.local_output_container.clear()
-        #do a list/array operation
+        # do a list/array operation
         for key_value_pairs in derp:
-            #to be able to access each dict in the list/array
+            # to be able to access each dict in the list/array
             self.local_output_container = key_value_pairs.get(type_of_pebkac_failure) + bad_string + "\n"
         self.reply_to_query()
 
@@ -560,12 +567,16 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
                 # perform the REST description lookup
-                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                description_lookup = pubchemREST_Description_Request(user_input, type_of_input)
                 # store the result
                 self.lookup_description = description_lookup.parsed_result
                 # perform the remote lookup
-                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                #append the remote lookup to the internal output container
+                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                # append the remote lookup to the internal output container
+                # remember, the remote lookup returns the local DB entry
+                # it has performed a search and stored it locally
+                greenprint("CONTROL FLOW!!!!")
+                greenprint(str(lookup_object))
                 self.local_output_container.append({ "lookup_object" : lookup_object })
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
@@ -573,6 +584,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 greenprint("[+] Internal Lookup returned TRUE")
                 # append the internal lookup to the internal output container
                 self.local_output_container.append({ "internal_lookup" : internal_lookup})
+                greenprint("CONTROL FLOW!!!!")
+                greenprint(str(internal_lookup))
         # bad things happened do stuff with this stuff please
         # its in dire need of proper exception handling              
         except Exception:
@@ -609,10 +622,12 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     else:
                         redprint("[-] Bad CAS Number")
                         # dont do the thing
-                        self.user_input_was_wrong("bad_cas")
+                        self.user_input_was_wrong("bad_cas", user_input)
                 #do the thing
-                else:
+                elif type_of_input == "cid" or "iupac_name":
                     self.do_lookup(user_input, type_of_input)
+                else:
+                    redprint("[-] Something really wierd happened inside the validated control flow")
             except Exception:
                 #some thing was bad
                 redprint("[-] reached the exception : input_type was wrong somehow")
@@ -638,7 +653,6 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         TODO: SEARCH LOCAL BY CAS!!!!
         '''
         #make a thing
-        GRAB_DESCRIPTION = True
         return_relationships = []
         # you get multiple records returned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
@@ -656,7 +670,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     #    greenprint("[+] Grabbing Description")
                         #lookup_description = pubchemREST_Description_Request(compound_id, "iupac_name")
                 except Exception :# pubchem.PubChemPyError:
-                    function_message("lookup by NAME/CAS exception - name", "red")
+                    redprint("[-] Error in pubchem_lookup_by_name_or_CID : NAME exception")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
         # CID requires another way
             elif type_of_data == "cid":
