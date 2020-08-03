@@ -25,14 +25,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-####
 ################################################################################
-##    Search by element number, symbol,
-##    list resources available
-##    TODO: show basic info if no specificity in query
-# created by : mr_hai on discord / flyingfishfuse on github
-## Test/Personal Server : https://discord.gg/95V7Mn
-
 """
 PubChemPy caching wrapper
 
@@ -42,28 +35,33 @@ https://github.com/mcs07/PubChemPy
 """
 
 
-__author__ = 'Adam Galindo'
-__email__ = 'null@null.com'
+__author__  = 'Adam Galindo'
+__email__   = 'null@null.com'
 __version__ = '1'
 __license__ = 'GPLv3'
+__name__    = "pubchem_caching_wrapper"
 
 import platform
 OS_NAME = platform.system()
-#do a search for if TESTING == True 
-# to find the testing blocks
+
 import os
 import re
 import csv
 import lxml
 import requests
-from requests.utils import requote_uri
-from bs4 import BeautifulSoup
 import pubchempy as pubchem
+from bs4 import BeautifulSoup
+from requests.utils import requote_uri
 from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
 #    greenprint,redprint,blueprint,function_message
 
+###############################################################################
+# TESTING STUFF
+#do a search for if TESTING == True 
+# to find the testing blocks
+###############################################################################
 import colorama
 from colorama import init
 init()
@@ -72,13 +70,6 @@ from colorama import Fore, Back, Style
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
-# Filter None values from kwargs
-#kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
-
-################################################################################
-## TESTING VARS
-################################################################################
-
 TESTING = True
 #TESTING = False
 #The sqlite :memory: identifier is the default if no filepath is present. 
@@ -86,10 +77,22 @@ TESTING = True
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
 
+
+#TESTING colored print functions
+#make them global scope for testing purposes
+blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
+greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
+redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if TESTING == True else None
+
 ################################################################################
+# Random stuff 
 ################################################################################
 
-list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+# Filter None values from kwargs
+# kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
+# List to string
+# list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+
 GRAB_DESCRIPTION = True
 
 # GLOBAL OUTPUT CONTAINER FOR FINAL CHECKS
@@ -100,41 +103,21 @@ lookup_output_container = []
 global lookup_input_container
 lookup_input_container = []
 
+################################################################################
+##############                      CONFIG                     #################
+################################################################################
+
 # pubchem REST API service
 pubchem_search_types = ["iupac_name", "cid", "cas"]
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
-
-def function_message(exception_message : str,  location:str, color_to_print="red"):
-    """
-    A Robust exception message passing class? that uses colorama and inspect
-    Takes red, green as color arguments. WORK IN PROGERESS!
-    """
-    if color_to_print == "red":
-        redprint("something wierd happened in: "  + location)
-    elif color_to_print == "green":
-        greenprint("something wierd happened in: " + location)
-    elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + location)
-
-list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-
-#make them global scope for testing purposes
-blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
-
 
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
 DATABASE_USER      = "admin"
 DATABASE_PASSWORD  = "password"
 SERVER_NAME        = "Discord Chemistry lookup tool"
-
 LOCAL_CACHE_FILE   = 'sqlite:///' + DATABASE + DATABASE_HOST + DATABASE_USER + ".db"
 
-################################################################################
-##############                      CONFIG                     #################
-################################################################################
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class Config(object):
@@ -152,7 +135,7 @@ try:
     database = SQLAlchemy(chembot_server)
     database.init_app(chembot_server)
 except Exception:
-    function_message(Exception,"red")
+    redprint(Exception.with_traceback)
 
 ###############################################################################
 # from stack overflow
@@ -471,7 +454,8 @@ class pubchemREST_Description_Request():
         self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
         #if it's not empty
         if self.parsed_result != [] :
-            print(str(self.parsed_result[0].contents[0]))
+            # I know its ugly, forgive me
+            #print(str(self.parsed_result[0].contents[0]))
             self.parsed_result = str(self.parsed_result[0].contents[0])
         #if it is empty
         elif self.parsed_result == NoneType:
@@ -490,10 +474,13 @@ NOTE: to grab a description requires a seperate REST request.
     SUBNOTE: TURNED ON BY DEFAULT because reasons
     '''
     def __init__(self, user_input, type_of_input, description = True):
-        self.user_input       = user_input
-        self.type_of_input    = type_of_input
-        self.grab_description = description
+        self.internal_lookup_bool   = bool
+        self.user_input             = user_input
+        self.type_of_input          = type_of_input
+        self.grab_description       = description
+        self.local_output_container = [ {"test" : "sample text"} ] # wahoo! more abstraction!
         self.validate_user_input(self.user_input , self.type_of_input)
+        self.reply_to_query(self.local_output_container)
 
 
     def help_message():
@@ -507,38 +494,42 @@ Example 3 : .pubchem_lookup 113-00-8 cas
 ###############################################################################
     def reply_to_query(self , message_object):
         '''    
-        Just accepts an object of your choice, then you import the 
-        lookup_output_container to your main file and work in that file
-
+        message_object =  [ {message_id : message_to_send_text_raw}]
+        message_id :
+            "lookup_object"   : str
+            "description"     : str
+            "internal_lookup" : str
+        
         The commented out code is for turning everything to a string
         from a list or string
         ''' 
         #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-        #if isinstance(message,list):
-        #    message = list_to_string(message) 
-        #temp_array = [message]
+        #  Stackoverflow of course.
+        # lod = [{1: "a"}, {2: "b"}]
+        # any(1 in d for d in lod)
+        # 
+        #
+        temp_array = []
         global lookup_output_container
-        lookup_output_container.append(message_object)
         if TESTING == True:
-            blueprint("=============================================")
-            greenprint("[+] Sending the following reply to output container")
-            print(lookup_output_container)
-            blueprint("=============================================")
+            if any("test" in squirrels for squirrels in self.local_output_container):
+                for key_value_pairs in self.local_output_container:
+                    lookup_output_container.append(key_value_pairs.values)
+                    blueprint("=============================================")
+                    greenprint("[+] Sending the following reply to output container")
+                    print(lookup_output_container)
+                    blueprint("=============================================")
+        else:
+            # dict.get() returns None if key not present, ONE *SHOULD* be empty
+            # if internal lookup, which was run first, returns False...
+            # it should be empty
+            for key_value_pairs in self.local_output_container:
+                if self.internal_lookup_bool == False:
+                    lookup_output_container.append(key_value_pairs.get("lookup_object"))
+                else:
+                    lookup_output_container.append(key_value_pairs.get("internal_lookup"))
 
-###############################################################################
-    #def parse_lookup_to_chempy(self, pubchem_lookup : list):
-    #    '''
-    #    creates a chempy something or other based on what you feed it
-    #    like cookie monster
-    #    '''
-        #lookup_cid       = pubchem_lookup[0].get('cid')
-    #    lookup_formula    = pubchem_lookup[1].get('formula')
-        #lookup_name      = pubchem_lookup[2].get('name')
-        #try:
-        #    greenprint(chempy.Substance.from_formula(lookup_formula))
-        #except Exception:
-        #    function_message("asdf", "blue")
-###############################################################################
+                lookup_output_container.append(key_value_pairs.get("description"))
 
     def user_input_was_wrong(self , type_of_pebkac_failure : str, bad_string = ""):
         """
@@ -610,18 +601,18 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                                 description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
                                 self.lookup_description = description_lookup.parsed_result
                                 lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                                self.reply_to_query(lookup_object)
-                                self.reply_to_query(self.lookup_description)
+                                self.local_output_container.append({ "lookup_object" : lookup_object })
                             # we return the internal lookup if the entry is already in the DB
                             # for some reason, asking if it's true doesn't work here
                             # so we use a NOT instead of an Equals.
                             elif internal_lookup != None or False:
                                 greenprint("[+] Internal Lookup returned TRUE")
-                                self.reply_to_query(internal_lookup)
+                                self.local_output_container.append({ "internal_lookup" : internal_lookup})
                         else:
-                            function_message("[-] Bad CAS Number validation CAS lookup checks", "red")                    
+                            redprint("[-] Bad CAS Number validation CAS lookup checks")                    
                     except Exception:
-                        function_message('[-] Something happened in the try/except block for cas numbers', 'red')
+                        redprint('[-] Something happened in the try/except block for cas numbers')
+                        blueprint(Exception.with_traceback)
                 else:
                     try:
                         internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
@@ -630,17 +621,16 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
                             self.lookup_description = description_lookup.parsed_result
                             lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
-                            self.reply_to_query(lookup_object)
-                            self.reply_to_query(self.lookup_description)
+                            self.local_output_container.append({ "lookup_object" : lookup_object })
                         elif internal_lookup != None or False:
                             greenprint("[+] Internal Lookup returned TRUE")
-                            self.reply_to_query(internal_lookup)
+                            self.reply_to_query({ "internal_lookup" : internal_lookup})
                         else:
-                            function_message("[-] Something is wrong with the database", "red")
+                            redprint("[-] Something is wrong with the database")
                     except Exception:
-                        function_message("reached exception : name/cid lookup - control flow", "red")
+                        redprint("reached exception : name/cid lookup - control flow")
             except Exception:
-                function_message("reached the exception : input_type was wrong somehow" , "red")
+                redprint("reached the exception : input_type was wrong somehow")
 
         else:
             self.user_input_was_wrong("user_input_identification", user_input + " : " + type_of_input)  
