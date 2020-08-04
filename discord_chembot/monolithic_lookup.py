@@ -520,18 +520,19 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         
         #the internal lookup was false, 
         # I.E. This is the first time this compound was searched for
-        if self.local_output_container.
-        if self.internal_lookup_bool == False:
-            temp_array.append(self.local_output_container.get("lookup_object"))
-        elif self.internal_lookup_bool == True:
-            temp_array.append(self.local_output_container.get("internal_lookup"))
+        if "internal_lookup" in self.local_output_container:
+            redprint("local output container empty")
+            pass
         else:
-            redprint("[-] Failure in reply_to_query if/elif/else")
-            greenprint(str(self.local_output_container))
-        temp_array.append(self.local_output_container.get("description"))
-        blueprint("Temp_array contents:" + str(temp_array))
-        
-        #redprint("something wierd happened in reply_to_query input")
+            if self.internal_lookup_bool == False:
+                temp_array.append(self.local_output_container.get("lookup_object"))
+            elif self.internal_lookup_bool == True:
+                temp_array.append(self.local_output_container.get("internal_lookup"))
+            else:
+                redprint("[-] Failure in reply_to_query if/elif/else")
+                greenprint(str(self.local_output_container))
+                temp_array.append(self.local_output_container.get("description"))
+                blueprint("Temp_array contents:" + str(temp_array))
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
