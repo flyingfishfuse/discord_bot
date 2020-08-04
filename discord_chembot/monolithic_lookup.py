@@ -97,8 +97,6 @@ redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if
 
 # Filter None values from kwargs
 # kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
-# List to string
-# list_to_string = lambda list_to_convert: ''.join(list_to_convert)
 
 #  Stackoverflow of course.
 # >>> lod = [{1: "a"}, {2: "b"}]
@@ -219,8 +217,11 @@ class Composition(database.Model):
     def __repr__(self):
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         formula_list = str.split(self.compounds, sep=",")
-        print(formula_list)
+        greenprint(formula_list)
         formula = ""
+
+        # what the hell was I doing here?
+        # seriously, I forgot
         def format_asdf():
             for each in formula_list:
             #catches the amount
@@ -276,11 +277,15 @@ class Database_functions():
         """
         cid_passed = cid_of_compound
         try:
-            #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)    
+            #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)
+            #                                * See that right there? "cid" ?
             return Compound.query.filter_by(cid = cid_passed).first()
+            # SQL-Alchemy interprets that as the record to lookup
+            # it DOES NOT evaluate the contents of a variable
+            # do not forget that! It uses the name as is! The contents do not matter!
         except Exception:
             redprint("[-] Failure in Compound_by_id")
-            print(str(Exception.__cause__))
+            redprint(str(Exception.__cause__))
             return False
 
     ################################################################################
@@ -445,7 +450,7 @@ class pubchemREST_Description_Request():
         fuck_this = lambda fuck: fuck in pubchem_search_types 
         if fuck_this(input_type) :#in pubchem_search_types:
             if TESTING == True:
-                greenprint("searching for a Description : " + input_type)
+                greenprint("searching for a Description : " + record_to_request)
             if input_type  == "iupac_name":
                 self.thing_type = "name"
             else :
@@ -470,7 +475,7 @@ class pubchemREST_Description_Request():
             self.parsed_result = str(self.parsed_result[0].contents[0])
         #if it is empty
         elif self.parsed_result == [] or NoneType:
-            print("No Description Available in XML REST response")
+            blueprint("No Description Available in XML REST response")
             self.parsed_result = "No Description Available in XML REST response"
 
 ###############################################################################
@@ -658,6 +663,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         # you get multiple records returned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
         # presented as an option to the user,and not programmatically 
+        # return_index is the result to return, 0 is the first one
         return_index = 0
         data = ["iupac_name","cid","cas"]
         if type_of_data in data:
@@ -698,7 +704,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                             'description' : self.lookup_description        }]
                     return_relationships.append(query_appendix)
                     ####################################################
-                    #Right here we need to find a way to store multiple records
+                    # Right here we need to find a way to store multiple records
                     # and determine the best record to store as the main entry
                     ####################################################
                     #Database_functions.compound_to_database() TAKES A LIST
@@ -728,7 +734,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
-                function_message("PUBCHEM LOOKUP BY CID : ELSE AT THE END", "red")
+                redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
         #and then, once all that is done return the LOCAL database entry to
         # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
@@ -736,7 +742,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
         # you can itterate over the database query
-        print(local_query)
+        greenprint(local_query)
         redprint("=====END=====return query for pubchem/local lookup===========")
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
