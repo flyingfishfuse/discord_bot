@@ -103,11 +103,6 @@ def function_message(exception_message : str,  location:str, color_to_print="red
     elif color_to_print == "blue":
         blueprint("something wierd happened in: " + location)
 
-# find these and change names to be same
-COMMAND_PREFIX = "."
-devs = ['581952454124372068']
-list_to_string = lambda list_to_convert: ''.join(list_to_convert)
-
 #make them global scope for testing purposes
 blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)

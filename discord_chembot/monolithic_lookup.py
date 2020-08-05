@@ -495,7 +495,8 @@ NOTE: to grab a description requires a seperate REST request.
         self.type_of_input          = type_of_input
         self.grab_description       = description
         if TESTING == True:
-            self.local_output_container = {"test" : "sample text"} # wahoo! more abstraction!
+            self.local_output_container = {} # {"test" : "sample text"} # uncomment to supress linter errors
+                                                                        # in the IDE
         else: 
             self.local_output_container = {}
         #do the thing 
@@ -581,15 +582,16 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 # append the remote lookup to the internal output container
                 # remember, the remote lookup returns the local DB entry
                 # it has performed a search and stored it locally
-                greenprint("CONTROL FLOW!!!!")
-                greenprint(str(lookup_object))
-                self.local_output_container.append({ "lookup_object" : lookup_object })
+                #
+                # now, we can choose to send an object or a text block or what have you
+                # right now it's ... I think its a text block rofl
+                self.local_output_container["lookup_object"] = lookup_object
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
             elif internal_lookup != None or False:
                 greenprint("[+] Internal Lookup returned TRUE")
                 # append the internal lookup to the internal output container
-                self.local_output_container.append({ "internal_lookup" : internal_lookup})
+                self.local_output_container["internal_lookup"] = internal_lookup
                 greenprint("CONTROL FLOW!!!!")
                 greenprint(str(internal_lookup))
         # bad things happened do stuff with this stuff please
@@ -742,7 +744,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
         # you can itterate over the database query
-        greenprint(local_query)
+        greenprint(str(local_query))
         redprint("=====END=====return query for pubchem/local lookup===========")
         #after storing the lookup to the local database, retrive the local entry
         #This returns an SQLALchemy object
@@ -751,6 +753,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         # and you get a common "api" to draw data from.
 
 
+###############################################################################
+# Testing procedure requires bad data
+# craft a list of shitty things a user can attempt
+# be malicious and stupid with it
+# break shit
 if TESTING == True:
     import time
     #craft a list of queries to test with
@@ -763,7 +770,7 @@ if TESTING == True:
                  ["24823","cid"],\
                   ["water","iupac_name"]]
     ###################################################################
-    # First we do some lookups to pull data and populate the database]
+    # First we do some lookups to pull data and populate the database
     #add more tests
     ###################################################################
     for each in test_query_list:
@@ -771,6 +778,7 @@ if TESTING == True:
         Pubchem_lookup(each[0],each[1])
     ###################################################################
     # then we test the "is it stored locally?" function
+    # doesnt need a timer, not gonna ban myself from my own service
     ###################################################################
     for each in test_query_list:
         Pubchem_lookup(each[0],each[1])

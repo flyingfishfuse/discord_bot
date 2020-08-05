@@ -15,11 +15,11 @@ class Element_lookup():
     def help_message():
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
-isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
+isotopes, oxistates\n 
         
     def reply_to_query(message):
         '''
-     assigns to lookup_output_container. Sends the global output container 
+     assigns to lookup_output_container.
         '''
         # Takes a list or string, if list, joins the list to a string and
         #list_to_string = lambda list_to_convert: ''.join(list_to_convert)
@@ -60,8 +60,6 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
             elif isinstance(thing , int):                              
                 return int(thing)              
 
-            #Right here is where you uncomment when you plit variables off to different files
-        #from variables_for_reality import element_list , symbol_list , specifics_list
         element_id_user_input = cap_if_string(element_id_user_input)
         element_valid   = bool
         specifics_valid = bool
@@ -197,8 +195,6 @@ isotopes, oxistates\n For Pubchem lookup, use a CID or IUPAC name ONLY"
 #        Returns information about the element requested
 #        takes either a name,atomic number, or symbol
 #        """
-# https://discordapp.com/oauth2/authorize?client_id=734743918951792681&scope=bot
-# 734743918951792681
 #        output_container = []
 #        element_object = mendeleev.element(element_id_user_input)
 #        output_container.append(" yatta yatta yata " + element_object.description  + "\n")
