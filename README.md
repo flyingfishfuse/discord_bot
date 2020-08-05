@@ -13,13 +13,19 @@
  to acquire pay-for-knowledge applications, by utilizing open-source technologies and 
  providing the means to extend functionality by simple modifications to the code.
 
+I am trying to make it so people new to chemistry can do something like the following:
+
+ammonium perchlorate + pure_water <==> (expected output but with names instead of formulae) 
+
+including a formatted list of properties for that solution
+
  Licenced under GPLv3                                                        
  https://www.gnu.org/licenses/gpl-3.0.en.html                                
 
 Functional:
 
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
- * pubchem lookups
+ * pubchem lookups, including description
  * user input validation for pubchem lookup
  * database functions for inserting and recalling compounds
  * simple chemical equation balancer
