@@ -269,7 +269,7 @@ def pubchem_route():
 ################################################################################
 class Database_functions():
     def __init__(self):
-        self.TESTING = False
+        self.TESTING = TESTING
      
     def Compound_by_id(cid_of_compound : str):
         """
@@ -519,6 +519,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
     def reply_to_query(self):
         '''    
         oh wow nothing to document?
+        This is the end of the line for this stream of operations!
+        Now that its in the global output container, You can use your 
+        Interface of choice with an easily parsed block of something!
         ''' 
         temp_array = []
         global lookup_output_container
@@ -529,13 +532,19 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         #the internal lookup was false, 
         # I.E. This is the first time this compound was searched for
         if "internal_lookup" in self.local_output_container:
+            # if we didnt store it locally...
+            # and we are getting some sort of local data return...
+            # something went horribly wrong!
             if self.internal_lookup_bool == False:
-                tellow_bold_print("This absolutley should not be happening")
-                temp_array.append(self.local_output_container.get("lookup_object"))
+                yellow_bold_print("[!] This absolutley should not be happening")
+            # everything is as expected
+            # append local lookup
             elif self.internal_lookup_bool == True:
                 temp_array.append(self.local_output_container.get("internal_lookup"))
-        else:
-            redprint("[-] Failure in reply_to_query if/elif/else")
+    # everything went as planned, append remote lookup
+        elif "lookup_object" in self.local_output_container:
+            temp_array.append(self.local_output_container.get("lookup_object"))
+            #redprint("[-] Failure in reply_to_query if/elif/else")
             greenprint(str(self.local_output_container))
             temp_array.append(self.local_output_container.get("description"))
             blueprint("Temp_array contents:" + str(temp_array))
