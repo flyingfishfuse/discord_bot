@@ -528,11 +528,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         # dict.get() returns None if key not present, ONE *SHOULD* be empty
         # if internal lookup, which was run first, returns False...
         # it should be empty
-        
-        #the internal lookup was false, 
-        # I.E. This is the first time this compound was searched for
         if "internal_lookup" in self.local_output_container:
-            # if we didnt store it locally...
+            # if we didnt implicitly store it locally...
             # and we are getting some sort of local data return...
             # something went horribly wrong!
             if self.internal_lookup_bool == False:
@@ -541,13 +538,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             # append local lookup
             elif self.internal_lookup_bool == True:
                 temp_array.append(self.local_output_container.get("internal_lookup"))
+                temp_array.append(self.local_output_container.get("description"))
     # everything went as planned, append remote lookup
         elif "lookup_object" in self.local_output_container:
             temp_array.append(self.local_output_container.get("lookup_object"))
-            #redprint("[-] Failure in reply_to_query if/elif/else")
-            greenprint(str(self.local_output_container))
             temp_array.append(self.local_output_container.get("description"))
             blueprint("Temp_array contents:" + str(temp_array))
+        else:
+            redprint("[-] Failure in reply_to_query if/elif/else")
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
