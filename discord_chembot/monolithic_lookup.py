@@ -91,6 +91,8 @@ blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) 
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 
+yellow_bold_print = lambda text: print(Fore.YELLOW + Style.BRIGHT + ' '  +  text + ' ' + Style.RESET_ALL) \
+    if (TESTING == True) else None
 ################################################################################
 # Random stuff 
 ################################################################################
@@ -527,18 +529,16 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         #the internal lookup was false, 
         # I.E. This is the first time this compound was searched for
         if "internal_lookup" in self.local_output_container:
-            redprint("local output container empty")
-            pass
-        else:
             if self.internal_lookup_bool == False:
+                tellow_bold_print("This absolutley should not be happening")
                 temp_array.append(self.local_output_container.get("lookup_object"))
             elif self.internal_lookup_bool == True:
                 temp_array.append(self.local_output_container.get("internal_lookup"))
-            else:
-                redprint("[-] Failure in reply_to_query if/elif/else")
-                greenprint(str(self.local_output_container))
-                temp_array.append(self.local_output_container.get("description"))
-                blueprint("Temp_array contents:" + str(temp_array))
+        else:
+            redprint("[-] Failure in reply_to_query if/elif/else")
+            greenprint(str(self.local_output_container))
+            temp_array.append(self.local_output_container.get("description"))
+            blueprint("Temp_array contents:" + str(temp_array))
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
@@ -568,6 +568,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         self.local_output_container[type_of_pebkac_failure] = derp.get(type_of_pebkac_failure) + bad_string + "\n"
 
     def do_lookup(self, user_input, type_of_input):
+        '''
+        after validation, the user input is used in 
+        Pubchem_lookup.pubchem_lookup_by_name_or_CID() 
+
+        '''
         try:
             internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
             # if internal lookup is false, we do a remote lookup and then store the result
@@ -592,9 +597,10 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 greenprint("[+] Internal Lookup returned TRUE")
                 # append the internal lookup to the internal output container
                 self.local_output_container["internal_lookup"] = internal_lookup
-                greenprint("CONTROL FLOW!!!!")
+                redprint("==BEGINNING==return query for pubchem/local lookup===========")
                 greenprint(str(internal_lookup))
-        # bad things happened do stuff with this stuff please
+                redprint("=====END=====return query for pubchem/local lookup===========")
+        # bad things happened, do stuff with this stuff please
         # its in dire need of proper exception handling              
         except Exception:
             redprint('[-] Something happened in the try/except block for the function do_lookup')
@@ -603,10 +609,13 @@ Example 3 : .pubchem_lookup 113-00-8 cas
 
     def validate_user_input(self, user_input: str, type_of_input:str):
         """
-    User Input is expected to be the proper identifier.
-        type of input is one of the following:
-        cid , iupac_name , cas
-    
+User Input is expected to be the proper identifier.
+    type of input is one of the following: cid , iupac_name , cas
+
+Ater validation, the user input is used in :
+    Pubchem_lookup.do_lookup()
+        Pubchem_lookup.pubchem_lookup_by_name_or_CID()
+        
         """
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
@@ -688,7 +697,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     lookup_results = pubchem.Compound.from_cid(compound_id)
                     #lookup_description = pubchemREST_Description_Request(compound_id, "cid")
                 except Exception :# pubchem.PubChemPyError:
-                    function_message("lookup by NAME/CAS exception - name", "red")
+                    redprint("lookup by NAME/CAS exception - name")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
                 #once we have the lookup results, do something
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
@@ -737,20 +746,20 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
-        #and then, once all that is done return the LOCAL database entry to
-        # the calling function so this is just an API to the db code
+    # and then, once all that is done return the LOCAL database entry to
+    # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
-        redprint("==BEGINNING==return query for pubchem/local lookup===========")
+        #redprint("==BEGINNING==return query for pubchem/local lookup===========")
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
-        # you can itterate over the database query
-        greenprint(str(local_query))
-        redprint("=====END=====return query for pubchem/local lookup===========")
-        #after storing the lookup to the local database, retrive the local entry
-        #This returns an SQLALchemy object
+    # you can itterate over the database query
+        #greenprint(str(local_query))
+        #redprint("=====END=====return query for pubchem/local lookup===========")
+    #after storing the lookup to the local database, retrive the local entry
+    #This returns an SQLALchemy object
         return local_query
-        # OR return the remote lookup entry, either way, the information was stored
-        # and you get a common "api" to draw data from.
+    # OR return the remote lookup entry, either way, the information was stored
+    # and you get a common "api" to draw data from.
 
 
 ###############################################################################
