@@ -1,0 +1,436 @@
+
+N:\science_bot\code\discord_bot-master\discord_chembot> cd n:\science_bot\code\discord_bot-master\discord_chembot && cmd /C "N:\Python3\python.exe c:\Users\moop\.vscode\extensions\ms-python.python-2020.7.96456\pythonFiles\lib\python\debugpy\launcher 63446 -- n:\science_bot\code\discord_bot-master\discord_chembot\monolithic_lookup.py "
+ made it this far 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : 420 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/420/description/XML 
+ No Description Available in XML REST response 
+ [+] Performing Pubchem Query 
+ [+] One Result Returned! 
+ =========RETURN RELATIONSHIPS======= 
+ [{'cid': 420, 'smiles': 'CC(C)CCCC(C)C1CCC2C1(CCC3C2=CCC4C3(CCC(C4)O)C)C', 'formula': 'C27H46O', 'molweight': 386.7, 'charge': 0, 'iupac_name': '10,13-dimethyl-17-(6-methylheptan-2-yl)-2,3,4,5,6,9,11,12,14,15,16,17-dodecahydro-1H-cyclopenta[a]phenanthren-3-ol', 'description': 'No Description Available in XML REST response'}]
+ =========RETURN RELATIONSHIPS======= 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : 10,13-dimethyl-17-(6-methylheptan-2-yl)-2,3,4,5,6,9,11,12,14,15,16,17-dodecahydro-1H-cyclopenta[a]phenanthren-3-ol 
+ CAS                : None
+ Formula            : C27H46O
+ Molecular Weight   : 386.7
+ Charge             : 0
+ CID                : 420
+ Description:       : No Description Available in XML REST response
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : 10,13-dimethyl-17-(6-methylheptan-2-yl)-2,3,4,5,6,9,11,12,14,15,16,17-dodecahydro-1H-cyclopenta[a]phenanthren-3-ol 
+ CAS                : None
+ Formula            : C27H46O
+ Molecular Weight   : 386.7
+ Charge             : 0
+ CID                : 420
+ Description:       : No Description Available in XML REST response
+ , None]]
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : methanol 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/methanol/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ CH4O 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 887, 'smiles': 'CO', 'formula': 'CH4O', 'molweight': 32.042, 'charge': 0, 'iupac_name': 'methanol', 'description': 'Methanol is the primary alcohol that is the simplest aliphatic alcohol, comprising a methyl and an alcohol group. It has a role as an amphiprotic solvent, a fuel, a human metabolite, an Escherichia 
+coli metabolite, a mouse metabolite and a Mycoplasma genitalium metabolite. It is an alkyl alcohol, a one-carbon compound, a volatile organic compound and a primary alcohol. It is a conjugate acid of a methoxide.'}]
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : methanol 
+ CAS                : None
+ Formula            : CH4O
+ Molecular Weight   : 32.042
+ Charge             : 0
+ CID                : 887
+ Description:       : Methanol is the primary alcohol that is the simplest aliphatic alcohol, comprising a methyl and an alcohol group. It has a role as an amphiprotic solvent, a fuel, a human metabolite, an Escherichia coli metabolite, a mouse metabolite and a Mycoplasma genitalium metabolite. It is an alkyl alcohol, a one-carbon compound, a volatile organic compound and a primary alcohol. It is a conjugate acid of a methoxide.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : methanol 
+ CAS                : None
+ Formula            : CH4O
+ Molecular Weight   : 32.042
+ Charge             : 0
+ CID                : 887
+ Description:       : Methanol is the primary alcohol that is the simplest aliphatic alcohol, comprising a methyl and an alcohol group. It has a role as an amphiprotic solvent, a fuel, a human metabolite, an Escherichia coli metabolite, a mouse metabolite and a Mycoplasma genitalium metabolite. It is an alkyl alcohol, a one-carbon compound, a volatile organic compound and a primary alcohol. It is a conjugate acid of a methoxide.
+ , None]]
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : phenol 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/phenol/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ C6H6O 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 996, 'smiles': 'C1=CC=C(C=C1)O', 'formula': 'C6H6O', 'molweight': 94.11, 'charge': 0, 'iupac_name': 'phenol', 'description': 'Phenol is an organic hydroxy compound that consists of benzene bearing a single hydroxy substituent. The parent of the class of phenols. It has a role as a disinfectant, an antiseptic drug, a human xenobiotic metabolite and a mouse metabolite. It is a conjugate acid of a phenolate.'}]
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : phenol 
+ CAS                : None
+ Formula            : C6H6O
+ Molecular Weight   : 94.11
+ Charge             : 0
+ CID                : 996
+ Description:       : Phenol is an organic hydroxy compound that consists of benzene bearing a single hydroxy substituent. The parent of the class of phenols. It 
+has a role as a disinfectant, an antiseptic drug, a human xenobiotic metabolite and a mouse metabolite. It is a conjugate acid of a phenolate.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : phenol 
+ CAS                : None
+ Formula            : C6H6O
+ Molecular Weight   : 94.11
+ Charge             : 0
+ CID                : 996
+ Description:       : Phenol is an organic hydroxy compound that consists of benzene bearing a single hydroxy substituent. The parent of the class of phenols. It 
+has a role as a disinfectant, an antiseptic drug, a human xenobiotic metabolite and a mouse metabolite. It is a conjugate acid of a phenolate.
+ , None]]
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : methylene chloride 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/methylene%20chloride/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ CH2Cl2 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 6344, 'smiles': 'C(Cl)Cl', 'formula': 'CH2Cl2', 'molweight': 84.93, 'charge': 0, 'iupac_name': 'dichloromethane', 'description': 'Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.'}]  
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : dichloromethane 
+ CAS                : None
+ Formula            : CH2Cl2
+ Molecular Weight   : 84.93
+ Charge             : 0
+ CID                : 6344
+ Description:       : Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : dichloromethane 
+ CAS                : None
+ Formula            : CH2Cl2
+ Molecular Weight   : 84.93
+ Charge             : 0
+ CID                : 6344
+ Description:       : Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.
+ , None]]
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : 6623 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6623/description/XML 
+ [+] Performing Pubchem Query 
+ [+] One Result Returned! 
+ =========RETURN RELATIONSHIPS======= 
+ [{'cid': 6623, 'smiles': 'CC(C)(C1=CC=C(C=C1)O)C2=CC=C(C=C2)O', 'formula': 'C15H16O2', 'molweight': 228.29, 'charge': 0, 'iupac_name': '4-[2-(4-hydroxyphenyl)propan-2-yl]phenol', 'description': "Bisphenol A is a bisphenol that is 4,4'-methanediyldiphenol in which the methylene hydrogens are replaced by two methyl groups. 
+It has a role as a xenoestrogen, an environmental contaminant, a xenobiotic and an endocrine disruptor."}]
+ =========RETURN RELATIONSHIPS======= 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : 4-[2-(4-hydroxyphenyl)propan-2-yl]phenol 
+ CAS                : None
+ Formula            : C15H16O2
+ Molecular Weight   : 228.29
+ Charge             : 0
+ CID                : 6623
+ Description:       : Bisphenol A is a bisphenol that is 4,4'-methanediyldiphenol in which the methylene hydrogens are replaced by two methyl groups. It has a role as a xenoestrogen, an environmental contaminant, a xenobiotic and an endocrine disruptor.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : 4-[2-(4-hydroxyphenyl)propan-2-yl]phenol 
+ CAS                : None
+ Formula            : C15H16O2
+ Molecular Weight   : 228.29
+ Charge             : 0
+ CID                : 6623
+ Description:       : Bisphenol A is a bisphenol that is 4,4'-methanediyldiphenol in which the methylene hydrogens are replaced by two methyl groups. It has a role as a xenoestrogen, an environmental contaminant, a xenobiotic and an endocrine disruptor.
+ , None]]
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : 5462309 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/5462309/description/XML 
+ No Description Available in XML REST response 
+ [+] Performing Pubchem Query 
+ [+] One Result Returned! 
+ =========RETURN RELATIONSHIPS======= 
+ [{'cid': 5462309, 'smiles': '[P]', 'formula': 'P', 'molweight': 30.973762, 'charge': 0, 'iupac_name': 'phosphorus', 'description': 'No Description Available in XML REST response'}]
+ =========RETURN RELATIONSHIPS======= 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : phosphorus 
+ CAS                : None
+ Formula            : P
+ Molecular Weight   : 30.973762
+ Charge             : 0
+ CID                : 5462309
+ Description:       : No Description Available in XML REST response
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : phosphorus 
+ CAS                : None
+ Formula            : P
+ Molecular Weight   : 30.973762
+ Charge             : 0
+ CID                : 5462309
+ Description:       : No Description Available in XML REST response
+ , None]]
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : 24823 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24823/description/XML 
+ [+] Performing Pubchem Query 
+ [+] One Result Returned! 
+ =========RETURN RELATIONSHIPS======= 
+ [{'cid': 24823, 'smiles': '[O-][O+]=O', 'formula': 'O3', 'molweight': 47.998, 'charge': 0, 'iupac_name': 'ozone', 'description': 'Ozone is an elemental molecule 
+with formula O3. An explosive, pale blue gas (b.p. -112###) that has a characteristic, pleasant odour, it is continuously produced in the upper atmosphere by the 
+action of solar ultraviolet radiation on atmospheric oxygen. It is an antimicrobial agent used in the production of bottled water, as well as in the treatment of 
+meat, poultry and other foodstuffs. It has a role as a member of greenhouse gas, a disinfectant, a tracer, an electrophilic reagent, a mutagen, an oxidising agent and an antiseptic drug. It is a member of reactive oxygen species, an elemental molecule, a triatomic oxygen and a gas molecular entity.'}]
+ =========RETURN RELATIONSHIPS======= 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : ozone 
+ CAS                : None
+ Formula            : O3
+ Molecular Weight   : 47.998
+ Charge             : 0
+ CID                : 24823
+ Description:       : Ozone is an elemental molecule with formula O3. An explosive, pale blue gas (b.p. -112###) that has a characteristic, pleasant odour, it is 
+continuously produced in the upper atmosphere by the action of solar ultraviolet radiation on atmospheric oxygen. It is an antimicrobial agent used in the production of bottled water, as well as in the treatment of meat, poultry and other foodstuffs. It has a role as a member of greenhouse gas, a disinfectant, a tracer, an electrophilic reagent, a mutagen, an oxidising agent and an antiseptic drug. It is a member of reactive oxygen species, an elemental molecule, a triatomic oxygen and a gas molecular entity.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : ozone 
+ CAS                : None
+ Formula            : O3
+ Molecular Weight   : 47.998
+ Charge             : 0
+ CID                : 24823
+ Description:       : Ozone is an elemental molecule with formula O3. An explosive, pale blue gas (b.p. -112###) that has a characteristic, pleasant odour, it is 
+continuously produced in the upper atmosphere by the action of solar ultraviolet radiation on atmospheric oxygen. It is an antimicrobial agent used in the production of bottled water, as well as in the treatment of meat, poultry and other foodstuffs. It has a role as a member of greenhouse gas, a disinfectant, a tracer, an electrophilic reagent, a mutagen, an oxidising agent and an antiseptic drug. It is a member of reactive oxygen species, an elemental molecule, a triatomic oxygen and a gas molecular entity.
+ , None]]
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : water 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ H2O 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 962, 'smiles': 'O', 'formula': 'H2O', 'molweight': 18.015, 'charge': 0, 'iupac_name': 'oxidane', 'description': 'Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.'}]
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : oxidane 
+ CAS                : None
+ Formula            : H2O
+ Molecular Weight   : 18.015
+ Charge             : 0
+ CID                : 962
+ Description:       : Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : oxidane 
+ CAS                : None
+ Formula            : H2O
+ Molecular Weight   : 18.015
+ Charge             : 0
+ CID                : 962
+ Description:       : Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.
+ , None]]
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : 10,13-dimethyl-17-(6-methylheptan-2-yl)-2,3,4,5,6,9,11,12,14,15,16,17-dodecahydro-1H-cyclopenta[a]phenanthren-3-ol 
+ CAS                : None
+ Formula            : C27H46O
+ Molecular Weight   : 386.7
+ Charge             : 0
+ CID                : 420
+ Description:       : No Description Available in XML REST response
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : methanol 
+ CAS                : None
+ Formula            : CH4O
+ Molecular Weight   : 32.042
+ Charge             : 0
+ CID                : 887
+ Description:       : Methanol is the primary alcohol that is the simplest aliphatic alcohol, comprising a methyl and an alcohol group. It has a role as an amphiprotic solvent, a fuel, a human metabolite, an Escherichia coli metabolite, a mouse metabolite and a Mycoplasma genitalium metabolite. It is an alkyl alcohol, a one-carbon compound, a volatile organic compound and a primary alcohol. It is a conjugate acid of a methoxide.
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : phenol 
+ CAS                : None
+ Formula            : C6H6O
+ Molecular Weight   : 94.11
+ Charge             : 0
+ CID                : 996
+ Description:       : Phenol is an organic hydroxy compound that consists of benzene bearing a single hydroxy substituent. The parent of the class of phenols. It 
+has a role as a disinfectant, an antiseptic drug, a human xenobiotic metabolite and a mouse metabolite. It is a conjugate acid of a phenolate.
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : methylene chloride 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/methylene%20chloride/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ CH2Cl2 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 6344, 'smiles': 'C(Cl)Cl', 'formula': 'CH2Cl2', 'molweight': 84.93, 'charge': 0, 'iupac_name': 'dichloromethane', 'description': 'Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.'}]  
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : dichloromethane 
+ CAS                : None
+ Formula            : CH2Cl2
+ Molecular Weight   : 84.93
+ Charge             : 0
+ CID                : 6344
+ Description:       : Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : dichloromethane 
+ CAS                : None
+ Formula            : CH2Cl2
+ Molecular Weight   : 84.93
+ Charge             : 0
+ CID                : 6344
+ Description:       : Dichloromethane is a member of the class of chloromethanes that is methane in which two of the hydrogens have been replaced by chlorine. A dense, non-flammible colourless liquid at room temperature (b.p. 40###, d = 1.33) which is immiscible with water, it is widely used as a solvent, a paint stripper, and for the removal of caffeine from coffee and tea. It has a role as a polar aprotic solvent, a carcinogenic agent and a refrigerant. It is a member of chloromethanes and a volatile organic compound.
+ , None]]
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : 4-[2-(4-hydroxyphenyl)propan-2-yl]phenol 
+ CAS                : None
+ Formula            : C15H16O2
+ Molecular Weight   : 228.29
+ Charge             : 0
+ CID                : 6623
+ Description:       : Bisphenol A is a bisphenol that is 4,4'-methanediyldiphenol in which the methylene hydrogens are replaced by two methyl groups. It has a role as a xenoestrogen, an environmental contaminant, a xenobiotic and an endocrine disruptor.
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : phosphorus 
+ CAS                : None
+ Formula            : P
+ Molecular Weight   : 30.973762
+ Charge             : 0
+ CID                : 5462309
+ Description:       : No Description Available in XML REST response
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : cid 
+ [+] performing internal lookup 
+ [+] Internal Lookup returned TRUE 
+ ==BEGINNING==return query for pubchem/local lookup=========== 
+ IUPAC name         : ozone 
+ CAS                : None
+ Formula            : O3
+ Molecular Weight   : 47.998
+ Charge             : 0
+ CID                : 24823
+ Description:       : Ozone is an elemental molecule with formula O3. An explosive, pale blue gas (b.p. -112###) that has a characteristic, pleasant odour, it is 
+continuously produced in the upper atmosphere by the action of solar ultraviolet radiation on atmospheric oxygen. It is an antimicrobial agent used in the production of bottled water, as well as in the treatment of meat, poultry and other foodstuffs. It has a role as a member of greenhouse gas, a disinfectant, a tracer, an electrophilic reagent, a mutagen, an oxidising agent and an antiseptic drug. It is a member of reactive oxygen species, an elemental molecule, a triatomic oxygen and a gas molecular entity.
+
+ =====END=====return query for pubchem/local lookup=========== 
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[]] 
+ ============================================= 
+ user supplied a : iupac_name 
+ [+] performing internal lookup 
+ [-] Internal Lookup returned false 
+ searching for a Description : water 
+ [+] Requesting:  
+ https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/description/XML 
+ [+] Performing Pubchem Query 
+ [+] Multiple results returned  
+ H2O 
+ =========RETURN RELATIONSHIPS=======multiple 
+ [{'cid': 962, 'smiles': 'O', 'formula': 'H2O', 'molweight': 18.015, 'charge': 0, 'iupac_name': 'oxidane', 'description': 'Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.'}]
+ =========RETURN RELATIONSHIPS=======multiple 
+ start of Database_functions.add_to_db() 
+ Temp_array contents:[IUPAC name         : oxidane 
+ CAS                : None
+ Formula            : H2O
+ Molecular Weight   : 18.015
+ Charge             : 0
+ CID                : 962
+ Description:       : Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.
+ , None]
+ ============================================= 
+ [+] Sending the following reply via global output container 
+ [[IUPAC name         : oxidane 
+ CAS                : None
+ Formula            : H2O
+ Molecular Weight   : 18.015
+ Charge             : 0
+ CID                : 962
+ Description:       : Water is an oxygen hydride consisting of an oxygen atom that is covalently bonded to two hydrogen atoms. It has a role as an amphiprotic solvent, a member of greenhouse gas, a human metabolite, a Saccharomyces cerevisiae metabolite, an Escherichia coli metabolite and a mouse metabolite. It is an oxygen hydride, a mononuclear parent hydride and an inorganic hydroxy compound. It is a conjugate base of an oxonium. It is a conjugate acid of a hydroxide.
+ , None]]
+ ============================================= 
+
+N:\science_bot\code\discord_bot-master\discord_chembot>
