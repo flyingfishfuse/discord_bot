@@ -44,23 +44,27 @@ from flask_sqlalchemy import SQLAlchemy
 from variables_for_reality import TESTING, TEST_DB
 from variables_for_reality import greenprint,redprint,blueprint,function_message
 
+################################################################################
+##############                      CONFIG                     #################
+################################################################################
+TESTING = True
+#TESTING = False
+#The sqlite :memory: identifier is the default if no filepath is present. 
+# Specify sqlite:// and nothing else:
+#e = create_engine('sqlite://')
+TEST_DB = 'sqlite://'
+
+# pubchem REST API service
+pubchem_search_types = ["iupac_name", "cid", "cas"]
+API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
+
 DATABASE_HOST      = "localhost"
 DATABASE           = "chembot"
 DATABASE_USER      = "admin"
 DATABASE_PASSWORD  = "password"
 SERVER_NAME        = "Discord Chemistry lookup tool"
-HTTP_HOST          = "fihtbiscuits"
-ADMIN_NAME         = "mr_hai"
-ADMIN_PASSWORD     = "password"
-ADMIN_EMAIL        = "game_admin" + "@" + HTTP_HOST
-DANGER_STRING      = "TACOCAT"
-
 LOCAL_CACHE_FILE   = 'sqlite:///' + DATABASE + DATABASE_HOST + DATABASE_USER + ".db"
-easter_egg_string  = ["AuTiSTiC", "DyNAmITe", "HeLiCoPtEr", "SeNPaI", "HoOKErS ", "CoCaINe",\
-                      "COWS"]
-################################################################################
-##############                      CONFIG                     #################
-################################################################################
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class Config(object):
@@ -78,7 +82,7 @@ try:
     database = SQLAlchemy(chembot_server)
     database.init_app(chembot_server)
 except Exception:
-    function_message(Exception,"red")
+    redprint(Exception.with_traceback)
 
 ###############################################################################
 # from stack overflow
@@ -110,7 +114,7 @@ class Compound(database.Model):
     iupac_name          = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
-    formula             = database.Column(database.String(120))
+    formula             = database.Column(database.String(256))
     molweight           = database.Column(database.String(32))
     charge              = database.Column(database.String(32))
     description         = database.Column(database.Text)
@@ -137,8 +141,8 @@ class Composition(database.Model):
                             autoincrement=True)
     name                = database.Column(database.String(64))
     units               = database.Column(database.Integer)
-    compounds           = database.Column(database.String(120))
-    notes               = database.Column(database.String(256))
+    compounds           = database.Column(database.String(256))
+    notes               = database.Column(database.Text)
 
 #{
 #  "composition": "flash",
@@ -151,8 +155,11 @@ class Composition(database.Model):
     def __repr__(self):
         list_to_string = lambda list_to_convert: ''.join(list_to_convert)
         formula_list = str.split(self.compounds, sep=",")
-        print(formula_list)
+        greenprint(formula_list)
         formula = ""
+
+        # what the hell was I doing here?
+        # seriously, I forgot
         def format_asdf():
             for each in formula_list:
             #catches the amount
@@ -198,7 +205,7 @@ def pubchem_route():
 ################################################################################
 class Database_functions():
     def __init__(self):
-        self.TESTING = False
+        self.TESTING = TESTING
      
     def Compound_by_id(cid_of_compound : str):
         """
@@ -208,11 +215,15 @@ class Database_functions():
         """
         cid_passed = cid_of_compound
         try:
-            #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)    
+            #return database.session.query(Compound).filter_by(Compound.cid == cid_passed)
+            #                                * See that right there? "cid" ?
             return Compound.query.filter_by(cid = cid_passed).first()
+            # SQL-Alchemy interprets that as the record to lookup
+            # it DOES NOT evaluate the contents of a variable
+            # do not forget that! It uses the name as is! The contents do not matter!
         except Exception:
             redprint("[-] Failure in Compound_by_id")
-            print(str(Exception.__cause__))
+            redprint(str(Exception.__cause__))
             return False
 
     ################################################################################
@@ -304,7 +315,7 @@ class Database_functions():
     def compound_to_database(lookup_list: list):
         """
         Puts a pubchem lookup to the database
-        ["CID", "cas" , "smiles" , "Formula", "Name"]
+        ["CID", "cas" , "smiles" , "Formula", "Name", "Description"]
         """
         lookup_cid                 = lookup_list[0].get('cid')
         #lookup_cas                = lookup_list[0].get('cas')
@@ -313,6 +324,8 @@ class Database_functions():
         lookup_molweight           = lookup_list[0].get('molweight')        
         lookup_charge              = lookup_list[0].get('charge')
         lookup_name                = lookup_list[0].get('iupac_name')
+        lookup_description         = lookup_list[0].get('description')
+
         Database_functions.add_to_db(Compound(                       \
             cid              = lookup_cid                    ,\
             #cas             = lookup_cas                    ,\
@@ -320,7 +333,8 @@ class Database_functions():
             formula          = lookup_formula                ,\
             molweight        = lookup_molweight              ,\
             charge           = lookup_charge                 ,\
-            iupac_name       = lookup_name                   ))
+            iupac_name       = lookup_name                   ,\
+            description      = lookup_description            ))
 
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
@@ -348,5 +362,3 @@ class Database_functions():
                 units      = units_used,              \
                 compounds  = formula_list,            \
                 notes      = info                     ))
-
- ###############################################################################   

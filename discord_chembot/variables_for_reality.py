@@ -25,24 +25,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-####
-################################################################################
-##    Search by element number, symbol,
-##    list resources available
-##    TODO: show basic info if no specificity in query
-# created by : mr_hai on discord / flyingfishfuse on github
-## Test/Personal Server : https://discord.gg/95V7Mn
 #list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
 #data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
 # https://chemspipy.readthedocs.io/en/latest/
 
+###############################################################################
 # This file contains all of the information that needs to be globally available
 # Some people will say this is a bad idea, they are wrong. Absolute statements
 # are, for the most part, not possible. Only, in matters of good and evil
 # can there be absolutes.
+###############################################################################
+
 # THIS IS A TOP LEVEL FILE
 # DO NOT CREATE CYCLIC DEPENDENCIES!
-# Establish an error reporting function
+
 import colorama
 from colorama import init
 init()
@@ -50,6 +46,31 @@ from colorama import Fore, Back, Style
 #Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
 #Style: DIM, NORMAL, BRIGHT, RESET_ALL
+
+#TESTING colored print functions
+# ok so according to some website on the internet (professional, I know)
+# https://thispointer.com/python-how-to-use-if-else-elif-in-lambda-functions/
+# You can do THIS:
+# lambda <args> : <return Value> if <condition > ( <return value > if <condition> else <return value>)
+# make them global scope for testing purposes
+
+# this one is used inline to convert lists to strings inside of print functions
+list_to_string = lambda list_to_convert: ''.join(list_to_convert)
+# so it prints to screen as a return "value" IF it's in "test mode"
+#TODO: OR VERBOSE!!
+#  but returns NONE if test mode is off
+blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
+greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
+redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
+
+# inline colorization for lambdas in a lambda
+makered    = lambda text: Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL
+makegreen  = lambda text: Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
+makeblue   = lambda text: Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL
+makeyellow = lambda text: Fore.YELLOW + ' ' +  text + ' ' + Style.RESET_ALL
+
+yellow_bold_print = lambda text: print(Fore.YELLOW + Style.BRIGHT + ' '  +  text + ' ' + Style.RESET_ALL) \
+    if (TESTING == True) else None
 
 # Filter None values from kwargs
 #kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
@@ -85,28 +106,6 @@ lookup_input_container = []
 pubchem_search_types = ["iupac_name", "cid", "cas"]
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
 
-def function_message(exception_message : str,  location:str, color_to_print="red"):
-    """
-    A Robust exception message passing class? that uses colorama and inspect
-    Takes red, green as color arguments. WORK IN PROGERESS!
-    """
-    if color_to_print == "red":
-        # gets name of object calling this function, the previous frame calling this object
-        #f_back next outer frame object (this frame’s caller)
-
-        #This code would be used INSIDE the function being tested
-        #f_code code object being executed in this frame
-        #inspect.currentframe().f_back.__base__
-        redprint("something wierd happened in: "  + location)
-    elif color_to_print == "green":
-        greenprint("something wierd happened in: " + location)
-    elif color_to_print == "blue":
-        blueprint("something wierd happened in: " + location)
-
-#make them global scope for testing purposes
-blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL)
-greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL)
-redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL)
 
 #move to your whatever.py discord module
 discord_color = 0x3b12ef

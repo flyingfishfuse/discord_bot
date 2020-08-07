@@ -1,3 +1,48 @@
+# -*- coding: utf-8 -*-
+################################################################################
+## Chemical element resource database from wikipedia/mendeleev python library ##
+##                             for discord bot                                ##
+################################################################################
+# Copyright (c) 2020 Adam Galindo                                             ##
+#                                                                             ##
+# Permission is hereby granted, free of charge, to any person obtaining a copy##
+# of this software and associated documentation files (the "Software"),to deal##
+# in the Software without restriction, including without limitation the rights##
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   ##
+# copies of the Software, and to permit persons to whom the Software is       ##
+# furnished to do so, subject to the following conditions:                    ##
+#                                                                             ##
+# Licenced under GPLv3                                                        ##
+# https://www.gnu.org/licenses/gpl-3.0.en.html                                ##
+#                                                                             ##
+# The above copyright notice and this permission notice shall be included in  ##
+# all copies or substantial portions of the Software.                         ##
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+################################################################################
+"""
+Discord bot for utilizing the functions found in
+  Pubchem_lookup.py
+  database_setup.py
+  element_lookup.py
+  equation_balancer.py
+  add_composition.py
+
+This is a Top level file, It can be run singly as the App.
+
+Running this file by itself will start a discord bot.
+
+
+"""
+################################################################################
+# Imports
+################################################################################
 from variables_for_reality import greenprint,redprint, \
     blueprint,lookup_output_container,devs,list_to_string
 from equation_balancer import EquationBalancer
@@ -11,9 +56,18 @@ import discord_key
 from discord_key import *
 from discord.ext import commands, tasks
 from variables_for_reality import COMMAND_PREFIX,lookup_input_container
+
+################################################################################
+# Variables
+################################################################################
+
 lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
 bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
     \"element\" \"type_of_data\"."
+
+################################################################################
+# Private functions
+################################################################################
 
 # check if the person sending the command is a developer
 def dev_check(ctx):
@@ -24,10 +78,6 @@ async def unload(ctx, extension):
     lookup_bot.unload_extension(f"cogs.{extension}")
     await ctx.send(f"`{extension}`" + " Unloaded !")
 
-lookup_bot = commands.Bot(command_prefix=(COMMAND_PREFIX))
-bot_help_message = "I am a beta bot, right now all you can do is \"lookup\" \
-    \"element\" \"type_of_data\"."
-
 # WHEN STARTED, APPLY DIRECTLY TO FOREHEAD
 @lookup_bot.event
 async def on_ready():
@@ -35,6 +85,9 @@ async def on_ready():
     await lookup_bot.change_presence(activity=discord.Game(name="Chembot - type .help"))
     #await lookup_bot.connect()
 
+################################################################################
+# Public functions
+################################################################################
 #HELP COMMAND
 @lookup_bot.command()
 async def element_lookup_usage(ctx):
@@ -61,57 +114,38 @@ async def bot_usage(ctx):
 #async def restart_bot(secret_code):
     #Restart_bot(secret_code)
 
+################################################################################
+# Private functions
+################################################################################
+
 @lookup_bot.command()
 async def element_lookup(ctx, arg1, arg2):
     element_lookup_class.Element_lookup.validate_user_input(arg1, arg2)
-    ##########################################################################
-    # DO STUFF HERE TO create the discord.Embed object
-    ##########################################################################
-    #print( list_to_string(lookup_output_container))
-    #string_to_send = list_to_string(lookup_output_container)
-    #greenprint(lookup_output_container[0])
     await ctx.send(lookup_output_container[0])
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
-    # this does the thing and places the output in lookup_output_container
     Pubchem_lookup.validate_user_input(arg1, arg2)
-    ##########################################################################
-    # DO STUFF HERE TO create the discord.Embed object
-    # lookup_output_container is holding the local lookup from the DB
-    # it's already done the remote lookup and stored the result
-    ##########################################################################
-    #string_to_send = list_to_string(lookup_output_container)
-    #print(string_to_send)
-    #await ctx.send(content="lol", embed=lookup_output_container)
-    #await ctx.send(str(lookup_output_container[0].__repr__))
     #lookup_output_container[0].cid
-    #lookup_output_container[0].cas
-    #lookup_output_container[0].isomeric_smiles
     #lookup_output_container[0].molecular_formula
     #lookup_output_container[0].molecular_weight
     #lookup_output_container[0].charge
     #lookup_output_container[0].iupac_name
-    embed = discord.Embed(
-        lookup_output_container[0].
-    )
-    await ctx.send(str(lookup_output_container[0]))
+    pubchem_embed = discord.Embed()
+    pubchem_embed.title =  lookup_output_container[0].iupac_name
+    
+    #await ctx.send(str(lookup_output_container[0]))
+    await ctx.send(content="lol", embed=pubchem_embed)
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
-    # this does the thing and places the output in lookup_output_container
     EquationBalancer.validate_formula_input(arg1)
-    #string_to_send = list_to_string(lookup_output_container)
-    ##########################################################################
-    # DO STUFF HERE TO create the discord.Embed object
-    ##########################################################################
-    #greenprint(lookup_output_container)
     await ctx.send(lookup_output_container)
-    #await ctx.send(string_to_send)
 
-
-######## AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
+################################################################################
+# AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
 lookup_bot.run(discord_key.discord_bot_token, bot=True)
+################################################################################
 
 
 
