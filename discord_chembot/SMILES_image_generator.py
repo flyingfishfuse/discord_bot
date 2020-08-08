@@ -29,10 +29,29 @@
 """
 
 Molecule visualizer
+   -  defaults to 2-d because 3-d will take more overhead
 
 """
 
+__author__ = 'Adam Galindo'
+__email__ = 'null@null.com'
+__version__ = '1'
+__license__ = 'GPLv3'
 
-class 2D_Image_from_SMILES():
+import pybel
+import pubchempy as pubchem
+from variables_for_reality import TESTING
+from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import lookup_input_container, lookup_output_container
+from database_setup import Database_functions,Compound,Composition,TESTING
+
+# defaults to 2-d because 3-d will take more overhead
+class TwoDimensional_Image_from_SMILES():
+    def __init__(self, SMILES_input):
+        mymol = readstring("smi", "CCCC")
+        print mymol.molwt
+        pass
+
+class ThreeDimensional_Image_from_SMILES():
     def __init__(self, SMILES_input):
         pass
