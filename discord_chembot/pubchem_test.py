@@ -287,6 +287,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             # if internal lookup is false, we do a remote lookup and then store the result
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
+                # we grab things in the proper order
                 description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
                 image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
                 if image_lookup == None:
@@ -303,9 +304,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             elif internal_lookup != None or False:
                 greenprint("[+] Internal Lookup returned TRUE")
                 self.local_output_container["internal_lookup"] = internal_lookup
-                redprint("==BEGINNING==return query for DB lookup===========")
-                greenprint(str(internal_lookup))
-                redprint("=====END=====return query for DB lookup===========")
+                #redprint("==BEGINNING==return query for DB lookup===========")
+                #greenprint(str(internal_lookup))
+                #redprint("=====END=====return query for DB lookup===========")
         # its in dire need of proper exception handling              
         except Exception:
             redprint('[-] Something happened in the try/except block for the function do_lookup')
@@ -361,8 +362,8 @@ Ater validation, the user input is used in :
         return_index = 0
         data = ["iupac_name","cid","cas"]
         if type_of_data in data:
-        #different methods are used depending on the type of input
-        #one way
+        # different methods are used depending on the type of input
+        # one way
             if type_of_data == ("iupac_name" or "cas"):                     
                 try:
                     greenprint("[+] Performing Pubchem Query")
@@ -378,11 +379,10 @@ Ater validation, the user input is used in :
                 except Exception :# pubchem.PubChemPyError:
                     redprint("lookup by NAME/CAS exception - name")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
-        #once we have the lookup results, do something
+        # once we have the lookup results, do something
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
-                    redprint(each.molecular_formula)
                     query_appendix = [{'cid' : each.cid                 ,\
                             #dis bitch dont have a CAS NUMBER!
                             #'cas'       : each.cas                   ,\
@@ -441,31 +441,32 @@ Ater validation, the user input is used in :
 # TODO: Testing procedure requires bad data craft a list of shitty things a 
 # user can attempt. Be malicious and stupid with it
 # break shit
-if TESTING == True:
-    import time
-    #craft a list of queries to test with
-    test_query_list = [["420","cid"],\
-            ["methanol","iupac_name"],\
-             ["phenol","iupac_name"],\
-              ["methylene chloride","iupac_name"] ,\
-               ["6623","cid"],\
+try:
+    if __name__ == '__main__':
+        if TESTING == True:
+            import time
+            #craft a list of queries to test with
+            test_query_list = [["420","cid"],\
+                ["methanol","iupac_name"],\
+                ["phenol","iupac_name"],\
+                ["methylene chloride","iupac_name"] ,\
+                ["6623","cid"],\
                 ["5462309","cid"],\
-                 ["24823","cid"],\
-                  ["water","iupac_name"]]
+                ["24823","cid"],\
+                ["water","iupac_name"]]
     ###################################################################
     # First we do some lookups to pull data and populate the database
     #add more tests
     ###################################################################
-    for each in test_query_list:
-        time.sleep(5)
-        Pubchem_lookup(each[0],each[1])
+        for each in test_query_list:
+            time.sleep(5)
+            Pubchem_lookup(each[0],each[1])
     ###################################################################
     # then we test the "is it stored locally?" function
     # doesnt need a timer, not gonna ban myself from my own service
     ###################################################################
-    for each in test_query_list:
-        Pubchem_lookup(each[0],each[1])
-    #pubchemREST_Description_Request("methanol","iupac_name")
-    #pubchemREST_Description_Request("caffeine","iupac_name")
-    #pubchemREST_Description_Request("water","iupac_name")
+        for each in test_query_list:
+            Pubchem_lookup(each[0],each[1])
+except :
+    redprint("[-] Cannot run file for some reason")
 
