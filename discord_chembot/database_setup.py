@@ -174,7 +174,6 @@ This is a test entry for the DB, it is a flash composition.
 Remember, the finer the Aluminum, the faster the flash. 
 """
 
-redprint("made it this far")
 test_entry1 = Compound(iupac_name ='tentacles', formula="HeNTaI" )
 test_entry2 = Composition(name = "flash", units="%wt", compounds="Al,27.7,NH4ClO4,72.3", notes=test_comp_notes )
 database.create_all()

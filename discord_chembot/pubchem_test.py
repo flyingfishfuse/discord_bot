@@ -321,6 +321,8 @@ Ater validation, the user input is used in :
         Pubchem_lookup.pubchem_lookup_by_name_or_CID()
         
         """
+        blueprint(user_input)
+        blueprint(type_of_input)
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         if search_validate(type_of_input) :#in pubchem_search_types:

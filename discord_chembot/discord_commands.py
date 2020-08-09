@@ -28,7 +28,7 @@
 ################################################################################
 """
 Discord bot for utilizing the functions found in
-  Pubchem_lookup.py
+  Pubchem_test.py
   database_setup.py
   element_lookup.py
   equation_balancer.py
@@ -48,11 +48,13 @@ import discord
 import discord_key
 from discord_key import *
 import element_lookup_class
+from element_lookup_class import Element_lookup
+import pubchem_test
 from pubchem_test import Pubchem_lookup
 from discord.ext import commands, tasks
 from equation_balancer import EquationBalancer
 from variables_for_reality import lookup_output_container
-from variables_for_reality import greenprint,redprint,blueprint,devs
+from variables_for_reality import redprint,greenprint,blueprint,devs
 from variables_for_reality import COMMAND_PREFIX,lookup_input_container
 
 ################################################################################
@@ -138,13 +140,14 @@ async def element_lookup(ctx, arg1, arg2):
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
-    Pubchem_lookup.validate_user_input(arg1, arg2)
+    blueprint(arg1 + arg2)
+    new_lookup = pubchem_test.Pubchem_lookup(arg1,arg2)
     pubchem_embed       =  discord.Embed()
-    pubchem_embed.title =  lookup_output_container[0].iupac_name
-    pubchem_embed.add_field(name = "CID"           , value = lookup_output_container[0].cid)
-    pubchem_embed.add_field(name = "Formula"       , value = lookup_output_container[0].molecular_formula)
-    pubchem_embed.add_field(name = "Mol weight"    , value = lookup_output_container[0].molecular_weight)
-    pubchem_embed.add_field(name = "Charge"        , value = lookup_output_container[0].charge)
+    pubchem_embed.title =  new_lookup.local_output_container[0].iupac_name
+    pubchem_embed.add_field(name = "CID"           , value = new_lookup.local_output_container[0].cid)
+    pubchem_embed.add_field(name = "Formula"       , value = new_lookup.local_output_container[0].molecular_formula)
+    pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.local_output_container[0].molecular_weight)
+    pubchem_embed.add_field(name = "Charge"        , value = new_lookup.local_output_container[0].charge)
 
     ###########################################################################
     # How to set a local file image source:
