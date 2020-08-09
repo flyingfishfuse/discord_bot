@@ -37,7 +37,6 @@ https://github.com/mcs07/PubChemPy
 """
 import re
 import lxml
-import shutil
 import requests
 import pubchempy as pubchem
 from bs4 import BeautifulSoup
@@ -101,17 +100,30 @@ class Image_lookup():
 Performs a pubchem or chemspider image lookup
     Image name is saved as:
         filename = temp_file + ".png"
+    Set image_as_base64 to TRUE to save image as base64 in the DB
 
+INPUT:
     input_type :str
         Default : iupac_name
+    image_as_base64 :bool
+        Default = False
     temp_file :str 
         Default : image
+
+OUTPUT:
+    self.rest_request
+        - Response from remote server
+    self.image_db_entry
+        Either a Base64 Encoded string of the raw response 
+        or a file object opened in binary mode
+
     '''
-    def __init__(self, record_to_request: str ,input_type = 'iupac_name', temp_file = "image" ):
+    def __init__(self, record_to_request: str ,input_type = 'iupac_name', \
+                       image_as_base64 = False, temp_file = "image" ):
         self.filename        = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
-        # fixes name to work with url
+        # fixes local code/context to work with url/remote context
             if input_type  == "iupac_name":
                 self.thing_type = "name"
             else :
@@ -121,26 +133,39 @@ Performs a pubchem or chemspider image lookup
         self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
                                     API_BASE_URL,self.thing_type,self.record_to_request))
         blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
-
-        rest_request = requests.get(self.request_url)
-        
+        try:
+            self.rest_request = requests.get(self.request_url)
+        except :
+            redprint("[-] Request failure at local level")
         # request good
-        if rest_request.status_code(200):
-            try:
-                with open(self.filename, "wb") as temp_file:
-                    temp_file.decode_content = True
-                    shutil.copyfileobj(rest_request.raw, temp_file)
-
+        if self.rest_request.status_code(200):
+            if image_as_base64 == False :
+                try:
+                    #write temp image to file
+                    with open(self.filename, "wb") as temp_file:
+                        import shutil
+                        temp_file.decode_content = True
+                        shutil.copyfileobj(self.rest_request.raw, temp_file)
+                    # open file in read only for the fileobject
+                    self.image_db_entry = open(temp_file, "rb")
+                except:
+                    redprint("[-] Exception when opening or writing image temp file")
+            elif image_as_base64 == True:
+                import base64
+                self.image_db_entry = base64.b64encode(self.rest_request.raw)
         # server side error
-        elif rest_request.status_code((404 or 504) or (503 or 500)):
+        elif self.rest_request.status_code((404 or 504) or (503 or 500)):
             blueprint("[-] Server side error - No Image Available in REST response")
+            return None
         #user error
-        elif rest_request.status_code((400 or 405) or 501):
+        elif self.rest_request.status_code((400 or 405) or 501):
             redprint("[-] User error in Image Request")
+            return None
         #unknown error
-        elif rest_request.status_code(500):
+        elif self.rest_request.status_code(500):
             blueprint("[-] Unknown Server Error - No Image Available in REST response")
-    
+            return None
+
 
 
 
@@ -238,9 +263,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
                 description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
-                image_lookup            = Image_lookup( user_input, type_of_input, temp_file=user_input)
+                image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
                 self.lookup_description = description_lookup.parsed_result
-                self.lookup_image       = image_lookup
+                self.image              = image_lookup.image_db_entry
                 lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
                 self.local_output_container["lookup_object"] = lookup_object
@@ -332,13 +357,14 @@ Ater validation, the user input is used in :
                     redprint(each.molecular_formula)
                     query_appendix = [{'cid' : each.cid                 ,\
                             #dis bitch dont have a CAS NUMBER!
-                            #'cas'       : each.cas                 ,\
-                            'smiles'     : each.isomeric_smiles     ,\
-                            'formula'    : each.molecular_formula   ,\
-                            'molweight'  : each.molecular_weight    ,\
-                            'charge'     : each.charge              ,\
-                            'iupac_name' : each.iupac_name          ,\
-                            'description' : self.lookup_description        }]
+                            #'cas'       : each.cas                   ,\
+                            'smiles'     : each.isomeric_smiles       ,\
+                            'formula'    : each.molecular_formula     ,\
+                            'molweight'  : each.molecular_weight      ,\
+                            'charge'     : each.charge                ,\
+                            'iupac_name' : each.iupac_name            ,\
+                            'description' : self.lookup_description   ,\
+                            'image'       : self.image                }]
                     return_relationships.append(query_appendix)
                     ####################################################
                     # Right here we need to find a way to store multiple records
@@ -356,15 +382,16 @@ Ater validation, the user input is used in :
             elif isinstance(lookup_results, pubchem.Compound) :#\
               #or (len(lookup_results) == 1 and isinstance(lookup_results, list)) :
                 greenprint("[+] One Result Returned!")
-                query_appendix = [{'cid' : lookup_results.cid                 ,\
-                            #'cas'       : lookup_results.cas                 ,\
-                            'smiles'     : lookup_results.isomeric_smiles     ,\
-                            'formula'    : lookup_results.molecular_formula   ,\
-                            'molweight'  : lookup_results.molecular_weight    ,\
-                            'charge'     : lookup_results.charge              ,\
-                            'iupac_name' : lookup_results.iupac_name          ,\
-                            'description' : self.lookup_description                  }]
-
+                query_appendix = [{'cid'  : lookup_results.cid                 ,\
+                            #'cas'        : lookup_results.cas                 ,\
+                            'smiles'      : lookup_results.isomeric_smiles     ,\
+                            'formula'     : lookup_results.molecular_formula   ,\
+                            'molweight'   : lookup_results.molecular_weight    ,\
+                            'charge'      : lookup_results.charge              ,\
+                            'iupac_name'  : lookup_results.iupac_name          ,\
+                            # Local stuff
+                            'description' : self.lookup_description            ,\
+                            'image'       : self.image                         }]
                 return_relationships.append(query_appendix)
                 #redprint("=========RETURN RELATIONSHIPS=======")
                 #blueprint(str(return_relationships[return_index]))
@@ -372,18 +399,18 @@ Ater validation, the user input is used in :
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
+    #after storing the lookup to the local database, retrive the local entry
+    #This returns an SQLALchemy object
         return_query = return_relationships[return_index]
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
-    #after storing the lookup to the local database, retrive the local entry
-    #This returns an SQLALchemy object
         return local_query
     # OR return the remote lookup entry, either way, the information was stored
     # and you get a common "api" to draw data from.
 
 
 ###############################################################################
-# TODO: Testing procedure requires bad data# craft a list of shitty things a 
+# TODO: Testing procedure requires bad data craft a list of shitty things a 
 # user can attempt. Be malicious and stupid with it
 # break shit
 if TESTING == True:
