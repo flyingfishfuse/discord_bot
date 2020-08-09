@@ -137,8 +137,16 @@ async def pubchem_lookup(ctx, arg1, arg2):
     pubchem_embed.add_field(name = "Formula"       , value = lookup_output_container[0].molecular_formula)
     pubchem_embed.add_field(name = "Mol weight"    , value = lookup_output_container[0].molecular_weight)
     pubchem_embed.add_field(name = "Charge"        , value = lookup_output_container[0].charge)
-    pubchem_embed.add_field(name = "Visualization" , value = lookup_output_container[0].image_data)
+
+    ###########################################################################
+    #How to set an arbitrary image source
+    # embed = discord.Embed(title="Title", description="Desc", color=0x00ff00) #creates embed
+    # file = discord.File("path/to/image/file.png", filename="image.png")
+    # embed.set_image(url="attachment://image.png")
+    # await ctx.send(file=file, embed=embed)
+    pubchem_embed.set_image(name = "Visualization" , value = lookup_output_container[0].image_data)
     #await ctx.send(str(lookup_output_container[0]))
+    
     await ctx.send(content="lol", embed=pubchem_embed)
 
 @lookup_bot.command()
@@ -148,7 +156,18 @@ async def balance_equation(ctx, arg1):
 
 ################################################################################
 # AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
-lookup_bot.run(discord_key.discord_bot_token, bot=True)
+global DISCORDAPP
+DISCORDAPP = bool
+try:
+    if __name__ == '__main__':
+        lookup_bot.run(discord_key.discord_bot_token, bot=True)
+        global DISCORDAPP
+        DISCORDAPP = True
+    else:
+        pass
+except:
+    redprint("[-] Error starting program as {}".format())
+    __
 ################################################################################
 
 

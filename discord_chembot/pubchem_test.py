@@ -59,6 +59,12 @@ __license__ = 'GPLv3'
 #import platform
 #OS_NAME = platform.system()
 
+def do_if_discord():
+    global DISCORDAPP
+    if DISCORDAPP == True:
+        return True
+    else:
+        pass
 ###############################################################################
 class pubchemREST_Description_Request():
     # hey it rhymes
@@ -107,7 +113,7 @@ INPUT:
     input_type :str
         Default : iupac_name
     image_as_base64 :bool
-        Default = False
+        Default = True
     temp_file :str 
         Default : image
 
@@ -120,8 +126,15 @@ OUTPUT:
 
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name', \
-                       image_as_base64 = False, temp_file = "image" ):
+                       image_as_base64 = bool, temp_file = "image" ):
+        #############################
+        if do_if_discord() == True:
+            self.base64_save = True
+        else:
+            self.base64_save = False
+        #############################
         self.filename        = temp_file + ".png"
+
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
         # fixes local code/context to work with url/remote context
@@ -138,9 +151,11 @@ OUTPUT:
             self.rest_request = requests.get(self.request_url)
         except :
             redprint("[-] Request failure at local level")
+        #check for errors
+        was_there_was_an_error()
         # request good
         if self.rest_request.status_code(200):
-            if image_as_base64 == False :
+            if self.base64_save == False :
                 try:
                     #write temp image to file
                     with open(self.filename, "wb") as temp_file:
@@ -151,21 +166,23 @@ OUTPUT:
                     self.image_db_entry = open(temp_file, "rb")
                 except:
                     redprint("[-] Exception when opening or writing image temp file")
-            elif image_as_base64 == True:
+            elif self.base64_save == True:
                 import base64
                 self.image_db_entry = base64.b64encode(self.rest_request.raw)
-        # server side error
-        elif self.rest_request.status_code((404 or 504) or (503 or 500)):
-            blueprint("[-] Server side error - No Image Available in REST response")
-            return None
-        #user error
-        elif self.rest_request.status_code((400 or 405) or 501):
-            redprint("[-] User error in Image Request")
-            return None
-        #unknown error
-        elif self.rest_request.status_code(500):
-            blueprint("[-] Unknown Server Error - No Image Available in REST response")
-            return None
+        
+        def was_there_was_an_error(self):
+            # server side error
+            if self.rest_request.status_code((404 or 504) or (503 or 500)):
+                blueprint("[-] Server side error - No Image Available in REST response")
+                return None # "[-] Server side error - No Image Available in REST response"
+            #user error
+            elif self.rest_request.status_code((400 or 405) or 501):
+                redprint("[-] User error in Image Request")
+                return None # "[-] User error in Image Request"
+            #unknown error
+            elif self.rest_request.status_code(500):
+                blueprint("[-] Unknown Server Error - No Image Available in REST response")
+                return None # "[-] Unknown Server Error - No Image Available in REST response"
 
 
 
@@ -174,6 +191,13 @@ OUTPUT:
 class Pubchem_lookup():
     '''
 Class to perform lookups on CID's and IUPAC names
+
+OUTPUTS:
+    self.lookup_object
+        - The SQLAlchemy or PubChem.Compound Object
+        - Attemps local SQLAlchemy object first
+    self.local_output_container
+        - The Human Readable Representation of the Data
 
 NOTE: to grab a description requires a seperate REST request.
     '''
@@ -201,13 +225,6 @@ Provide a search term and "term type", term types are "cas" , "iupac_name" , "ci
 Example 1 : .pubchem_lookup methanol iupac_name
 Example 2 : .pubchem_lookup 3520 cid
 Example 3 : .pubchem_lookup 113-00-8 cas
-
-OUTPUTS:
-    self.lookup_object
-        - The SQLAlchemy or PubChem.Compound Object
-        - Attemps local SQLAlchemy object first
-    self.local_output_container
-        - The Human Readable Representation of the Data
 """
 ###############################################################################
     def reply_to_query(self):
@@ -272,8 +289,11 @@ OUTPUTS:
                 redprint("[-] Internal Lookup returned false")
                 description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
                 image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
+                if image_lookup == None:
+                    self.image          = "No Image Available"
+                else:
+                    self.image          = image_lookup.image_db_entry
                 self.lookup_description = description_lookup.parsed_result
-                self.image              = image_lookup.image_db_entry
                 self.lookup_object      = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
                 self.local_output_container["lookup_object"] = self.lookup_object
