@@ -327,7 +327,7 @@ class Database_functions():
                                                 charge = lookup_list[0].get('charge')             ,\
                                                 iupac_name = lookup_list[0].get('iupac_name')     ,\
                                                 description = lookup_list[0].get('description')   ,\
-                                                image = lookup_list[0].get('image')               )
+                                                image = lookup_list[0].get('image')               ))
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
@@ -354,3 +354,6 @@ class Database_functions():
                 units      = units_used,              \
                 compounds  = formula_list,            \
                 notes      = info                     ))
+
+if __name__ == "__main__":
+    redprint("You arent supposed to run this file silly human!")

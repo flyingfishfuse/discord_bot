@@ -43,18 +43,16 @@ Running this file by itself will start a discord bot.
 ################################################################################
 # Imports
 ################################################################################
-from variables_for_reality import greenprint,redprint, \
-    blueprint,lookup_output_container,devs,list_to_string
-from equation_balancer import EquationBalancer
-from pubchem_test import Pubchem_lookup
-import element_lookup_class
-from element_lookup_class import Element_lookup
-
-# setup the discord variables that need to be global
+import os
 import discord
 import discord_key
 from discord_key import *
+import element_lookup_class
+from pubchem_test import Pubchem_lookup
 from discord.ext import commands, tasks
+from equation_balancer import EquationBalancer
+from variables_for_reality import lookup_output_container
+from variables_for_reality import greenprint,redprint,blueprint,devs
 from variables_for_reality import COMMAND_PREFIX,lookup_input_container
 
 ################################################################################
@@ -114,6 +112,21 @@ async def bot_usage(ctx):
 #async def restart_bot(secret_code):
     #Restart_bot(secret_code)
 
+#@lookup_bot.command()
+#async def composition_lookup(ctx, arg1, arg2):
+    # this does the thing and places the output in lookup_output_container
+#   Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+    #string_to_send = list_to_string(lookup_output_container)
+#    await ctx.send(content="lol", embed=lookup_output_container)
+
+#@lookup_bot.command()
+#@commands.check(dev_check)
+#async def composition_to_db(ctx, arg1, arg2):
+    # this does the thing and places the output in lookup_output_container
+#    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
+    #string_to_send = list_to_string(lookup_output_container)
+#    await ctx.send(content="lol", embed=lookup_output_container)
+
 ################################################################################
 # Private functions
 ################################################################################
@@ -144,7 +157,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     # file = discord.File("path/to/image/file.png", filename="image.png")
     # embed.set_image(url="attachment://image.png")
     # await ctx.send(file=file, embed=embed)
-    pubchem_embed.set_image(name = "Visualization" , value = lookup_output_container[0].image_data)
+    pubchem_embed.set_image(value = lookup_output_container[0].image_data)
     #await ctx.send(str(lookup_output_container[0]))
     
     await ctx.send(content="lol", embed=pubchem_embed)
@@ -156,37 +169,14 @@ async def balance_equation(ctx, arg1):
 
 ################################################################################
 # AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
-global DISCORDAPP
-DISCORDAPP = bool
 try:
     if __name__ == '__main__':
+        os.environ['DISCORDAPP'] = True
         lookup_bot.run(discord_key.discord_bot_token, bot=True)
-        global DISCORDAPP
-        DISCORDAPP = True
     else:
         pass
 except:
-    redprint("[-] Error starting program as {}".format())
+    redprint("[-] Error starting program"
     __
 ################################################################################
-
-
-
-
-
-#@lookup_bot.command()
-#async def composition_lookup(ctx, arg1, arg2):
-    # this does the thing and places the output in lookup_output_container
-#   Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #string_to_send = list_to_string(lookup_output_container)
-#    await ctx.send(content="lol", embed=lookup_output_container)
-
-#@lookup_bot.command()
-#@commands.check(dev_check)
-#async def composition_to_db(ctx, arg1, arg2):
-    # this does the thing and places the output in lookup_output_container
-#    await Pubchem_lookup.validate_user_input(ctx, arg1, arg2)
-    #string_to_send = list_to_string(lookup_output_container)
-#    await ctx.send(content="lol", embed=lookup_output_container)
-
 

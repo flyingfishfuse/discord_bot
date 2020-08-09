@@ -60,11 +60,9 @@ __license__ = 'GPLv3'
 #OS_NAME = platform.system()
 
 def do_if_discord():
-    global DISCORDAPP
-    if DISCORDAPP == True:
-        return True
-    else:
-        pass
+    import os
+    return os.environ['DISCORDAPP']
+
 ###############################################################################
 class pubchemREST_Description_Request():
     # hey it rhymes
@@ -82,24 +80,24 @@ class pubchemREST_Description_Request():
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name' ):
         if search_validate(input_type) :#in pubchem_search_types:
-            if TESTING == True:
+            if TESTING           == True:
                 greenprint("searching for a Description : " + record_to_request)
-            if input_type  == "iupac_name":
-                self.thing_type = "name"
+            if input_type        == "iupac_name":
+                self.thing_type  = "name"
             else :
-                self.thing_type = input_type
-        self.record_to_request  = record_to_request
-        self.request_url        = requote_uri("{}/compound/{}/{}/description/XML".format(\
+                self.thing_type  = input_type
+        self.record_to_request   = record_to_request
+        self.request_url         = requote_uri("{}/compound/{}/{}/description/XML".format(\
                                     API_BASE_URL,self.thing_type,self.record_to_request))
         blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
-        self.request_return     = requests.get(self.request_url)
-        self.soupyresults       = BeautifulSoup(self.request_return.text , features='lxml').contents[1]
+        self.request_return      = requests.get(self.request_url)
+        self.soupyresults        = BeautifulSoup(self.request_return.text , features='lxml').contents[1]
         self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
-        if self.parsed_result != [] :
-            self.parsed_result = str(self.parsed_result[0].contents[0])
-        elif self.parsed_result == [] or NoneType:
+        if self.parsed_result    != [] :
+            self.parsed_result   = str(self.parsed_result[0].contents[0])
+        elif self.parsed_result  == [] or NoneType:
             blueprint("[-] No Description Available in XML REST response")
-            self.parsed_result = "No Description Available in XML REST response"
+            self.parsed_result   = "No Description Available in XML REST response"
 ###############################################################################
 
 class Image_lookup():
@@ -253,7 +251,6 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         # clear the output from any previous lookups
         lookup_output_container.clear()
         lookup_output_container.append(temp_array)
-        # this code only runs if TESTING is set to True
         redprint("=============================================")
         greenprint("[+] Sending the following reply via global output container")
         blueprint(str(lookup_output_container))
