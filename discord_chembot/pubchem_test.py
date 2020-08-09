@@ -440,6 +440,8 @@ Ater validation, the user input is used in :
 # TODO: Testing procedure requires bad data craft a list of shitty things a 
 # user can attempt. Be malicious and stupid with it
 # break shit
+greenprint("[+] Loaded Pubchem Lookup")
+
 try:
     if __name__ == '__main__':
         if TESTING == True:

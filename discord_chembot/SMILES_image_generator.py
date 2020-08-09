@@ -54,8 +54,6 @@ class TwoDimensional_Image_from_SMILES():
     out_file defaults to "mol_img" with proceeding index
     '''
     def __init__(self, SMILES_input, out_file = "mol_img"):
-        mymol = readstring("smi", "CCCC")
-        print(mymol.molwt)
         pass
 
 class ThreeDimensional_Image_from_SMILES():

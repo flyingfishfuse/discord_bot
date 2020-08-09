@@ -139,11 +139,6 @@ async def element_lookup(ctx, arg1, arg2):
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
     Pubchem_lookup.validate_user_input(arg1, arg2)
-    #lookup_output_container[0].cid
-    #lookup_output_container[0].molecular_formula
-    #lookup_output_container[0].molecular_weight
-    #lookup_output_container[0].charge
-    #lookup_output_container[0].iupac_name
     pubchem_embed       =  discord.Embed()
     pubchem_embed.title =  lookup_output_container[0].iupac_name
     pubchem_embed.add_field(name = "CID"           , value = lookup_output_container[0].cid)
@@ -152,7 +147,8 @@ async def pubchem_lookup(ctx, arg1, arg2):
     pubchem_embed.add_field(name = "Charge"        , value = lookup_output_container[0].charge)
 
     ###########################################################################
-    #How to set an arbitrary image source
+    # How to set a local file image source:
+    #
     # embed = discord.Embed(title="Title", description="Desc", color=0x00ff00) #creates embed
     # file = discord.File("path/to/image/file.png", filename="image.png")
     # embed.set_image(url="attachment://image.png")
@@ -165,16 +161,21 @@ async def balance_equation(ctx, arg1):
     EquationBalancer.validate_formula_input(arg1)
     await ctx.send(lookup_output_container)
 
+
+greenprint("[+] Loaded Discord commands")
+
 ################################################################################
 # AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
-try:
-    if __name__ == '__main__':
-        os.environ['DISCORDAPP'] = True
-        lookup_bot.run(discord_key.discord_bot_token, bot=True)
-    else:
-        pass
-except:
-    redprint("[-] Error starting program"
-    __
+from variables_for_reality import TESTING
+if TESTING == True:
+    lookup_bot.run(discord_key.discord_bot_token, bot=True)
+else:
+    try:
+        if __name__ == '__main__':
+            os.environ['DISCORDAPP'] = True
+            lookup_bot.run(discord_key.discord_bot_token, bot=True)
+        else:
+            print("wat")
+    except:
+        redprint("[-] Error starting program")
 ################################################################################
-

@@ -28,29 +28,17 @@
 # THE SOFTWARE.
 ####
 ################################################################################
-##    Search by element number, symbol,
-##    list resources available
-##    TODO: show basic info if no specificity in query
-# created by : mr_hai on discord / flyingfishfuse on github
-## Test/Personal Server : https://discord.gg/95V7Mn
-
 # basic imports for a module, color print not required
-from variables_for_reality import function_message
-from variables_for_reality import greenprint,redprint,blueprint
-from variables_for_reality import lookup_input_container, lookup_output_container
-from variables_for_reality import scale_converter_unit_list
-from database_setup import Database_functions,Compound,Composition,TESTING
-
-####################################################################################
-# module imports
-###################################################################################
 import sys
-import math, cmath
-import chempy
-from chempy import balance_stoichiometry, mass_fractions
-from variables_for_reality import pi,Vbe
-#do thnigs with this , this seems nice
 import pyEQL
+import chempy
+import math, cmath
+from variables_for_reality import pi,Vbe
+from chempy import balance_stoichiometry, mass_fractions
+from variables_for_reality import scale_converter_unit_list
+from variables_for_reality import greenprint,redprint,blueprint
+from database_setup import Database_functions,Compound,Composition,TESTING
+from variables_for_reality import lookup_input_container, lookup_output_container
 
 # FORMULA RULES
 

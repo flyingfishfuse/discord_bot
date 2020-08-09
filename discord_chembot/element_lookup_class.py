@@ -15,7 +15,7 @@ class Element_lookup():
     def help_message():
         return "Put the element's name, symbol, or atomic number followed \
 by either: basic, historical, physical, chemical, nuclear, ionization, \
-isotopes, oxistates\n 
+isotopes, oxistates\n "
         
     def reply_to_query(message):
         '''

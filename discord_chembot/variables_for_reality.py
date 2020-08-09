@@ -406,3 +406,5 @@ ELEMENTS = {
     117: 'us',
     118: 'uo',
 }
+
+greenprint("[+] Loaded Variables")

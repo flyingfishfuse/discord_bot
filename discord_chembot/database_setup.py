@@ -42,7 +42,7 @@ from flask_sqlalchemy import SQLAlchemy
 #from discord_chembot.variables_for_reality import \
 #    greenprint,redprint,blueprint,function_message
 from variables_for_reality import TESTING, TEST_DB
-from variables_for_reality import greenprint,redprint,blueprint,function_message
+from variables_for_reality import greenprint,redprint,blueprint
 
 ################################################################################
 ##############                      CONFIG                     #################
@@ -118,7 +118,7 @@ class Compound(database.Model):
     molweight           = database.Column(database.String(32))
     charge              = database.Column(database.String(32))
     description         = database.Column(database.Text)
-    image               = database.Column(database.LargeBinary or database.String(32))
+    image               = database.Column(database.LargeBinary or database.Text)
 
     def __repr__(self):
         return 'IUPAC name         : {} \n \
@@ -355,5 +355,4 @@ class Database_functions():
                 compounds  = formula_list,            \
                 notes      = info                     ))
 
-if __name__ == "__main__":
-    redprint("You arent supposed to run this file silly human!")
+greenprint("[-] Loaded database")
