@@ -250,9 +250,9 @@ class Database_functions():
 
         """
         try:
-            blueprint("start of Database_functions.add_to_db()")
             database.session.add(thingie)
             database.session.commit
+            greenprint("[+] Database commit Sucessful")
         except Exception:
             redprint("[-] add_to_db() FAILED")
             print(Exception.__cause__)

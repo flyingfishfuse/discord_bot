@@ -35,6 +35,7 @@ Caching extension to the Python interface for the PubChem PUG REST service.
 https://github.com/mcs07/PubChemPy
 
 """
+import os
 import re
 import lxml
 import requests
@@ -59,9 +60,6 @@ __license__ = 'GPLv3'
 #import platform
 #OS_NAME = platform.system()
 
-def do_if_discord():
-    import os
-    return os.environ['DISCORDAPP']
 
 ###############################################################################
 class pubchemREST_Description_Request():
@@ -124,11 +122,17 @@ OUTPUT:
         or a file object opened in binary mode
 
     '''
-    def __init__(self, record_to_request: str ,input_type = 'iupac_name', \
-                       image_as_base64 = bool, temp_file = "image" ):
+    def __init__(self, record_to_request: str ,input_type ,image_as_base64 = bool, temp_file = "image" ):
         #############################
-        self.base64_save = os.environ['DISCORDAPP']
-        self.filename    = temp_file + ".png"
+        if (os.environ['DISCORDAPP'] or image_as_base64) == True:
+            self.base64_save = True
+            greenprint("[+] Running as Discord Attachment")
+            greenprint("[+] Encoding Image as Base64")
+        else :
+            self.base64_save = False
+            self.filename    = temp_file + ".png"
+            greenprint("[+] Not running as discord Attachment")
+            greenprint("[+] Saving image as {}".format(self.filename))
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
@@ -203,8 +207,6 @@ NOTE: to grab a description requires a seperate REST request.
         self.internal_lookup_bool   = bool
         self.user_input             = user_input
         self.type_of_input          = type_of_input
-        redprint(self.user_input)
-        redprint(self.type_of_input)
         self.grab_description       = True
         self.grab_image             = True
         if TESTING == True:
@@ -298,11 +300,11 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     redprint("[-] Image Lookup Failed")    
                     image_lookup = None
                 if image_lookup == None:
-                    self.image          = "No Image Available"
+                    self.image              = "No Image Available"
                 else:
-                    self.image          = image_lookup.image_db_entry
-                self.lookup_description = description_lookup.parsed_result
-                self.lookup_object      = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                    self.image              = image_lookup.image_db_entry
+                self.lookup_description     = description_lookup.parsed_result
+                self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
                 self.local_output_container["lookup_object"] = self.lookup_object
             
@@ -430,9 +432,9 @@ Ater validation, the user input is used in :
                             'description' : self.lookup_description            ,\
                             'image'       : self.image                         }]
                 return_relationships.append(query_appendix)
-                #redprint("=========RETURN RELATIONSHIPS=======")
-                #blueprint(str(return_relationships[return_index]))
-                #redprint("=========RETURN RELATIONSHIPS=======")
+                redprint("=========RETURN RELATIONSHIPS=======")
+                blueprint(str(return_relationships[return_index]))
+                redprint("=========RETURN RELATIONSHIPS=======")
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
