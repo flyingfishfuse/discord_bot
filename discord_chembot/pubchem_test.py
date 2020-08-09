@@ -35,8 +35,6 @@ Caching extension to the Python interface for the PubChem PUG REST service.
 https://github.com/mcs07/PubChemPy
 
 """
-#do a search for if TESTING == True 
-# to find the testing blocks
 import re
 import lxml
 import requests
@@ -47,7 +45,7 @@ from variables_for_reality import TESTING
 from variables_for_reality import API_BASE_URL
 from variables_for_reality import search_validate
 from variables_for_reality import pubchem_search_types
-from variables_for_reality import greenprint,redprint,blueprint
+from variables_for_reality import greenprint,redprint,blueprint,makered
 from database_setup import Database_functions,Compound,Composition,TESTING
 from variables_for_reality import lookup_input_container, lookup_output_container
 
@@ -112,21 +110,34 @@ Performs a pubchem or chemspider image lookup
         filename        = temp_file + ".png"
         self.temp_file  = open(filename, mode = "w+")
         if search_validate(input_type) :#in pubchem_search_types:
-            if TESTING == True:
-                greenprint("searching for an image : " + record_to_request)
+            greenprint("searching for an image : " + record_to_request)
+        # fixes name to work with url
             if input_type  == "iupac_name":
                 self.thing_type = "name"
             else :
                 self.thing_type = input_type
+        
         self.record_to_request  = record_to_request
         self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
                                     API_BASE_URL,self.thing_type,self.record_to_request))
         blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
-        self.request_return     = requests.get(self.request_url)
-        blueprint("[-] No Image Available in REST response")
+
+        rest_request = requests.get(self.request_url)
+        
+        # request good
+        if rest_request.status_code(200):
+            self.temp_file.append()
+        # server side error
+        elif rest_request.status_code((404 or 504) or (503 or 500)):
+            blueprint("[-] Server side error - No Image Available in REST response")
+        #user error
+        elif rest_request.status_code((400 or 405) or 501):
+            redprint("[-] User error in Image Request")
+        #unknown error
+        elif rest_request.status_code(500):
+            blueprint("[-] Unknown Server Error - No Image Available in REST response")
     
-    def save_image(self):
-        self.temp_file.append()
+
 
 
 ###############################################################################
@@ -141,6 +152,7 @@ NOTE: to grab a description requires a seperate REST request.
         self.user_input             = user_input
         self.type_of_input          = type_of_input
         self.grab_description       = True
+        self.grab_image             = True
         if TESTING == True:
             self.local_output_container = {} # {"test" : "sample text"} # uncomment to supress linter errors
                                                                         # in the IDE
@@ -221,10 +233,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             # if internal lookup is false, we do a remote lookup and then store the result
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
-                description_lookup = pubchemREST_Description_Request(user_input, type_of_input)
+                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                image_lookup            = Image_lookup( user_input, type_of_input, temp_file=user_input)
                 self.lookup_description = description_lookup.parsed_result
-                lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                self.lookup_image       = image_lookup
+                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+
                 self.local_output_container["lookup_object"] = lookup_object
+            
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
             elif internal_lookup != None or False:
