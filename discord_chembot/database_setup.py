@@ -346,4 +346,4 @@ class Database_functions():
                 compounds  = formula_list,            \
                 notes      = info                     ))
 
-greenprint("[-] Loaded database")
+greenprint("[+] Loaded database")

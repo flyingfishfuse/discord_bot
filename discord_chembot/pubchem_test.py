@@ -95,6 +95,7 @@ class pubchemREST_Description_Request():
         self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
         if self.parsed_result    != [] :
             self.parsed_result   = str(self.parsed_result[0].contents[0])
+            greenprint("[+] Description Found!")
         elif self.parsed_result  == [] or NoneType:
             blueprint("[-] No Description Available in XML REST response")
             self.parsed_result   = "No Description Available in XML REST response"
@@ -126,11 +127,8 @@ OUTPUT:
     def __init__(self, record_to_request: str ,input_type = 'iupac_name', \
                        image_as_base64 = bool, temp_file = "image" ):
         #############################
-        if do_if_discord() == True:
-            self.base64_save = True
-        else:
-            self.base64_save = False
-            self.filename    = temp_file + ".png"
+        self.base64_save = os.environ['DISCORDAPP']
+        self.filename    = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
