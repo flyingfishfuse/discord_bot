@@ -157,9 +157,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     # file = discord.File("path/to/image/file.png", filename="image.png")
     # embed.set_image(url="attachment://image.png")
     # await ctx.send(file=file, embed=embed)
-    pubchem_embed.set_image(value = lookup_output_container[0].image_data)
-    #await ctx.send(str(lookup_output_container[0]))
-    
+    pubchem_embed.set_image(url='data:image/png;base64,{}'.format(lookup_output_container[0].image_data))    
     await ctx.send(content="lol", embed=pubchem_embed)
 
 @lookup_bot.command()
