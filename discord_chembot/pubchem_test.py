@@ -44,6 +44,7 @@ from requests.utils import requote_uri
 from variables_for_reality import TESTING
 from variables_for_reality import API_BASE_URL
 from variables_for_reality import search_validate
+from variables_for_reality import yellow_bold_print
 from variables_for_reality import pubchem_search_types
 from variables_for_reality import greenprint,redprint,blueprint,makered
 from database_setup import Database_functions,Compound,Composition,TESTING
@@ -200,6 +201,13 @@ Provide a search term and "term type", term types are "cas" , "iupac_name" , "ci
 Example 1 : .pubchem_lookup methanol iupac_name
 Example 2 : .pubchem_lookup 3520 cid
 Example 3 : .pubchem_lookup 113-00-8 cas
+
+OUTPUTS:
+    self.lookup_object
+        - The SQLAlchemy or PubChem.Compound Object
+        - Attemps local SQLAlchemy object first
+    self.local_output_container
+        - The Human Readable Representation of the Data
 """
 ###############################################################################
     def reply_to_query(self):
@@ -266,9 +274,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
                 self.lookup_description = description_lookup.parsed_result
                 self.image              = image_lookup.image_db_entry
-                lookup_object           = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
+                self.lookup_object      = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
-                self.local_output_container["lookup_object"] = lookup_object
+                self.local_output_container["lookup_object"] = self.lookup_object
             
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.

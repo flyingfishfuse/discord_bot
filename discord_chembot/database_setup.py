@@ -230,21 +230,22 @@ class Database_functions():
     ################################################################################
     def internal_local_database_lookup(entity : str, id_of_record:str ):
         """
-        feed it a formula or CID followed buy "formula" or "cid"
+        feed it a formula or CID followed buy "formula" or "cid" or "iupac_name
+        searches by record and entry
         Returns False and raises and exception/prints exception on error
         Returns an SQLAlchemy database object if record exists
         Don't forget this is for compounds only!
         """
         try:
             greenprint("[+] performing internal lookup")
-            pubchem_search_types = {"cid","iupac_name","cas"}
-            if id_of_record in pubchem_search_types:
+            if search_validate(id_of_record): # in pubchem_search_types:
                 kwargs  = { id_of_record : entity}
                 lookup_result  = Compound.query.filter_by(**kwargs ).first()
                 #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
             return lookup_result
         except Exception:
             redprint("[-] Not in local database")
+            # None if empty
             return lookup_result
 
 
