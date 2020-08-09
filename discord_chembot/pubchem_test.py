@@ -103,11 +103,11 @@ Class to perform lookups on CID's and IUPAC names
 
 NOTE: to grab a description requires a seperate REST request.
     '''
-    def __init__(self, user_input, type_of_input, description = True):
+    def __init__(self, user_input, type_of_input):
         self.internal_lookup_bool   = bool
         self.user_input             = user_input
         self.type_of_input          = type_of_input
-        self.grab_description       = description
+        self.grab_description       = True
         if TESTING == True:
             self.local_output_container = {} # {"test" : "sample text"} # uncomment to supress linter errors
                                                                         # in the IDE

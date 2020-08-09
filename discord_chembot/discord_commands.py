@@ -131,7 +131,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #lookup_output_container[0].molecular_weight
     #lookup_output_container[0].charge
     #lookup_output_container[0].iupac_name
-    pubchem_embed       = discord.Embed()
+    pubchem_embed       =  discord.Embed()
     pubchem_embed.title =  lookup_output_container[0].iupac_name
     pubchem_embed.add_field(name = "CID"           , value = lookup_output_container[0].cid)
     pubchem_embed.add_field(name = "Formula"       , value = lookup_output_container[0].molecular_formula)
