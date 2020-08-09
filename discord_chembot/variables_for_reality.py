@@ -104,8 +104,8 @@ lookup_input_container = []
 
 # pubchem REST API service
 pubchem_search_types = ["iupac_name", "cid", "cas"]
+search_validate = lambda search: search in pubchem_search_types 
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
-
 
 #move to your whatever.py discord module
 discord_color = 0x3b12ef

@@ -44,12 +44,12 @@ import pubchempy as pubchem
 from bs4 import BeautifulSoup
 from requests.utils import requote_uri
 from variables_for_reality import TESTING
-
+from variables_for_reality import API_BASE_URL
+from variables_for_reality import search_validate
 from variables_for_reality import pubchem_search_types
-from variables_for_reality import function_message, API_BASE_URL
 from variables_for_reality import greenprint,redprint,blueprint
-from variables_for_reality import lookup_input_container, lookup_output_container
 from database_setup import Database_functions,Compound,Composition,TESTING
+from variables_for_reality import lookup_input_container, lookup_output_container
 
 
 __author__ = 'Adam Galindo'
@@ -57,14 +57,10 @@ __email__ = 'null@null.com'
 __version__ = '1'
 __license__ = 'GPLv3'
 
-import platform
-OS_NAME = platform.system()
-
-
+#import platform
+#OS_NAME = platform.system()
 
 ###############################################################################
-# Additional REST request required, regrettably, return 
-# values lack the description field
 class pubchemREST_Description_Request():
     # hey it rhymes
     '''
@@ -80,10 +76,7 @@ class pubchemREST_Description_Request():
         pubchemREST_Description_Request.request_url
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name' ):
-        # it doesnt work the other way elsewhere in the script, I dont know why
-        # to avoid that issue im just using it for everything
-        fuck_this = lambda fuck: fuck in pubchem_search_types 
-        if fuck_this(input_type) :#in pubchem_search_types:
+        if search_validate(input_type) :#in pubchem_search_types:
             if TESTING == True:
                 greenprint("searching for a Description : " + record_to_request)
             if input_type  == "iupac_name":
@@ -91,20 +84,14 @@ class pubchemREST_Description_Request():
             else :
                 self.thing_type = input_type
         self.record_to_request  = record_to_request
-
-        #finalized URL        
         self.request_url        = requote_uri("{}/compound/{}/{}/description/XML".format(\
                                     API_BASE_URL,self.thing_type,self.record_to_request))
         blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
-        #make the request
         self.request_return     = requests.get(self.request_url)
-        #make some soup
         self.soupyresults       = BeautifulSoup(self.request_return.text , features='lxml').contents[1]
-        #serve up the Descriptions
         self.parsed_result       = self.soupyresults.find_all(lambda tag:  tag.name =='description')
         if self.parsed_result != [] :
             self.parsed_result = str(self.parsed_result[0].contents[0])
-        #empty
         elif self.parsed_result == [] or NoneType:
             blueprint("[-] No Description Available in XML REST response")
             self.parsed_result = "No Description Available in XML REST response"
@@ -154,11 +141,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         if "internal_lookup" in self.local_output_container:
             if self.internal_lookup_bool == False:
                 yellow_bold_print("[!] This absolutley should not be happening")
-            # append local lookup
             elif self.internal_lookup_bool == True:
                 temp_array.append(self.local_output_container.get("internal_lookup"))
                 temp_array.append(self.local_output_container.get("description"))
-    # everything went as planned, append remote lookup
         elif "lookup_object" in self.local_output_container:
             temp_array.append(self.local_output_container.get("lookup_object"))
             temp_array.append(self.local_output_container.get("description"))
@@ -168,7 +153,6 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
-        # add the new message
         lookup_output_container.append(temp_array)
         # this code only runs if TESTING is set to True
         redprint("=============================================")
@@ -204,27 +188,21 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             # if internal lookup is false, we do a remote lookup and then store the result
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
-                # perform the REST description lookup
                 description_lookup = pubchemREST_Description_Request(user_input, type_of_input)
-                # store the result
                 self.lookup_description = description_lookup.parsed_result
-                # perform the remote lookup
                 lookup_object = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
                 self.local_output_container["lookup_object"] = lookup_object
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
             elif internal_lookup != None or False:
                 greenprint("[+] Internal Lookup returned TRUE")
-                # append the internal lookup to the internal output container
                 self.local_output_container["internal_lookup"] = internal_lookup
-                redprint("==BEGINNING==return query for pubchem/local lookup===========")
+                redprint("==BEGINNING==return query for DB lookup===========")
                 greenprint(str(internal_lookup))
-                redprint("=====END=====return query for pubchem/local lookup===========")
-        # bad things happened, do stuff with this stuff please
+                redprint("=====END=====return query for DB lookup===========")
         # its in dire need of proper exception handling              
         except Exception:
             redprint('[-] Something happened in the try/except block for the function do_lookup')
-            blueprint(Exception.with_traceback)
 
 
     def validate_user_input(self, user_input: str, type_of_input:str):
@@ -239,39 +217,24 @@ Ater validation, the user input is used in :
         """
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
-        # seriously, 
-        # if type_of_input in pubchem_search_types:
-        # didnt work.
-        # no idea why.
-        pubchem_search_types = ["iupac_name", "cid", "cas"]
-        fuck_this = lambda fuck: fuck in pubchem_search_types 
-        if fuck_this(type_of_input) :#in pubchem_search_types:
+        if search_validate(type_of_input) :#in pubchem_search_types:
             greenprint("user supplied a : " + type_of_input)
             try:
-                #user gave a CAS
                 if type_of_input == "cas":
                     greenprint("[+} trying to match regular expression for CAS")
-                    #regex cas number
                     if re.match(cas_regex,user_input):
                         greenprint("[+] Good CAS Number")
-                        #do the thing
                         self.do_lookup(user_input, type_of_input)
                     else:
                         redprint("[-] Bad CAS Number")
-                        # dont do the thing
                         self.user_input_was_wrong("bad_CAS", user_input)
-                #do the thing
                 elif type_of_input == "cid" or "iupac_name":
                     self.do_lookup(user_input, type_of_input)
                 else:
                     redprint("[-] Something really wierd happened inside the validation flow")
             except Exception:
-                #some thing was bad
                 redprint("[-] reached the exception ")
-                blueprint(str(Exception.with_traceback))
-
         else:
-            #user was doofus
             self.user_input_was_wrong("input_type" , type_of_input)  
 
     def pubchem_lookup_by_name_or_CID(self , compound_id, type_of_data:str):
@@ -283,13 +246,7 @@ Ater validation, the user input is used in :
         CID, CAS, SMILES, Formula, Name
 
         Stores lookup in database if lookup is valid
-        I know it looks like it can be refactored into a smaller block 
-        but they actually require slightly different code for each lookup
-        and making a special function to do that would be just as long probably
-        I'll look at it
-        TODO: SEARCH LOCAL BY CAS!!!!
         '''
-        #make a thing
         return_relationships = []
         # you get multiple records returned from a pubchem search VERY often
         # so you have to choose the best one to store, This needs to be 
@@ -304,9 +261,6 @@ Ater validation, the user input is used in :
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.get_compounds(compound_id,'name')
-                    #if GRAB_DESCRIPTION == True:
-                    #    greenprint("[+] Grabbing Description")
-                        #lookup_description = pubchemREST_Description_Request(compound_id, "iupac_name")
                 except Exception :# pubchem.PubChemPyError:
                     redprint("[-] Error in pubchem_lookup_by_name_or_CID : NAME exception")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
@@ -315,11 +269,10 @@ Ater validation, the user input is used in :
                 try:
                     greenprint("[+] Performing Pubchem Query")
                     lookup_results = pubchem.Compound.from_cid(compound_id)
-                    #lookup_description = pubchemREST_Description_Request(compound_id, "cid")
                 except Exception :# pubchem.PubChemPyError:
                     redprint("lookup by NAME/CAS exception - name")
                     self.user_input_was_wrong("pubchem_lookup_by_name_or_CID")
-                #once we have the lookup results, do something
+        #once we have the lookup results, do something
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
@@ -366,15 +319,9 @@ Ater validation, the user input is used in :
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
-    # and then, once all that is done return the LOCAL database entry to
-    # the calling function so this is just an API to the db code
         return_query = return_relationships[return_index]
-        #redprint("==BEGINNING==return query for pubchem/local lookup===========")
         query_cid    = return_query[0].get('cid')
         local_query  = Compound.query.filter_by(cid = query_cid).first()
-    # you can itterate over the database query
-        #greenprint(str(local_query))
-        #redprint("=====END=====return query for pubchem/local lookup===========")
     #after storing the lookup to the local database, retrive the local entry
     #This returns an SQLALchemy object
         return local_query
@@ -383,9 +330,8 @@ Ater validation, the user input is used in :
 
 
 ###############################################################################
-# Testing procedure requires bad data
-# craft a list of shitty things a user can attempt
-# be malicious and stupid with it
+# TODO: Testing procedure requires bad data# craft a list of shitty things a 
+# user can attempt. Be malicious and stupid with it
 # break shit
 if TESTING == True:
     import time
