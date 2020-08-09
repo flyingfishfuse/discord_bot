@@ -205,6 +205,8 @@ NOTE: to grab a description requires a seperate REST request.
         self.internal_lookup_bool   = bool
         self.user_input             = user_input
         self.type_of_input          = type_of_input
+        redprint(self.user_input)
+        redprint(self.type_of_input)
         self.grab_description       = True
         self.grab_image             = True
         if TESTING == True:
@@ -287,8 +289,16 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             if internal_lookup == None or False:
                 redprint("[-] Internal Lookup returned false")
                 # we grab things in the proper order
-                description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
-                image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
+                try:
+                    description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
+                except :
+                    redprint("[-] Description Lookup Failed")
+                    self.lookup_description = "Description Lookup Failed"
+                try:
+                    image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
+                except:
+                    redprint("[-] Image Lookup Failed")    
+                    image_lookup = None
                 if image_lookup == None:
                     self.image          = "No Image Available"
                 else:

@@ -237,7 +237,7 @@ class Database_functions():
         except Exception:
             redprint("[-] Not in local database")
             # None if empty
-            return lookup_result
+            return None
 
 
     def add_to_db(thingie):
