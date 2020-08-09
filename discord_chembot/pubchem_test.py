@@ -130,44 +130,46 @@ OUTPUT:
             self.base64_save = True
         else:
             self.base64_save = False
-        #############################
-        self.filename        = temp_file + ".png"
-
+            self.filename    = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
-        # fixes local code/context to work with url/remote context
+            # fixes local code/context to work with url/remote context
             if input_type  == "iupac_name":
                 self.thing_type = "name"
             else :
                 self.thing_type = input_type
-        
-        self.record_to_request  = record_to_request
-        self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
-                                    API_BASE_URL,self.thing_type,self.record_to_request))
-        blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
-        try:
-            self.rest_request = requests.get(self.request_url)
-        except :
-            redprint("[-] Request failure at local level")
-        #check for errors
-        was_there_was_an_error()
-        # request good
-        if self.rest_request.status_code(200):
-            if self.base64_save == False :
-                try:
-                    #write temp image to file
-                    with open(self.filename, "wb") as temp_file:
-                        import shutil
-                        temp_file.decode_content = True
-                        shutil.copyfileobj(self.rest_request.raw, temp_file)
-                    # open file in read only for the fileobject
-                    self.image_db_entry = open(temp_file, "rb")
-                except:
-                    redprint("[-] Exception when opening or writing image temp file")
-            elif self.base64_save == True:
-                import base64
-                self.image_db_entry = base64.b64encode(self.rest_request.raw)
-        
+                self.record_to_request  = record_to_request
+                self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
+                                            API_BASE_URL,self.thing_type,self.record_to_request))
+            blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
+            try:
+                self.rest_request = requests.get(self.request_url)
+            except :
+                redprint("[-] Request failure at local level")
+            #check for errors
+            was_there_was_an_error()
+            # request good
+            if self.rest_request.status_code(200):
+                if self.base64_save == False :
+                    try:
+                        #write temp image to file
+                        with open(self.filename, "wb") as temp_file:
+                            import shutil
+                            temp_file.decode_content = True
+                            shutil.copyfileobj(self.rest_request.raw, temp_file)
+                        # open file in read only for the fileobject
+                        self.image_db_entry = open(temp_file, "rb")
+                    except:
+                        redprint("[-] Exception when opening or writing image temp file")
+                elif self.base64_save == True:
+                    import base64
+                    self.image_db_entry = base64.b64encode(self.rest_request.raw)
+                else:
+                    redprint("[-] Error with Class Variable self.base64_save")
+        else:
+            redprint("[-] Input type was wrong for Image Search")
+            return None
+
         def was_there_was_an_error(self):
             # server side error
             if self.rest_request.status_code((404 or 504) or (503 or 500)):
