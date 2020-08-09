@@ -25,24 +25,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-####
 ################################################################################
-##    Search by element number, symbol,
-##    list resources available
-##    TODO: show basic info if no specificity in query
-# created by : mr_hai on discord / flyingfishfuse on github
-## Test/Personal Server : https://discord.gg/95V7Mn
-#list_of_resources = "https://en.wikipedia.org/wiki/List_of_data_references_for_chemical_elements"
-#data_pages_list   = "https://en.wikipedia.org/wiki/Category:Chemical_element_data_pages"
-# https://chemspipy.readthedocs.io/en/latest/
 import os
 import csv
-from flask import Flask, render_template, Response, Request ,Config
 from flask_sqlalchemy import SQLAlchemy
-#from discord_chembot.variables_for_reality import \
-#    greenprint,redprint,blueprint,function_message
 from variables_for_reality import TESTING, TEST_DB
 from variables_for_reality import greenprint,redprint,blueprint
+from flask import Flask, render_template, Response, Request ,Config
+#from discord_chembot.variables_for_reality import \
+#    greenprint,redprint,blueprint,function_message
 
 ################################################################################
 ##############                      CONFIG                     #################
@@ -54,6 +45,7 @@ TESTING = True
 #e = create_engine('sqlite://')
 TEST_DB = 'sqlite://'
 
+templates = "templates"
 # pubchem REST API service
 pubchem_search_types = ["iupac_name", "cid", "cas"]
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
@@ -77,7 +69,7 @@ class Config(object):
 
 
 try:
-    chembot_server = Flask(__name__ , template_folder="templates" )
+    chembot_server = Flask(__name__ , template_folder=templates )
     chembot_server.config.from_object(Config)
     database = SQLAlchemy(chembot_server)
     database.init_app(chembot_server)
