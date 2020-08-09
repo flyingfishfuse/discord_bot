@@ -37,6 +37,7 @@ https://github.com/mcs07/PubChemPy
 """
 import re
 import lxml
+import shutil
 import requests
 import pubchempy as pubchem
 from bs4 import BeautifulSoup
@@ -107,8 +108,7 @@ Performs a pubchem or chemspider image lookup
         Default : image
     '''
     def __init__(self, record_to_request: str ,input_type = 'iupac_name', temp_file = "image" ):
-        filename        = temp_file + ".png"
-        self.temp_file  = open(filename, mode = "w+")
+        self.filename        = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
         # fixes name to work with url
@@ -126,7 +126,11 @@ Performs a pubchem or chemspider image lookup
         
         # request good
         if rest_request.status_code(200):
-            self.temp_file.append()
+            try:
+                with open(self.filename, "wb") as temp_file:
+                    temp_file.decode_content = True
+                    shutil.copyfileobj(rest_request.raw, temp_file)
+
         # server side error
         elif rest_request.status_code((404 or 504) or (503 or 500)):
             blueprint("[-] Server side error - No Image Available in REST response")
