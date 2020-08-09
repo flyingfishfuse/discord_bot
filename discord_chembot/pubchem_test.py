@@ -95,6 +95,39 @@ class pubchemREST_Description_Request():
         elif self.parsed_result == [] or NoneType:
             blueprint("[-] No Description Available in XML REST response")
             self.parsed_result = "No Description Available in XML REST response"
+###############################################################################
+
+class Image_lookup():
+    '''
+Performs a pubchem or chemspider image lookup
+    Image name is saved as:
+        filename = temp_file + ".png"
+
+    input_type :str
+        Default : iupac_name
+    temp_file :str 
+        Default : image
+    '''
+    def __init__(self, record_to_request: str ,input_type = 'iupac_name', temp_file = "image" ):
+        filename        = temp_file + ".png"
+        self.temp_file  = open(filename, mode = "w+")
+        if search_validate(input_type) :#in pubchem_search_types:
+            if TESTING == True:
+                greenprint("searching for an image : " + record_to_request)
+            if input_type  == "iupac_name":
+                self.thing_type = "name"
+            else :
+                self.thing_type = input_type
+        self.record_to_request  = record_to_request
+        self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
+                                    API_BASE_URL,self.thing_type,self.record_to_request))
+        blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
+        self.request_return     = requests.get(self.request_url)
+        blueprint("[-] No Image Available in REST response")
+    
+    def save_image(self):
+        self.temp_file.append()
+
 
 ###############################################################################
 class Pubchem_lookup():
