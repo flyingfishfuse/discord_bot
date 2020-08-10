@@ -38,6 +38,8 @@ https://github.com/mcs07/PubChemPy
 import os
 import re
 import lxml
+import base64
+import shutil
 import requests
 import pubchempy as pubchem
 from bs4 import BeautifulSoup
@@ -94,6 +96,7 @@ class pubchemREST_Description_Request():
         if self.parsed_result    != [] :
             self.parsed_result   = str(self.parsed_result[0].contents[0])
             greenprint("[+] Description Found!")
+            print(self.parsed_result)
         elif self.parsed_result  == [] or NoneType:
             blueprint("[-] No Description Available in XML REST response")
             self.parsed_result   = "No Description Available in XML REST response"
@@ -108,7 +111,7 @@ Performs a pubchem or chemspider image lookup
 
 INPUT:
     input_type :str
-        Default : iupac_name
+        Default : name ( can be fed "iupac_name" from the rest of the app)
     image_as_base64 :bool
         Default = True
     temp_file :str 
@@ -122,72 +125,80 @@ OUTPUT:
         or a file object opened in binary mode
 
     '''
-    def __init__(self, record_to_request: str ,input_type ,image_as_base64 = bool, temp_file = "image" ):
+    def __init__(self, record_to_request: str ,input_type = "name" , image_as_base64 = True, temp_file = "image"):
         #############################
-        if (os.environ['DISCORDAPP'] or image_as_base64) == True:
+        #if its running as the discord app or was implicitly called with it set to true
+        # greenprint("[+] Running as Discord Attachment")
+        # greenprint("[+] Not running as Discord Attachment")
+        #print(str(os.environ['DISCORDAPP']))
+        if image_as_base64 == True:
             self.base64_save = True
-            greenprint("[+] Running as Discord Attachment")
             greenprint("[+] Encoding Image as Base64")
-        else :
+        # running standalone
+        elif image_as_base64 == False :
             self.base64_save = False
             self.filename    = temp_file + ".png"
-            greenprint("[+] Not running as discord Attachment")
             greenprint("[+] Saving image as {}".format(self.filename))
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
             if input_type  == "iupac_name":
                 self.thing_type = "name"
+            
             else :
                 self.thing_type = input_type
                 self.record_to_request  = record_to_request
                 self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
                                             API_BASE_URL,self.thing_type,self.record_to_request))
-            blueprint("[+] Requesting: " + makered(self.request_url) + "\n")
+            blueprint("[+] Requesting: " + makered(self.request_url))
             try:
                 self.rest_request = requests.get(self.request_url)
             except :
                 redprint("[-] Request failure at local level")
-            #check for errors
-            was_there_was_an_error()
+            #check for errors, haha its backwards
+            # True means no error
+            if self.was_there_was_an_error() == True:
             # request good
-            if self.rest_request.status_code(200):
                 if self.base64_save == False :
                     try:
                         #write temp image to file
                         with open(self.filename, "wb") as temp_file:
-                            import shutil
                             temp_file.decode_content = True
                             shutil.copyfileobj(self.rest_request.raw, temp_file)
                         # open file in read only for the fileobject
-                        self.image_db_entry = open(temp_file, "rb")
+                        self.image_storage = open(temp_file, "rb")
                     except:
                         redprint("[-] Exception when opening or writing image temp file")
                 elif self.base64_save == True:
-                    import base64
-                    self.image_db_entry = base64.b64encode(self.rest_request.raw)
+                    print(self.rest_request.content)
+                    self.image_storage = base64.b64encode(self.rest_request.content)
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
             redprint("[-] Input type was wrong for Image Search")
             return None
 
-        def was_there_was_an_error(self):
-            # server side error
-            if self.rest_request.status_code((404 or 504) or (503 or 500)):
-                blueprint("[-] Server side error - No Image Available in REST response")
-                return None # "[-] Server side error - No Image Available in REST response"
-            #user error
-            elif self.rest_request.status_code((400 or 405) or 501):
-                redprint("[-] User error in Image Request")
-                return None # "[-] User error in Image Request"
+    def was_there_was_an_error(self):
+        '''
+Returns True if no error
+        '''
+        # server side error]
+        set1 = [404,504,503,500]
+        set2 = [400,405,501]
+        set3 = [500]
+        if self.rest_request.status_code in set1 :
+            blueprint("[-] Server side error - No Image Available in REST response")
+            return False # "[-] Server side error - No Image Available in REST response"
+        if self.rest_request.status_code in set2:
+            redprint("[-] User error in Image Request")
+            return False # "[-] User error in Image Request"
+        if self.rest_request.status_code in set3:
             #unknown error
-            elif self.rest_request.status_code(500):
-                blueprint("[-] Unknown Server Error - No Image Available in REST response")
-                return None # "[-] Unknown Server Error - No Image Available in REST response"
-
-
-
+            blueprint("[-] Unknown Server Error - No Image Available in REST response")
+            return False # "[-] Unknown Server Error - No Image Available in REST response"
+        # no error!
+        if self.rest_request.status_code == 200:
+            return True
 
 ###############################################################################
 class Pubchem_lookup():
@@ -295,7 +306,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     redprint("[-] Description Lookup Failed")
                     self.lookup_description = "Description Lookup Failed"
                 try:
-                    image_lookup            = Image_lookup(user_input, type_of_input, temp_file=user_input)
+                    # TEST
+                    yellow_bold_print(os.environ['DISCORDAPP'])
+                    image_lookup            = Image_lookup(user_input, type_of_input, image_as_base64=True )
                 except:
                     redprint("[-] Image Lookup Failed")    
                     image_lookup = None
@@ -303,6 +316,7 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     self.image              = "No Image Available"
                 else:
                     self.image              = image_lookup.image_db_entry
+                #this is used inside the next line
                 self.lookup_description     = description_lookup.parsed_result
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
@@ -433,7 +447,7 @@ Ater validation, the user input is used in :
                             'image'       : self.image                         }]
                 return_relationships.append(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
-                blueprint(str(return_relationships[return_index]))
+                print(query_appendix)
                 redprint("=========RETURN RELATIONSHIPS=======")
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:

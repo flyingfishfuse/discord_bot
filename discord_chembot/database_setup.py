@@ -106,11 +106,11 @@ class Compound(database.Model):
     iupac_name          = database.Column(database.Text)
     cas                 = database.Column(database.String(64))
     smiles              = database.Column(database.Text)
-    formula             = database.Column(database.String(256))
+    formula             = database.Column(database.Text)
     molweight           = database.Column(database.String(32))
     charge              = database.Column(database.String(32))
     description         = database.Column(database.Text)
-    image               = database.Column(database.LargeBinary or database.Text)
+    image               = database.Column(database.Text)
 
     def __repr__(self):
         return 'IUPAC name         : {} \n \
@@ -134,7 +134,7 @@ class Composition(database.Model):
                             autoincrement=True)
     name                = database.Column(database.String(64))
     units               = database.Column(database.Integer)
-    compounds           = database.Column(database.String(256))
+    compounds           = database.Column(database.Text)
     notes               = database.Column(database.Text)
 
 #{
@@ -252,10 +252,12 @@ class Database_functions():
         try:
             database.session.add(thingie)
             database.session.commit
-            greenprint("[+] Database commit Sucessful")
+            redprint("=========Database Commit=======")
+            blueprint(thingie)
+            redprint("=========Database Commit=======")
         except Exception:
             redprint("[-] add_to_db() FAILED")
-            print(Exception.__cause__)
+            print(str(Exception.__cause__))
     ################################################################################
 
     def update_db():
@@ -310,15 +312,15 @@ class Database_functions():
         Puts a pubchem lookup to the database
         ["CID", "cas" , "smiles" , "Formula", "Name", "Description", "image"]
         """
-        Database_functions.add_to_db(Compound(cid = lookup_list[0].get('cid')                     ,\
+        Database_functions.add_to_db(Compound(  cid         = lookup_list[0].get('cid')           ,\
                                                 #lookup_cas = lookup_list[0].get('cas')           ,\
-                                                smiles = lookup_list[0].get('smiles')             ,\
-                                                formula = lookup_list[0].get('formula')           ,\
-                                                molweight = lookup_list[0].get('molweight')       ,\
-                                                charge = lookup_list[0].get('charge')             ,\
-                                                iupac_name = lookup_list[0].get('iupac_name')     ,\
+                                                smiles      = lookup_list[0].get('smiles')        ,\
+                                                formula     = lookup_list[0].get('formula')       ,\
+                                                molweight   = lookup_list[0].get('molweight')     ,\
+                                                charge      = lookup_list[0].get('charge')        ,\
+                                                iupac_name  = lookup_list[0].get('iupac_name')    ,\
                                                 description = lookup_list[0].get('description')   ,\
-                                                image = lookup_list[0].get('image')               ))
+                                                image       = lookup_list[0].get('image')         ))
 ###############################################################################
     def composition_to_database(comp_name: str, units_used :str, \
                                 formula_list : list , info : str):
