@@ -39,8 +39,9 @@ import os
 import re
 import lxml
 import base64
-import shutil
 import requests
+from PIL import Image
+from io import BytesIO
 import pubchempy as pubchem
 from bs4 import BeautifulSoup
 from requests.utils import requote_uri
@@ -131,7 +132,6 @@ OUTPUT:
         #print(str(os.environ['DISCORDAPP']))
         if image_as_base64 == False :
             self.filename    = temp_file + ".png"
-            greenprint("[+] Saving image as {}".format(self.filename))
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
@@ -140,21 +140,22 @@ OUTPUT:
             else :
                 self.input_type = input_type
             self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
-                                            API_BASE_URL,input_type,record_to_request))
+                                            API_BASE_URL,self.input_type,record_to_request))
             blueprint("[+] Requesting: " + makered(self.request_url))
             self.rest_request = requests.get(self.request_url)
             # redprint("[-] Request failure at local level")
-            # check for errors, haha its backwards
             # True means no error
             if self.was_there_was_an_error() == True:
             # request good
                 # Store image
-                self.image_storage = Image.open(BytesIO(r.content)).load()
+                self.image_storage = Image.open(BytesIO(self.rest_request.content))
                 if image_as_base64 == False :
                     try:
-                        self.image_storage.save(record_to_request)
-                    except:
-                        redprint("[-] Exception when opening or writing image temp file")
+                        greenprint("[+] Saving image as {}".format(self.filename))
+                        self.image_storage.save(self.filename, format = "png")
+                    except Exception as blorp:
+                        redprint("[-] Exception when opening or writing image file")
+                        print(blorp)
                 elif image_as_base64 == True:
                     print(self.rest_request.raw)
                     greenprint("[+] Encoding Image as Base64")
@@ -176,13 +177,16 @@ Returns True if no error
         set3 = [500]
         if self.rest_request.status_code in set1 :
             blueprint("[-] Server side error - No Image Available in REST response")
+            yellow_bold_print("Error Code".format(self.rest_request.status_code))
             return False # "[-] Server side error - No Image Available in REST response"
         if self.rest_request.status_code in set2:
             redprint("[-] User error in Image Request")
+            yellow_bold_print("Error Code".format(self.rest_request.status_code))
             return False # "[-] User error in Image Request"
         if self.rest_request.status_code in set3:
             #unknown error
             blueprint("[-] Unknown Server Error - No Image Available in REST response")
+            yellow_bold_print("Error Code".format(self.rest_request.status_code))
             return False # "[-] Unknown Server Error - No Image Available in REST response"
         # no error!
         if self.rest_request.status_code == 200:

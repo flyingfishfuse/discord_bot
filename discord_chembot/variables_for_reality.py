@@ -69,8 +69,7 @@ makegreen  = lambda text: Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
 makeblue   = lambda text: Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL
 makeyellow = lambda text: Fore.YELLOW + ' ' +  text + ' ' + Style.RESET_ALL
 
-yellow_bold_print = lambda text: print(Fore.YELLOW + Style.BRIGHT + ' '  +  text + ' ' + Style.RESET_ALL) \
-    if (TESTING == True) else None
+yellow_bold_print = lambda text: print(Fore.YELLOW + Style.BRIGHT + ' {} '.format(text) + Style.RESET_ALL) if (TESTING == True) else None
 
 # Filter None values from kwargs
 #kwargs = dict((k, v) for k, v in kwargs.items() if v is not None)
