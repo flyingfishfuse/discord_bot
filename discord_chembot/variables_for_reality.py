@@ -63,6 +63,7 @@ blueprint = lambda text: print(Fore.BLUE + ' ' +  text + ' ' + Style.RESET_ALL) 
 greenprint = lambda text: print(Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 redprint = lambda text: print(Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL) if (TESTING == True) else None
 
+    
 # inline colorization for lambdas in a lambda
 makered    = lambda text: Fore.RED + ' ' +  text + ' ' + Style.RESET_ALL
 makegreen  = lambda text: Fore.GREEN + ' ' +  text + ' ' + Style.RESET_ALL
@@ -103,9 +104,9 @@ lookup_input_container = []
 
 # pubchem REST API service
 pubchem_search_types = ["iupac_name", "cid", "cas"]
-search_validate = lambda search: search in pubchem_search_types 
+search_validate      = lambda search: search in pubchem_search_types 
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
-
+STORE_BASE64         = True
 #move to your whatever.py discord module
 discord_color = 0x3b12ef
 #deprecated but VERY useful

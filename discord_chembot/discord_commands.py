@@ -140,14 +140,14 @@ async def element_lookup(ctx, arg1, arg2):
 
 @lookup_bot.command()
 async def pubchem_lookup(ctx, arg1, arg2):
-    blueprint(arg1 + arg2)
     new_lookup = pubchem_test.Pubchem_lookup(arg1,arg2)
     pubchem_embed       =  discord.Embed()
-    pubchem_embed.title =  new_lookup.local_output_container[0].iupac_name
-    pubchem_embed.add_field(name = "CID"           , value = new_lookup.local_output_container[0].cid)
-    pubchem_embed.add_field(name = "Formula"       , value = new_lookup.local_output_container[0].molecular_formula)
-    pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.local_output_container[0].molecular_weight)
-    pubchem_embed.add_field(name = "Charge"        , value = new_lookup.local_output_container[0].charge)
+    print(new_lookup.local_output_container)
+    pubchem_embed.title =  new_lookup.local_output_container.get('iupac_name')
+    pubchem_embed.add_field(name = "CID: " , value = new_lookup.local_output_container.get('cid'))
+    pubchem_embed.add_field(name = "Formula"       , value = new_lookup.local_output_container.get('molecular_formula'))
+    pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.local_output_container.get('molecular_weight'))
+    pubchem_embed.add_field(name = "Charge"        , value = new_lookup.local_output_container.get('charge'))
 
     ###########################################################################
     # How to set a local file image source:
@@ -156,7 +156,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     # file = discord.File("path/to/image/file.png", filename="image.png")
     # embed.set_image(url="attachment://image.png")
     # await ctx.send(file=file, embed=embed)
-    pubchem_embed.set_image(url='data:image/png;base64,{}'.format(lookup_output_container[0].image_data))    
+    pubchem_embed.set_image(url='data:image/png;base64,{}'.format(new_lookup.image_data))    
     await ctx.send(content="lol", embed=pubchem_embed)
 
 @lookup_bot.command()
@@ -175,7 +175,7 @@ if TESTING == True:
 else:
     try:
         if __name__ == '__main__':
-            os.environ['DISCORDAPP'] = True
+            os.environ['DISCORDAPP'] = "True"
             lookup_bot.run(discord_key.discord_bot_token, bot=True)
         else:
             print("wat")

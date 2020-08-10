@@ -54,6 +54,7 @@ from variables_for_reality import greenprint,redprint,blueprint,makered
 from database_setup import Database_functions,Compound,Composition,TESTING
 from variables_for_reality import lookup_input_container, lookup_output_container
 
+from variables_for_reality import STORE_BASE64
 
 __author__ = 'Adam Galindo'
 __email__ = 'null@null.com'
@@ -120,9 +121,9 @@ INPUT:
 OUTPUT:
     self.rest_request
         - Response from remote server
-    self.image_db_entry
+    self.image_storage
         Either a Base64 Encoded string of the raw response 
-        or a file object opened in binary mode
+        or a PIL Image
 
     '''
     def __init__(self, record_to_request: str , image_as_base64 : bool , input_type = "name" , temp_file = "image"):
@@ -157,10 +158,9 @@ OUTPUT:
                         redprint("[-] Exception when opening or writing image file")
                         print(blorp)
                 elif image_as_base64 == True:
-                    print(self.rest_request.raw)
                     greenprint("[+] Encoding Image as Base64")
                     self.image_storage = base64.b64encode(self.image_storage)
-                
+                    print(self.image_storage)                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
@@ -177,16 +177,16 @@ Returns True if no error
         set3 = [500]
         if self.rest_request.status_code in set1 :
             blueprint("[-] Server side error - No Image Available in REST response")
-            yellow_bold_print("Error Code".format(self.rest_request.status_code))
+            yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
             return False # "[-] Server side error - No Image Available in REST response"
         if self.rest_request.status_code in set2:
             redprint("[-] User error in Image Request")
-            yellow_bold_print("Error Code".format(self.rest_request.status_code))
+            yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
             return False # "[-] User error in Image Request"
         if self.rest_request.status_code in set3:
             #unknown error
             blueprint("[-] Unknown Server Error - No Image Available in REST response")
-            yellow_bold_print("Error Code".format(self.rest_request.status_code))
+            yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
             return False # "[-] Unknown Server Error - No Image Available in REST response"
         # no error!
         if self.rest_request.status_code == 200:
@@ -256,13 +256,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         
         # clear the output from any previous lookups
         lookup_output_container.clear()
+        self.local_output_container.clear()
         lookup_output_container.append(temp_array)
         redprint("=============================================")
         greenprint("[+] Sending the following reply via global output container")
         blueprint(str(lookup_output_container))
         redprint("=============================================")
         # clean up just in case
-        self.local_output_container.clear()
+        #self.local_output_container.clear()
 
 
     def user_input_was_wrong(self , type_of_pebkac_failure : str, bad_string = ""):
@@ -293,20 +294,30 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 # we grab things in the proper order
                 try:
                     description_lookup      = pubchemREST_Description_Request(user_input, type_of_input)
-                except :
+                except Exception as derp:
                     redprint("[-] Description Lookup Failed")
+                    print(derp)
                     self.lookup_description = "Description Lookup Failed"
                 try:
-                    # TEST
-                    yellow_bold_print(os.environ['DISCORDAPP'])
-                    image_lookup            = Image_lookup(user_input, type_of_input, image_as_base64=True )
-                except:
-                    redprint("[-] Image Lookup Failed")    
+                    if (STORE_BASE64 == True) :
+                        image_lookup            = Image_lookup(user_input               ,\
+                                                               image_as_base64=True     ,\
+                                                               input_type=type_of_input ,\
+                                                               temp_file=user_input      )
+                    elif (STORE_BASE64 == False):
+                        image_lookup            = Image_lookup(user_input               ,\
+                                                               image_as_base64=False    ,\
+                                                               input_type=type_of_input ,\
+                                                               temp_file=user_input      )
+
+                except Exception as derp:
+                    redprint("[-] Image Lookup Failed")
+                    print(derp)    
                     image_lookup = None
                 if image_lookup == None:
                     self.image              = "No Image Available"
                 else:
-                    self.image              = image_lookup.image_db_entry
+                    self.image              = image_lookup.image_storage
                 #this is used inside the next line
                 self.lookup_description     = description_lookup.parsed_result
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
@@ -336,8 +347,6 @@ Ater validation, the user input is used in :
         Pubchem_lookup.pubchem_lookup_by_name_or_CID()
         
         """
-        blueprint(user_input)
-        blueprint(type_of_input)
         import re
         cas_regex = re.compile('[1-9]{1}[0-9]{1,5}-\d{2}-\d')
         if search_validate(type_of_input) :#in pubchem_search_types:
@@ -485,6 +494,7 @@ try:
     ###################################################################
         for each in test_query_list:
             Pubchem_lookup(each[0],each[1])
-except :
+except Exception as derp :
+    print(derp)
     redprint("[-] Cannot run file for some reason")
 
