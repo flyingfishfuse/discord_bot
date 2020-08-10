@@ -161,8 +161,8 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #    pubchem_embed.set_image(url="attachment://image.png")
     #    await ctx.send(file=file, embed=pubchem_embed)
     if SAVE_BASE64 == True:
-        #pubchem_embed.set_image(url='data:image/png;base64,{}'.format(new_lookup.image_storage))    
-        pubchem_embed.set_image(url='data:image/png;base64')
+        pubchem_embed.set_image(url='data:image/png;base64,{}'.format(new_lookup.image))    
+        #pubchem_embed.set_image(url='data:image/png;base64')
         await ctx.send(content=new_lookup.image, embed=pubchem_embed)
 
 @lookup_bot.command()

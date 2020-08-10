@@ -119,9 +119,10 @@ Formula            : {} \n \
 Molecular Weight   : {} \n \
 Charge             : {} \n \
 CID                : {} \n \
-Description:       : {} \n '.format( \
+Description:       : {} \n \
+Image_base64       : {} \n '.format( \
      self.iupac_name, self.cas , self.formula, self.molweight, \
-    self.charge, self.cid, self.description)
+    self.charge, self.cid, self.description, self.image)
 
 
 class Composition(database.Model):

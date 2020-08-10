@@ -335,8 +335,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 if image_lookup == None:
                     self.image              = "No Image Available"
                 else:
-                    print(str(image_lookup.image_storage))
                     self.image              = str(image_lookup.image_storage)
+                    print(self.image)
                 #this is used inside the next line
                 self.lookup_description     = description_lookup.parsed_result
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
@@ -445,9 +445,9 @@ Ater validation, the user input is used in :
                     #Database_functions.compound_to_database() TAKES A LIST
                     # first element of first element
                     #[ [this thing here] , [not this one] ]
-                    #redprint("=========RETURN RELATIONSHIPS=======multiple")
-                    #blueprint(str(return_relationships[return_index]))
-                    #redprint("=========RETURN RELATIONSHIPS=======multiple")
+                    redprint("=========RETURN RELATIONSHIPS=======multiple")
+                    print(return_relationships[return_index])
+                    redprint("=========RETURN RELATIONSHIPS=======multiple")
                     Database_functions.compound_to_database(return_relationships[return_index])
             
             # if there was only one result or the user supplied a CID for a single chemical
