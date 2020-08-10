@@ -144,7 +144,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     pubchem_embed       =  discord.Embed()
     print(new_lookup.local_output_container)
     pubchem_embed.title =  new_lookup.local_output_container.get('iupac_name')
-    pubchem_embed.add_field(name = "CID: " , value = new_lookup.local_output_container.get('cid'))
+    pubchem_embed.add_field(name = "CID: " , value = new_lookup.local_output_container.get('lookup_object'))
     pubchem_embed.add_field(name = "Formula"       , value = new_lookup.local_output_container.get('molecular_formula'))
     pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.local_output_container.get('molecular_weight'))
     pubchem_embed.add_field(name = "Charge"        , value = new_lookup.local_output_container.get('charge'))
