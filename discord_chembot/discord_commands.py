@@ -142,12 +142,13 @@ async def element_lookup(ctx, arg1, arg2):
 async def pubchem_lookup(ctx, arg1, arg2):
     new_lookup = pubchem_test.Pubchem_lookup(arg1,arg2)
     pubchem_embed       =  discord.Embed()
-    print(new_lookup.local_output_container)
-    pubchem_embed.title =  new_lookup.local_output_container.get('iupac_name')
-    pubchem_embed.add_field(name = "CID: " , value = new_lookup.local_output_container.get('lookup_object'))
-    pubchem_embed.add_field(name = "Formula"       , value = new_lookup.local_output_container.get('molecular_formula'))
-    pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.local_output_container.get('molecular_weight'))
-    pubchem_embed.add_field(name = "Charge"        , value = new_lookup.local_output_container.get('charge'))
+    #print(new_lookup.local_output_container)
+    print(new_lookup.lookup_object)
+    pubchem_embed.title =  new_lookup.lookup_object.iupac_name
+    pubchem_embed.add_field(name = "CID: "         ,  value = new_lookup.lookup_object.cid)
+    pubchem_embed.add_field(name = "Formula"       , value = new_lookup.lookup_object.formula)
+    pubchem_embed.add_field(name = "Mol weight"    , value = new_lookup.lookup_object.molecular_weight)
+    pubchem_embed.add_field(name = "Charge"        , value = new_lookup.lookup_object.charge)
 
     ###########################################################################
     # How to set a local file image source:
@@ -161,7 +162,7 @@ async def pubchem_lookup(ctx, arg1, arg2):
     #    pubchem_embed.set_image(url="attachment://image.png")
     #    await ctx.send(file=file, embed=pubchem_embed)
     if SAVE_BASE64 == True:
-        pubchem_embed.set_image(url='data:image/png;base64,{}'.format(str(new_lookup.image)))
+        pubchem_embed.set_image(url='data:image/png;base64,{}'.format(str(new_lookup.lookup_object.image)))
         #pubchem_embed.set_image(url='data:image/png;base64')
         #await ctx.send(content=new_lookup.image, embed=pubchem_embed)
         await ctx.send(embed=pubchem_embed)
