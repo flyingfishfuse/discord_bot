@@ -36,7 +36,6 @@ Working on:
  * Flask Routes and templates for the arbitrary I/O
  * RLC, LC, NPN transistor, capacitor, resistor, inductor Objects with input/output for calculations
  * mendeleeve formatting
- * pubchem formatting
  * pubchem translation to chempy and ionize
  * user commands for inserting and recalling compositions
 
