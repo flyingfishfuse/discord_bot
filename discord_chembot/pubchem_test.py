@@ -191,7 +191,6 @@ Returns True if no error
         # no error!
         if self.rest_request.status_code == 200:
             return True
-
 ###############################################################################
 class Pubchem_lookup():
     '''
