@@ -263,12 +263,13 @@ Example 3 : .pubchem_lookup 113-00-8 cas
             if self.internal_lookup_bool == False:
                 yellow_bold_print("[!] This absolutley should not be happening")
             elif self.internal_lookup_bool == True:
-                temp_array.append(self.local_output_container.get("internal_lookup"))
+                #temp_array.append(self.local_output_container.get("internal_lookup"))
+                temp_array.append(self.lookup_description)
                 temp_array.append(self.local_output_container.get("description"))
         elif "lookup_object" in self.local_output_container:
             temp_array.append(self.local_output_container.get("lookup_object"))
             temp_array.append(self.local_output_container.get("description"))
-            blueprint("Temp_array contents:" + str(temp_array))
+            #blueprint("Temp_array contents:" + str(temp_array))
         else:
             redprint("[-] Failure in reply_to_query if/elif/else")
         
@@ -277,8 +278,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         self.local_output_container.clear()
         lookup_output_container.append(temp_array)
         redprint("=============================================")
-        greenprint("[+] Sending the following reply via global output container")
-        blueprint(str(lookup_output_container))
+        greenprint("[+] Sending the following reply via Local output container")
+        blueprint(str(self.local_output_container))
         redprint("=============================================")
         # clean up just in case
         #self.local_output_container.clear()
@@ -342,12 +343,14 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
 
                 self.local_output_container["lookup_object"] = self.lookup_object
-            
+                self.local_output_container['lookup_description'] = self.lookup_description
             # we return the internal lookup if the entry is already in the DB
             # for some reason, asking if it's true doesn't work here so we use a NOT instead of an Equals.
             elif internal_lookup != None or False:
                 greenprint("[+] Internal Lookup returned TRUE")
                 self.local_output_container["internal_lookup"] = internal_lookup
+                self.local_output_container['lookup_description'] = self.lookup_description
+                self.image = self.local_output_container.get('image')
                 #redprint("==BEGINNING==return query for DB lookup===========")
                 #greenprint(str(internal_lookup))
                 #redprint("=====END=====return query for DB lookup===========")
