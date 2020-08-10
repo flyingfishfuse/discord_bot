@@ -151,17 +151,19 @@ async def pubchem_lookup(ctx, arg1, arg2):
 
     ###########################################################################
     # How to set a local file image source:
-    image_filename = new_lookup.local_output_container.get('image_path')
-    image_folder_path = os.path.dirname(os.path.abspath(__file__)) + "\images"
-    image_file_path = image_folder_path + image_filename
+
     if SAVE_BASE64 == False:
     # embed = discord.Embed(title="Title", description="Desc", color=0x00ff00) #creates embed
+        image_filename = new_lookup.local_output_container.get('image_path')
+        image_folder_path = os.path.dirname(os.path.abspath(__file__)) + "\images"
+        image_file_path = image_folder_path + image_filename
         file = discord.File(image_file_path, filename="image.png")
         pubchem_embed.set_image(url="attachment://image.png")
         await ctx.send(file=file, embed=pubchem_embed)
     elif SAVE_BASE64 == True:
-        pubchem_embed.set_image(url='data:image/png;base64,{}'.format(new_lookup.image_storage))    
-        await ctx.send(content="lol", embed=pubchem_embed)
+        #pubchem_embed.set_image(url='data:image/png;base64,{}'.format(new_lookup.image_storage))    
+        pubchem_embed.set_image(url='data:image/png;base64')
+        await ctx.send(content=new_lookup.image, embed=pubchem_embed)
 
 @lookup_bot.command()
 async def balance_equation(ctx, arg1):
@@ -174,12 +176,13 @@ greenprint("[+] Loaded Discord commands")
 ################################################################################
 # AND NOW WE RUN THE BOT!!! YAY!!! I HAVE MORE DEBUGGING TO DO!!########
 from variables_for_reality import TESTING
+from variables_for_reality import SAVE_BASE64
+
 if TESTING == True:
     lookup_bot.run(discord_key.discord_bot_token, bot=True)
 else:
     try:
         if __name__ == '__main__':
-            global STORE_BASE64
             SAVE_BASE64 = True
             lookup_bot.run(discord_key.discord_bot_token, bot=True)
         else:

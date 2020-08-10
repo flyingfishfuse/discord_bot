@@ -54,7 +54,7 @@ from variables_for_reality import greenprint,redprint,blueprint,makered
 from database_setup import Database_functions,Compound,Composition,TESTING
 from variables_for_reality import lookup_input_container, lookup_output_container
 
-from variables_for_reality import STORE_BASE64
+from variables_for_reality import SAVE_BASE64
 
 __author__ = 'Adam Galindo'
 __email__ = 'null@null.com'
@@ -146,7 +146,7 @@ OUTPUT:
             self.rest_request = requests.get(self.request_url)
             # redprint("[-] Request failure at local level")
             # True means no error
-            if self.was_there_was_an_error() == True:
+            if self.was_there_was_an_error() == False:
             # request good
                 # Store image
                 self.image_storage = Image.open(BytesIO(self.rest_request.content))
@@ -159,17 +159,34 @@ OUTPUT:
                         print(blorp)
                 elif image_as_base64 == True:
                     greenprint("[+] Encoding Image as Base64")
-                    self.image_storage = base64.b64encode(self.image_storage)
+                    self.image_storage = self.encode_image_to_base64(self.image_storage)
                     print(self.image_storage)                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
             redprint("[-] Input type was wrong for Image Search")
             return None
+ # stack overflow post
+ # https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
+    def encode_image_to_base64(self, image, image_format = "png"):
+        '''
+stack overflow post
+    https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
 
+        '''
+        buff = BytesIO()
+        image.save(buff, format=image_format)
+        img_str = base64.b64encode(buff.getvalue())
+        return img_str
+
+    # Convert Base64 to Image
+    def decode_image_from_base64(self, data):
+        buff = BytesIO(base64.b64decode(data))
+        return Image.open(buff)
+    
     def was_there_was_an_error(self):
         '''
-Returns True if no error
+Returns False if no error
         '''
         # server side error]
         set1 = [404,504,503,500]
@@ -178,19 +195,19 @@ Returns True if no error
         if self.rest_request.status_code in set1 :
             blueprint("[-] Server side error - No Image Available in REST response")
             yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
-            return False # "[-] Server side error - No Image Available in REST response"
+            return True # "[-] Server side error - No Image Available in REST response"
         if self.rest_request.status_code in set2:
             redprint("[-] User error in Image Request")
             yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
-            return False # "[-] User error in Image Request"
+            return True # "[-] User error in Image Request"
         if self.rest_request.status_code in set3:
             #unknown error
             blueprint("[-] Unknown Server Error - No Image Available in REST response")
             yellow_bold_print("Error Code {}".format(self.rest_request.status_code))
-            return False # "[-] Unknown Server Error - No Image Available in REST response"
+            return True # "[-] Unknown Server Error - No Image Available in REST response"
         # no error!
         if self.rest_request.status_code == 200:
-            return True
+            return False
 ###############################################################################
 class Pubchem_lookup():
     '''
@@ -202,6 +219,8 @@ OUTPUTS:
         - Attemps local SQLAlchemy object first
     self.local_output_container
         - The Human Readable Representation of the Data
+    self.image
+        -   image data
 
 NOTE: to grab a description requires a seperate REST request.
     '''
@@ -299,12 +318,12 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     print(derp)
                     self.lookup_description = "Description Lookup Failed"
                 try:
-                    if (STORE_BASE64 == True) :
+                    if (SAVE_BASE64 == True) :
                         image_lookup            = Image_lookup(user_input               ,\
                                                                image_as_base64=True     ,\
                                                                input_type=type_of_input ,\
                                                                temp_file=user_input      )
-                    elif (STORE_BASE64 == False):
+                    elif (SAVE_BASE64 == False):
                         image_lookup            = Image_lookup(user_input               ,\
                                                                image_as_base64=False    ,\
                                                                input_type=type_of_input ,\
