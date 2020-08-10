@@ -23,7 +23,7 @@ including a formatted list of properties for that solution
  https://www.gnu.org/licenses/gpl-3.0.en.html                                
 
 Functional:
-
+ * Image grabbing, saving as file, encoding to base64
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
  * pubchem lookups, including description
  * user input validation for pubchem lookup
@@ -31,7 +31,7 @@ Functional:
  * simple chemical equation balancer
  
 Working on: 
-
+ * Image saving to database
  * equation balancer output formatting
  * Flask Routes and templates for the arbitrary I/O
  * RLC, LC, NPN transistor, capacitor, resistor, inductor Objects with input/output for calculations
