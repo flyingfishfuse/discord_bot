@@ -101,7 +101,6 @@ class pubchemREST_Description_Request():
             blueprint("[-] No Description Available in XML REST response")
             self.parsed_result   = "No Description Available in XML REST response"
 ###############################################################################
-
 class Image_lookup():
     '''
 Performs a pubchem or chemspider image lookup
@@ -125,53 +124,42 @@ OUTPUT:
         or a file object opened in binary mode
 
     '''
-    def __init__(self, record_to_request: str ,input_type = "name" , image_as_base64 = True, temp_file = "image"):
+    def __init__(self, record_to_request: str , image_as_base64 : bool , input_type = "name" , temp_file = "image"):
         #############################
-        #if its running as the discord app or was implicitly called with it set to true
         # greenprint("[+] Running as Discord Attachment")
         # greenprint("[+] Not running as Discord Attachment")
         #print(str(os.environ['DISCORDAPP']))
-        if image_as_base64 == True:
-            self.base64_save = True
-            greenprint("[+] Encoding Image as Base64")
-        # running standalone
-        elif image_as_base64 == False :
-            self.base64_save = False
+        if image_as_base64 == False :
             self.filename    = temp_file + ".png"
             greenprint("[+] Saving image as {}".format(self.filename))
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
             if input_type  == "iupac_name":
-                self.thing_type = "name"
-            
+                self.input_type = "name"
             else :
-                self.thing_type = input_type
-                self.record_to_request  = record_to_request
-                self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
-                                            API_BASE_URL,self.thing_type,self.record_to_request))
+                self.input_type = input_type
+            self.request_url        = requote_uri("{}/compound/{}/{}/PNG".format(\
+                                            API_BASE_URL,input_type,record_to_request))
             blueprint("[+] Requesting: " + makered(self.request_url))
-            try:
-                self.rest_request = requests.get(self.request_url)
-            except :
-                redprint("[-] Request failure at local level")
-            #check for errors, haha its backwards
+            self.rest_request = requests.get(self.request_url)
+            # redprint("[-] Request failure at local level")
+            # check for errors, haha its backwards
             # True means no error
             if self.was_there_was_an_error() == True:
             # request good
-                if self.base64_save == False :
+                # Store image
+                self.image_storage = Image.open(BytesIO(r.content)).load()
+                if image_as_base64 == False :
                     try:
-                        #write temp image to file
-                        with open(self.filename, "wb") as temp_file:
-                            temp_file.decode_content = True
-                            shutil.copyfileobj(self.rest_request.raw, temp_file)
-                        # open file in read only for the fileobject
-                        self.image_storage = open(temp_file, "rb")
+                        self.image_storage.save(record_to_request)
                     except:
                         redprint("[-] Exception when opening or writing image temp file")
-                elif self.base64_save == True:
-                    print(self.rest_request.content)
-                    self.image_storage = base64.b64encode(self.rest_request.content)
+                elif image_as_base64 == True:
+                    print(self.rest_request.raw)
+                    greenprint("[+] Encoding Image as Base64")
+                    self.image_storage = base64.b64encode(self.image_storage)
+                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
