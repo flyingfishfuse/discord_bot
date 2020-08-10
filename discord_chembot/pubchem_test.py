@@ -160,7 +160,6 @@ OUTPUT:
                 elif image_as_base64 == True:
                     greenprint("[+] Encoding Image as Base64")
                     self.image_storage = self.encode_image_to_base64(self.image_storage)
-                    print(self.image_storage)                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
@@ -336,7 +335,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 if image_lookup == None:
                     self.image              = "No Image Available"
                 else:
-                    self.image              = image_lookup.image_storage
+                    print(str(image_lookup.image_storage))
+                    self.image              = str(image_lookup.image_storage)
                 #this is used inside the next line
                 self.lookup_description     = description_lookup.parsed_result
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)

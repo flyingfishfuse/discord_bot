@@ -213,7 +213,8 @@ class Database_functions():
             # SQL-Alchemy interprets that as the record to lookup
             # it DOES NOT evaluate the contents of a variable
             # do not forget that! It uses the name as is! The contents do not matter!
-        except Exception:
+        except Exception as derp:
+            print(derp)
             redprint("[-] Failure in Compound_by_id")
             redprint(str(Exception.__cause__))
             return False
@@ -234,7 +235,8 @@ class Database_functions():
                 lookup_result  = Compound.query.filter_by(**kwargs ).first()
                 #lookup_result  = database.Compound.query.filter_by(id_of_record = entity).first()
             return lookup_result
-        except Exception:
+        except Exception as derp:
+            print(derp)
             redprint("[-] Not in local database")
             # None if empty
             return None
@@ -253,9 +255,10 @@ class Database_functions():
             database.session.add(thingie)
             database.session.commit
             redprint("=========Database Commit=======")
-            blueprint(thingie)
+            print(thingie)
             redprint("=========Database Commit=======")
-        except Exception:
+        except Exception as derp:
+            print(derp)
             redprint("[-] add_to_db() FAILED")
             print(str(Exception.__cause__))
     ################################################################################
@@ -266,7 +269,8 @@ class Database_functions():
         """
         try:
             database.session.commit()
-        except Exception:
+        except Exception as derp:
+            print(derp)
             redprint("[-] Update_db FAILED")
 
     ###############################################################################
