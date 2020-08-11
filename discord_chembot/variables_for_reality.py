@@ -108,8 +108,10 @@ search_validate      = lambda search: search in pubchem_search_types
 API_BASE_URL         = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
 
 global SAVE_BASE64
-SAVE_BASE64         = True
-
+#SAVE_BASE64         = True
+SAVE_BASE64         = False
+global DISPLAY_FROM_BASE64
+DISPLAY_FROM_BASE64 = False
 #move to your whatever.py discord module
 discord_color = 0x3b12ef
 #deprecated but VERY useful

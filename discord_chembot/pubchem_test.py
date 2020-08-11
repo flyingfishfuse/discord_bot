@@ -128,9 +128,6 @@ OUTPUT:
     '''
     def __init__(self, record_to_request: str , image_as_base64 : bool , input_type = "name" , temp_file = "image"):
         #############################
-        # greenprint("[+] Running as Discord Attachment")
-        # greenprint("[+] Not running as Discord Attachment")
-        #print(str(os.environ['DISCORDAPP']))
         if image_as_base64 == False :
             self.filename    = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
@@ -144,8 +141,6 @@ OUTPUT:
                                             API_BASE_URL,self.input_type,record_to_request))
             blueprint("[+] Requesting: " + makered(self.request_url))
             self.rest_request = requests.get(self.request_url)
-            # redprint("[-] Request failure at local level")
-            # True means no error
             if self.was_there_was_an_error() == False:
             # request good
                 # Store image
@@ -153,10 +148,10 @@ OUTPUT:
                 if image_as_base64 == False :
                     try:
                         greenprint("[+] Saving image as {}".format(self.filename))
-                        self.image_storage.save(self.filename, format = "png")
-                    except Exception as blorp:
+                        self.image_storage.save(self.filename, format = "png")                       
+                    except Exception as derp:
                         redprint("[-] Exception when opening or writing image file")
-                        print(blorp)
+                        print(derp)
                 elif image_as_base64 == True:
                     greenprint("[+] Encoding Image as Base64")
                     self.image_storage = self.encode_image_to_base64(self.image_storage)
@@ -165,6 +160,7 @@ OUTPUT:
         else:
             redprint("[-] Input type was wrong for Image Search")
             return None
+    
  # stack overflow post
  # https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
     def encode_image_to_base64(self, image, image_format = "png"):
@@ -183,6 +179,24 @@ stack overflow post
         buff = BytesIO(base64.b64decode(data))
         return Image.open(buff)
     
+    def save_image(self, PIL_image, name, image_format):
+        '''
+    Saves image
+        '''
+        greenprint("[+] Saving image as {}".format(name))
+        PIL_image.save(self.filename, format=image_format)
+
+    def decode_and_save(self, base64_image, name, image_format):
+        '''
+Decodes a base64 string to an image and saves that
+This helps display images in discord because they suck
+and dont allow base64 as a uri anymore
+        '''
+        greenprint("[+] Decoding and Saving image as {}".format(name))
+        decoded_image = self.decode_image_from_base64(base64_image) 
+        decoded_image.save(name, format=image_format)
+
+
     def was_there_was_an_error(self):
         '''
 Returns False if no error
@@ -262,10 +276,10 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         temp_array.append(self.lookup_object)
         temp_array.append(self.lookup_description)
         lookup_output_container.append(temp_array)
-        redprint("=============================================")
-        greenprint("[+] Sending the following reply via Local output container")
-        blueprint(str(lookup_output_container))
-        redprint("=============================================")
+        #redprint("=============================================")
+        #greenprint("[+] Sending the following reply via Local output container")
+        #blueprint(str(lookup_output_container))
+        #redprint("=============================================")
         # clean up just in case
         #self.local_output_container.clear()
 
@@ -288,7 +302,8 @@ Example 3 : .pubchem_lookup 113-00-8 cas
         '''
         after validation, the user input is used in 
         Pubchem_lookup.pubchem_lookup_by_name_or_CID() 
-
+        pubchemREST_Description_Request(user_input, type_of_input)
+        Image_lookup()
         '''
         try:
             internal_lookup = Database_functions.internal_local_database_lookup(user_input, type_of_input)
@@ -306,26 +321,27 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                     self.lookup_description = "Description Lookup Failed"
                 #then image
                 try:
-                    if (SAVE_BASE64 == True) :
-                        image_lookup            = Image_lookup(user_input               ,\
-                                                               image_as_base64=True     ,\
-                                                               input_type=type_of_input ,\
-                                                               temp_file=user_input      )
-                    elif (SAVE_BASE64 == False):
-                        image_lookup            = Image_lookup(user_input               ,\
-                                                               image_as_base64=False    ,\
-                                                               input_type=type_of_input ,\
-                                                               temp_file=user_input      )
-
+                    #if (SAVE_BASE64 == True) :
+                    image_lookup            = Image_lookup(user_input               ,\
+                                                            image_as_base64 = True     ,\
+                                                            input_type      = type_of_input ,\
+                                                            temp_file       = user_input      )
                 except Exception as derp:
                     redprint("[-] Image Lookup Failed")
                     print(derp)    
                     image_lookup = None
+            # no image
                 if image_lookup == None:
                     self.image              = "No Image Available"
-                else:
+            # image as base64
+                elif (image_lookup!= None) and (DISPLAY_FROM_BASE64 == True):
                     self.image              = str(image_lookup.image_storage)
-                    print(self.image)
+            # image as file    
+                elif (image_lookup!= None) and (DISPLAY_FROM_BASE64 == False):
+                    self.image              = image_lookup.image_storage
+                    self.image_filename     = image_lookup.filename
+                else:
+                    redprint("[-] Something wierd happened in do_lookup")
                 # Now pubchem
                 self.lookup_description     = description_lookup.parsed_result
                 self.lookup_object          = self.pubchem_lookup_by_name_or_CID(user_input, type_of_input)
@@ -341,9 +357,9 @@ Example 3 : .pubchem_lookup 113-00-8 cas
                 #greenprint(str(internal_lookup))
                 #redprint("=====END=====return query for DB lookup===========")
         # its in dire need of proper exception handling              
-        except Exception:
+        except Exception as derp:
             redprint('[-] Something happened in the try/except block for the function do_lookup')
-
+            print(derp)
 
     def validate_user_input(self, user_input: str, type_of_input:str):
         """
@@ -372,8 +388,9 @@ Ater validation, the user input is used in :
                     self.do_lookup(user_input, type_of_input)
                 else:
                     redprint("[-] Something really wierd happened inside the validation flow")
-            except Exception:
+            except Exception as derp:
                 redprint("[-] reached the exception ")
+                print(derp)
         else:
             self.user_input_was_wrong("input_type" , type_of_input)  
 
@@ -427,16 +444,11 @@ Ater validation, the user input is used in :
                             'description' : self.lookup_description   ,\
                             'image'       : self.image                }]
                     return_relationships.append(query_appendix)
-                    ####################################################
                     # Right here we need to find a way to store multiple records
                     # and determine the best record to store as the main entry
-                    ####################################################
-                    #Database_functions.compound_to_database() TAKES A LIST
-                    # first element of first element
+                    #compound_to_database() TAKES A LIST!!! First element of first element
                     #[ [this thing here] , [not this one] ]
-                    redprint("=========RETURN RELATIONSHIPS=======multiple")
-                    print(return_relationships[return_index])
-                    redprint("=========RETURN RELATIONSHIPS=======multiple")
+                    #print(return_relationships[return_index])
                     Database_functions.compound_to_database(return_relationships[return_index])
             
             # if there was only one result or the user supplied a CID for a single chemical
@@ -454,9 +466,7 @@ Ater validation, the user input is used in :
                             'description' : self.lookup_description            ,\
                             'image'       : self.image                         }]
                 return_relationships.append(query_appendix)
-                redprint("=========RETURN RELATIONSHIPS=======")
-                print(query_appendix)
-                redprint("=========RETURN RELATIONSHIPS=======")
+                #print(query_appendix)
                 Database_functions.compound_to_database(return_relationships[return_index])
             else:
                 redprint("PUBCHEM LOOKUP BY CID : ELSE AT THE END")
