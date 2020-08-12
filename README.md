@@ -16,6 +16,7 @@
 I am trying to make it so people new to chemistry can do something like the following:
 
 ammonium perchlorate + pure_water <==> (expected output but with names instead of formulae) 
+Or something just as easy but with electrodes and a solution.
 
 including a formatted list of properties for that solution
 
@@ -31,11 +32,10 @@ Functional:
  * simple chemical equation balancer
  
 Working on: 
+ * surface simulation with numpy
  * Image saving to database
  * equation balancer output formatting
- * Flask Routes and templates for the arbitrary I/O
  * RLC, LC, NPN transistor, capacitor, resistor, inductor Objects with input/output for calculations
- * mendeleeve formatting
  * pubchem translation to chempy and ionize
  * user commands for inserting and recalling compositions
 
