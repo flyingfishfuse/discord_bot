@@ -105,6 +105,7 @@ class pubchemREST_Description_Request():
 ###############################################################################
 class Image_lookup():
     '''
+    https://stackoverflow.com/questions/7877282/how-to-send-image-generated-by-pil-to-browser
 Performs a pubchem or chemspider image lookup
     Image name is saved as:
         filename = temp_file + ".png"
@@ -433,16 +434,25 @@ Ater validation, the user input is used in :
             if isinstance(lookup_results, list):# and len(lookup_results) > 1 :
                 greenprint("[+] Multiple results returned ")
                 for each in lookup_results:
-                    query_appendix = [{'cid' : each.cid                 ,\
-                            #dis bitch dont have a CAS NUMBER!
-                            #'cas'       : each.cas                   ,\
-                            'smiles'     : each.isomeric_smiles       ,\
-                            'formula'    : each.molecular_formula     ,\
-                            'molweight'  : each.molecular_weight      ,\
-                            'charge'     : each.charge                ,\
-                            'iupac_name' : each.iupac_name            ,\
-                            'description' : self.lookup_description   ,\
-                            'image'       : self.image                }]
+                    query_appendix = [{'cid' : each.cid                                 ,\
+                            #'cas'                     : each.cas                       ,\
+                            'smiles'                   : each.isomeric_smiles           ,\
+                            'formula'                  : each.molecular_formula         ,\
+                            'molweight'                : each.molecular_weight          ,\
+                            'charge'                   : each.charge                    ,\
+                            'bond_stereo_count'        : each.bond_stereo_count         ,\
+                            'bonds'                    : each.bonds                     ,\
+                            'rotatable_bond_count'     : each.rotatable_bond_count      ,\
+                            'multipoles_3d'            : each.multipoles_3d             ,\
+                            'mmff94_energy_3d'         : each.mmff94_energy_3d          ,\
+                            'mmff94_partial_charges_3d': each.mmff94_partial_charges_3d ,\
+                            'atom_stereo_count'        : each.atom_stereo_count         ,\
+                            'h_bond_acceptor_count'    : each.h_bond_acceptor_count     ,\
+                            'feature_selfoverlap_3d'   : each.feature_selfoverlap_3d    ,\
+                            'cactvs_fingerprint'       : each.cactvs_fingerprint        ,\
+                            'iupac_name'               : each.iupac_name                ,\
+                            'description'              : self.lookup_description        ,\
+                            'image'                    : self.image                     }]
                     return_relationships.append(query_appendix)
                     # Right here we need to find a way to store multiple records
                     # and determine the best record to store as the main entry
@@ -455,16 +465,28 @@ Ater validation, the user input is used in :
             elif isinstance(lookup_results, pubchem.Compound) :#\
               #or (len(lookup_results) == 1 and isinstance(lookup_results, list)) :
                 greenprint("[+] One Result Returned!")
-                query_appendix = [{'cid'  : lookup_results.cid                 ,\
-                            #'cas'        : lookup_results.cas                 ,\
-                            'smiles'      : lookup_results.isomeric_smiles     ,\
-                            'formula'     : lookup_results.molecular_formula   ,\
-                            'molweight'   : lookup_results.molecular_weight    ,\
-                            'charge'      : lookup_results.charge              ,\
-                            'iupac_name'  : lookup_results.iupac_name          ,\
+                query_appendix = [{'cid'               : lookup_results.cid                 ,\
+                            #'cas'                     : lookup_results.cas                 ,\
+                            'smiles'                   : lookup_results.isomeric_smiles     ,\
+                            'formula'                  : lookup_results.molecular_formula   ,\
+                            'molweight'                : lookup_results.molecular_weight    ,\
+                            'charge'                   : lookup_results.charge              ,\
+                            'bond_stereo_count'        : each.bond_stereo_count             ,\
+                            'bonds'                    : each.bonds                         ,\
+                            'rotatable_bond_count'     : each.rotatable_bond_count          ,\
+                            'multipoles_3d'            : each.multipoles_3d                 ,\
+                            'mmff94_energy_3d'         : each.mmff94_energy_3d              ,\
+                            'mmff94_partial_charges_3d': each.mmff94_partial_charges_3d     ,\
+                            'atom_stereo_count'        : each.atom_stereo_count             ,\
+                            'h_bond_acceptor_count'    : each.h_bond_acceptor_count         ,\
+                            'feature_selfoverlap_3d'   : each.feature_selfoverlap_3d        ,\
+                            'cactvs_fingerprint'       : each.cactvs_fingerprint            ,\
+                            'iupac_name'               : each.iupac_name                    ,\
+                            'description'              : self.lookup_description            ,\
+                            'iupac_name'  : lookup_results.iupac_name                       ,\
                             # Local stuff
-                            'description' : self.lookup_description            ,\
-                            'image'       : self.image                         }]
+                            'description' : self.lookup_description                         ,\
+                            'image'       : self.image                                      }]
                 return_relationships.append(query_appendix)
                 #print(query_appendix)
                 Database_functions.compound_to_database(return_relationships[return_index])

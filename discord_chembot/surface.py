@@ -57,7 +57,10 @@ from variables_for_reality import greenprint,redprint,blueprint,makered
 
 class Molecule(Compound):
     def __init__(self):
-        pass
+        self.xyz_loc    = (1,1,1)
+        self.x_location = self.xyz_loc[0]
+        self.y_location = self.xyz_loc[1]
+        self.z_location = self.xyz_loc[2]
 
 
 class Surface():
@@ -108,13 +111,17 @@ class Surface():
                                              size = surface_size     ,\
                                              p    = doping_floats     )
         self.grid_container = surface_with_z
-        
+    def distance_between_points(point1, point2 ): 
+	    distance = sqrt(
+		    		pow( ( point1[1]['x_loc'] - point2[1]['x_loc'] ) , 2 ) + \
+			    	pow( ( point1[2]['y_loc'] - point2[2]['y_loc'] ) , 2 ) \
+				    )
+	    return int(distance)      
 
 try:
     if (__name__ == '__main__') and (TESTING == True):
         material = {"Pd" : 0.998 , "Co" : 0.002 }
         size_of  = (100, 100, 10)
         asdf = Surface(material, size_of)
-        print(asdf.grid_container)
 except Exception as derp:
     print(derp) 
