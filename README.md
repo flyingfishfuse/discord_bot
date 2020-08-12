@@ -24,6 +24,7 @@ including a formatted list of properties for that solution
  https://www.gnu.org/licenses/gpl-3.0.en.html                                
 
 Functional:
+ * surface simulation with numpy, it does the thing.
  * Image grabbing, saving as file, encoding to base64
  * mendeleev basic, physical, chemical, nuclear, historical, isotope , oxistates lookups
  * pubchem lookups, including description
@@ -32,6 +33,7 @@ Functional:
  * simple chemical equation balancer
  
 Working on: 
+ * 2-d and 3-d molecule visualization in messages
  * surface simulation with numpy
  * Image saving to database
  * equation balancer output formatting
@@ -41,7 +43,6 @@ Working on:
 
 Planned:
  * Arbitrary communication platform IO
- * 2-d and 3-d molecule visualization in messages
  * electrochemistry calculators for plating and synthesis
  * reaction calculators involving time dependant systems
  * reaction calculators involving multi-variable systems
