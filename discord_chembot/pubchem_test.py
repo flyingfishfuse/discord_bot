@@ -126,10 +126,8 @@ OUTPUT:
         or a PIL Image
 
     '''
-    def __init__(self, record_to_request: str , image_as_base64 : bool , input_type = "name" , temp_file = "image"):
+    def __init__(self, record_to_request: str , image_as_base64 = True , input_type = "name" , temp_file = "image"):
         #############################
-        if image_as_base64 == False :
-            self.filename    = temp_file + ".png"
         if search_validate(input_type) :#in pubchem_search_types:
             greenprint("searching for an image : " + record_to_request)
             # fixes local code/context to work with url/remote context
@@ -144,28 +142,29 @@ OUTPUT:
             if self.was_there_was_an_error() == False:
             # request good
                 # Store image
-                self.image_storage = Image.open(BytesIO(self.rest_request.content))
-                try:
-                    greenprint("[+] Saving image as {}".format(self.filename))
-                    self.image_storage.save(self.filename, format = "png")                       
-                
-                except Exception as derp:
-                    
-                    redprint("[-] Exception when opening or writing image file")
-                    print(derp)
+            # we want an image file
+                if image_as_base64 == False:
+                    try:
+                        self.filename    = temp_file + ".png"
+                        greenprint("[+] Saving image as {}".format(self.filename))
+                        self.image_storage = Image.open(BytesIO(self.rest_request.content))
+                        self.image_storage.save(self.filename, format = "png")                       
+                        self.image_storage.close()
+                    except Exception as derp:
+                        redprint("[-] Exception when opening or writing image file")
+                        print(derp)
+            # we want a base64 string
+                elif image_as_base64 == True :
                     self.image_storage = self.encode_image_to_base64(self.image_storage)
-                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
             redprint("[-] Input type was wrong for Image Search")
             return None
-    
- # stack overflow post
- # https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
+     
     def encode_image_to_base64(self, image, image_format = "png"):
         '''
-stack overflow post
+    stack overflow post
     https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
 
         '''

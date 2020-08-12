@@ -82,7 +82,7 @@ class Surface():
         self.substrate          = material
         self.ATOMS              = False
         self.SUBSTANCE          = True
-        self.make_grid(self.substrate)
+        self.make_grid()
 
     def make_grid(self):
         '''
@@ -114,6 +114,7 @@ try:
     if (__name__ == '__main__') and (TESTING == True):
         material = {"Pd" : 0.998 , "Co" : 0.002 }
         size_of  = (100, 100, 10)
-        Surface(material, size_of)
+        asdf = Surface(material, size_of)
+        print(asdf.grid_container)
 except Exception as derp:
     print(derp) 
