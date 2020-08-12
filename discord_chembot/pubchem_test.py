@@ -145,16 +145,16 @@ OUTPUT:
             # request good
                 # Store image
                 self.image_storage = Image.open(BytesIO(self.rest_request.content))
-                if image_as_base64 == False :
-                    try:
-                        greenprint("[+] Saving image as {}".format(self.filename))
-                        self.image_storage.save(self.filename, format = "png")                       
-                    except Exception as derp:
-                        redprint("[-] Exception when opening or writing image file")
-                        print(derp)
-                elif image_as_base64 == True:
-                    greenprint("[+] Encoding Image as Base64")
+                try:
+                    greenprint("[+] Saving image as {}".format(self.filename))
+                    self.image_storage.save(self.filename, format = "png")                       
+                
+                except Exception as derp:
+                    
+                    redprint("[-] Exception when opening or writing image file")
+                    print(derp)
                     self.image_storage = self.encode_image_to_base64(self.image_storage)
+                
                 else:
                     redprint("[-] Error with Class Variable self.base64_save")
         else:
@@ -169,6 +169,7 @@ stack overflow post
     https://stackoverflow.com/questions/52411503/convert-image-to-base64-using-python-pil   
 
         '''
+        greenprint("[+] Encoding Image as Base64")
         buff = BytesIO()
         image.save(buff, format=image_format)
         img_str = base64.b64encode(buff.getvalue())
